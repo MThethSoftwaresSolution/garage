@@ -1,0 +1,214 @@
+<ion-header>
+  <ion-toolbar color="dark">
+
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/tabs/dashboard"
+        text="Back"
+        color="light">
+      </ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Host</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleForm()">
+        <ion-icon [name]="showForm ? 'close' : 'add'" slot="start"></ion-icon>
+        {{ showForm ? 'Close' : 'Host Vehicle' }}
+      </ion-button>
+    </ion-buttons>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content style="padding: 5px;">
+
+      <!-- Host Vehicle Form -->
+    <ion-card *ngIf="showForm" style="margin-top:16px;">
+      <ion-card-header>
+        <h4 style="text-align:center;">Host / Add Vehicle</h4>
+        <!--<ion-card-title style="text-align:center;"></ion-card-title>-->
+      </ion-card-header>
+
+      <ion-card-content style="padding: 5px">
+        <form [formGroup]="form">
+  <div class="ion-padding">
+          <ion-text><h3 style="text-align:center; font-weight:700;">Location</h3></ion-text>
+
+          
+            <ion-input formControlName="Location" placeholder="Search / Enter location" fill="outline" label="Where" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-select formControlName="Province" placeholder="Select Province" fill="outline" label="Province" labelPlacement="floating">
+              <ion-select-option *ngFor="let p of provinces" [value]="p.value">{{ p.label }}</ion-select-option>
+            </ion-select>
+          
+          <br>
+
+          
+            <ion-input formControlName="StreetAddress" placeholder="Street Address" fill="outline" label="Street Address" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-input formControlName="City" placeholder="City" fill="outline" label="City" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-input formControlName="PostalCode" placeholder="Postal Code" fill="outline" label="Postal Code" labelPlacement="floating"></ion-input>
+          
+
+          <ion-item lines="none"><ion-label></ion-label></ion-item>
+
+          <ion-text><h3 style="text-align:center; font-weight:700;">Vehicle Details</h3></ion-text>
+
+          
+            <ion-input formControlName="VN" placeholder="VN" fill="outline" label="VN" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-select formControlName="Year" placeholder="Select Year" fill="outline" label="Year" labelPlacement="floating">
+              <ion-select-option *ngFor="let y of years" [value]="y.value">{{ y.label }}</ion-select-option>
+            </ion-select>
+          
+          <br>
+
+          
+            <ion-select formControlName="Make" placeholder="Select Make" fill="outline" label="Make" labelPlacement="floating" (ionChange)="searchModel($event.detail.value)">
+              <ion-select-option *ngFor="let m of makes" [value]="m.value">{{ m.label }}</ion-select-option>
+            </ion-select>
+          
+          <br>
+
+          
+            <ion-select formControlName="Model" placeholder="Select Model" fill="outline" label="Model" labelPlacement="floating">
+              <ion-select-option *ngFor="let md of models" [value]="md.value">{{ md.label }}</ion-select-option>
+            </ion-select>
+          
+          <br>
+
+          
+            <ion-select formControlName="Transmission" placeholder="Select Transmission" fill="outline" label="Transmission" labelPlacement="floating">
+              <ion-select-option *ngFor="let tr of transmissions" [value]="tr.value">{{ tr.label }}</ion-select-option>
+            </ion-select>
+          
+          <br>
+
+          
+            <ion-select formControlName="Odometer" placeholder="Select Odometer" fill="outline" label="Odometer" labelPlacement="floating">
+              <ion-select-option *ngFor="let o of odometers" [value]="o.value">{{ o.label }}</ion-select-option>
+            </ion-select>
+          
+          <br>
+
+          
+            <ion-input formControlName="NumberPlate" placeholder="Number Plate" fill="outline" label="Number Plate" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-input type="number" formControlName="MarketValue" placeholder="Rate / Day (R)" fill="outline" label="Rate / Day (R)" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-label position="stacked">Color</ion-label>
+            <ion-select formControlName="Color" placeholder="Select Color" placeholder="Select Color" fill="outline" label="Select Color" labelPlacement="floating">
+              <ion-select-option *ngFor="let c of colors" [value]="c.value">{{ c.label }}</ion-select-option>
+            </ion-select>
+          
+
+          <ion-item lines="none"><ion-label></ion-label></ion-item>
+
+          <ion-text><h3 style="text-align:center; font-weight:700;">Owner Details</h3></ion-text>
+
+          
+            <ion-input formControlName="OwnerIdNumber" fill="outline" label="Owner ID Number" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-input formControlName="OwnerName" fill="outline" label="Owner Name" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-input formControlName="OwnerSurname" placeholder="Owner Surname" fill="outline" label="Owner Surname" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-input formControlName="OwnerCellNumber" placeholder="Cell Number" fill="outline" label="Cell Number" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          
+            <ion-input type="email" formControlName="OwnerEmail" placeholder="Owner Email" fill="outline" label="Owner Email" labelPlacement="floating"></ion-input>
+          
+          <br>
+
+          <div style="margin-top: 16px;">
+            <ion-button expand="block" color="dark" (click)="listCar()" [disabled]="loading">
+              <ion-spinner *ngIf="loading" name="crescent" style="margin-right:10px;"></ion-spinner>
+              {{ loading ? 'Saving...' : 'Submit Vehicle' }}
+            </ion-button>
+          </div>
+</div>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+  <ion-refresher slot="fixed" (ionRefresh)="loadHostedCars($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div style="padding: 5px;">
+
+    <!-- Hosted Vehicles -->
+    <ion-text>
+      <h5 style="text-align:center; font-weight:700;">Your Hosted Vehicles</h5>
+    </ion-text>
+
+    <ion-card *ngIf="loadingList">
+      <ion-card-content style="text-align:center;">
+        <ion-spinner name="crescent"></ion-spinner>
+        <div style="margin-top:10px;">Loading...</div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="!loadingList && vehicleHost.length === 0">
+      <ion-card-content>
+        You have no hosted vehicles yet. Tap <b>Host Vehicle</b> to add one.
+      </ion-card-content>
+    </ion-card>
+
+    <ion-list *ngIf="!loadingList && vehicleHost.length > 0">
+      <ion-item *ngFor="let t of vehicleHost">
+      <ion-thumbnail slot="start">
+        <ion-img
+          [src]="t.coverImage || './../../../assets/place-holder.png'"
+          (ionError)="t.coverImage = null">
+        </ion-img>
+      </ion-thumbnail>
+
+        <ion-label>
+          <h2 style="font-weight:700;">{{ t.numberPlate }} | <ion-badge slot="end" [color]="statusColor(t)">{{ statusText(t) }}</ion-badge></h2>
+          <p>{{ t.make }} • {{ t.model }} • {{ t.year }}</p>
+          <p>Transmission: {{ t.transmission }} | Odometer: {{ t.odometer }}</p>
+          <p>Rate: R{{ t.rate }} / day | Photos: {{ t.imagesCount }}</p>
+        </ion-label>
+
+        
+
+        <ion-button slot="end" fill="clear" (click)="openImages(t)">
+          <ion-icon name="images-outline"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-list>
+
+  </div>
+</ion-content>

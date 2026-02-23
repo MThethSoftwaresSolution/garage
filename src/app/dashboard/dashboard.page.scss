@@ -1,0 +1,310 @@
+ 
+.logo{
+height: 110px;
+}
+#bg {
+    height: 15%;
+    background: var(--ion-color-dark) url('./../../assets/banner.png') no-repeat center center/cover;
+    border-radius: 0 0 25% 25%;
+    position: relative;
+}
+
+/* Floating menu button on top-left of banner */
+.floating-menu {
+    position: absolute;
+    top: 10px;    /* distance from top of the banner */
+    left: 10px;   /* distance from left edge */
+    z-index: 1000; /* ensure it appears above the banner */
+    --color: white; /* icon color */
+}
+
+.membership-card {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #1d1c1c, #111010);
+  color: #fff;
+  border-radius: 12px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* HEADER */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.org-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.org-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+}
+
+.org-info h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.org-info small {
+  color: #bbb;
+}
+
+.badge {
+  background: #c98b1f;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* BODY */
+.card-body {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.left,
+.middle,
+.right {
+  flex: 1;
+}
+
+.profile-img {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.middle h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.valid {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.qr-img {
+  width: 90px;
+  height: 90px;
+}
+
+/* FOOTER */
+.card-footer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.info {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.info mat-icon {
+  font-size: 20px;
+  color: #c98b1f;
+}
+
+.info label {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.info span {
+  font-size: 13px;
+}
+
+.membership-scale-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .membership-scale-wrapper {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 480px) {
+  .membership-scale-wrapper {
+    transform: scale(0.75);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 360px) {
+  .membership-scale-wrapper {
+    transform: scale(0.68);
+    transform-origin: top center;
+  }
+}
+
+.share-capture {
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  width: 360px;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 16px;
+  font-family: Arial, sans-serif;
+  box-shadow: 0 2px 16px rgba(0,0,0,.12);
+}
+
+.share-header .org-info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.org-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.share-body {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  align-items: flex-start;
+}
+
+.profile-img {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.middle {
+  flex: 1;
+}
+
+.right .qr-fallback {
+  width: 90px;
+  height: 90px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 10px;
+  padding: 6px;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.info {
+  margin: 6px 0;
+  font-size: 12px;
+}
+
+.signature-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.signature-img {
+  height: 40px;
+  background: #fff;
+  object-fit: contain;
+}
+
+
+.garage-bg {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 18px;
+  --background: linear-gradient(180deg, rgba(0,0,0,0.03), rgba(0,0,0,0));
+}
+
+.big-card {
+  border-radius: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.big-card:active {
+  transform: scale(0.98);
+}
+
+.big-card ion-card-content {
+  padding: 20px;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #2dd36f, #20c997);
+  color: #fff;
+}
+
+.icon-box.alt {
+  background: linear-gradient(135deg, #5260ff, #3dc2ff);
+}
+
+.icon-box ion-icon {
+  font-size: 28px;
+}
+
+.arrow {
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+.big-card h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+
+.big-card p {
+  margin: 0 0 14px;
+  font-size: 14px;
+  opacity: 0.75;
+  line-height: 1.4;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.host-card {
+  background: linear-gradient(135deg, rgba(45, 211, 111, 0.12), rgba(255, 255, 255, 0.9));
+}
+
+.browse-card {
+  background: linear-gradient(135deg, rgba(82, 96, 255, 0.12), rgba(255, 255, 255, 0.9));
+}

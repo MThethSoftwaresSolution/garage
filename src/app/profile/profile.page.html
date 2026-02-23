@@ -1,0 +1,55 @@
+<ion-content>
+  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
+      <ion-button
+    fill="clear"
+    class="white-menu-btn floating-back"
+    (click)="goBack()"
+  >
+    BACK
+  </ion-button>
+  <div id="bg">
+
+
+  </div>
+  <h5 style="text-align: center; font-weight: bold;">Profile</h5>
+<br>
+<div>
+      <form [formGroup]="profileUpdateFormGroup">
+      <div class="ion-padding">
+      <ion-input formControlName="firstName" fill="outline" label="First Name:" labelPlacement="floating"></ion-input>
+      <br>
+      <ion-input formControlName="lastName" fill="outline" label="Last Name:" labelPlacement="floating"></ion-input>
+      <br>
+      <ion-input formControlName="phoneNumber" fill="outline" label="Phone Number:" labelPlacement="floating"></ion-input>
+      <br>
+      <ion-input formControlName="email" fill="outline" label="Email:" labelPlacement="floating" readonly="true"></ion-input>
+      
+      <br>
+      <ion-checkbox (click)="changePassword()">Change Password?</ion-checkbox>
+      <p *ngIf="isPasswordUpdate" style="padding: 20px;">
+       <small>Enter Password and Confirm Password, if you would like to change your password!</small>
+      </p>
+
+      <ion-input formControlName="password" fill="outline" label="Password:" labelPlacement="floating" *ngIf="isPasswordUpdate">
+        <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistration?.value"></ion-input-password-toggle>
+      </ion-input>
+<br>
+      <ion-input formControlName="confirmPassword" fill="outline" label="Confirm Password:" labelPlacement="floating" *ngIf="isPasswordUpdate">
+        <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistrationConfirm?.value"></ion-input-password-toggle>
+      </ion-input>
+<p *ngIf="
+    profileUpdateFormGroup.hasError('passwordMismatch') &&
+    profileUpdateFormGroup.get('confirmPassword')?.dirty
+  "
+style="color: red;">
+  Passwords do not match
+      </p>
+      <br>
+      <br>
+      <ion-button class="login-button" [disabled]="!profileUpdateFormGroup.valid" (click)="update()" expand="block">
+        <ion-spinner color="dark" *ngIf="registerLoading"></ion-spinner> UPDATE</ion-button>
+    </div>
+    </form>
+</div>
+
+</ion-content>

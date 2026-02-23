@@ -1,0 +1,124 @@
+
+.logo{
+    display: block;
+    width: 150px;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+.logo-name{
+    font-size: 22px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-top: 15px;
+    color: black;
+}
+.logo-text{
+    font-size: 12px;
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 20px;
+    color: black;
+}
+.forget-text{
+    a{
+        text-decoration: none;
+        color: black;
+    }
+    text-align: end;
+    margin-bottom: -10px;
+    padding-right: 20px;
+}
+.login-button{
+  --padding-start: 20px;
+  --padding-end: 20px;
+  height: 50px;
+
+  --border-radius: 12px;
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: black;
+
+  --box-shadow: none;
+  margin-top: 20px;
+}
+.register-button {
+  --padding-start: 20px;
+  --padding-end: 20px;
+  height: 50px;
+
+  --border-radius: 12px;
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: black;
+
+  --box-shadow: none;
+  margin-top: 20px;
+}
+.google-button{
+    padding-left: 20px;
+    padding-right: 20px;
+    height: 50px;
+    --border-radius: 12px;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    --box-shadow: none;
+}
+
+.pad-button{
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.pad-text{
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.signup-text{
+    a{
+        text-decoration: none;
+        color: var(--ion-color-primary);
+    }
+    padding-right: 20px;
+    text-align: end;
+}
+.forgot-password-text{
+    a{
+        text-decoration: none;
+        color: var(--ion-color-primary);
+    }
+    padding-right: 30px;
+    text-align: end;
+}
+ion-footer {
+    display: block;
+    // position: relative;
+    -ms-flex-order: 1;
+    order: 1;
+    width: 100%;
+    z-index: 10;
+}
+.copyright{
+    text-align: center;
+}    
+.logo{
+height: 110px;
+}
+#bg {
+    height: 15%;
+    background: var(--ion-color-dark) url('../../../assets/banner.png') no-repeat center center/cover;
+    border-radius: 0 0 25% 25%;
+    position: relative;
+}
+
+/* Floating menu button on top-left of banner */
+.floating-menu {
+    position: absolute;
+    top: 10px;    /* distance from top of the banner */
+    left: 10px;   /* distance from left edge */
+    z-index: 1000; /* ensure it appears above the banner */
+    --color: white; /* icon color */
+}
+

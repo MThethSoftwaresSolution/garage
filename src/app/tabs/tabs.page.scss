@@ -1,1 +1,9 @@
 
+.compact-tabs {
+  justify-content: center;
+}
+
+.compact-tabs ion-tab-button {
+  flex: 0 0 auto;   // 🔑 stops overspreading
+  min-width: 72px;  // optional: keeps them readable
+}

@@ -1,3 +1,94 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-split-pane contentId="main-content">
+    <ion-menu contentId="main-content" type="overlay">
+      <ion-header class="ion-no-border">
+
+        <div class="bg"></div>
+  
+        <ion-item lines="none">
+          <ion-avatar slot="start">
+            <img src="./../assets/logo.png">
+          </ion-avatar>
+  
+          <ion-label color="light">
+            {{ profile.name }}
+  
+            <p>
+              <ion-text color="light">
+                {{ profile.email }}
+              </ion-text>
+            </p>
+          </ion-label>
+        </ion-item>
+  
+      </ion-header>
+      <ion-content>
+
+        @for(page of appPages; track $index) {
+          <ion-menu-toggle class="menu-items" [autoHide]="false">
+            <ion-item 
+              lines="none"
+              class="ion-padding-start ion-margin-top"
+              [ngClass]="{ 'selected': page?.active }"
+              (click)="onItemTap(page)"
+              >
+              <ion-icon 
+                slot="start"
+                [ios]="page.icon + '-outline'"
+                [md]="page.icon + '-sharp'">
+              </ion-icon>
+    
+              <ion-label>{{ page.title }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        }
+  
+      </ion-content>
+      <ion-footer>
+        <ion-row>
+
+          <ion-col>
+            <ion-button expand="block" color="primary" shape="round" (click)="logout()">LOG OUT</ion-button>
+          </ion-col>
+        </ion-row>
+
+        <p style="text-align: center;" color="lighter">Version 0.0.1</p>
+        </ion-footer>
+    </ion-menu>
+
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
 </ion-app>
+
+
+<!--<ion-app>
+  <ion-menu contentId="main-content">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Menu</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list>
+        <ion-menu-toggle auto-hide="true">
+        <ion-item routerLink="/tabs">Home</ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+        <ion-item routerLink="/tabs/workers">Workers</ion-item>
+        </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true">
+          <ion-item routerLink="/tabs/hire">Hire</ion-item>
+        </ion-menu-toggle>
+        
+        <ion-menu-toggle auto-hide="true">
+          <ion-item routerLink="/tabs/profile">Profile</ion-item>
+        </ion-menu-toggle>
+        
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+</ion-app>-->

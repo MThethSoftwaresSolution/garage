@@ -1,0 +1,65 @@
+<ion-card
+  class="upload-container"
+  [class.dragging]="dragging"
+  (dragenter)="handleDragEnter()"
+  (dragleave)="handleDragLeave()"
+  (dragover)="$event.preventDefault()"
+  (drop)="handleDrop($event)"
+>
+  <ion-card-content>
+
+    <!-- Preview -->
+    <div class="preview-wrap" *ngIf="imageSrc; else emptyState">
+      <img [src]="imageSrc" class="preview" alt="Uploaded image preview" />
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <ion-icon name="cloud-upload-outline"></ion-icon>
+        <p>Upload a profile image</p>
+        <small>You can choose from gallery/files or take a photo (Android)</small>
+      </div>
+    </ng-template>
+
+    <!-- Button 1: Upload (Gallery/Files + sometimes Camera chooser) -->
+    <ion-button expand="block" color="success">
+      <label class="file-label">
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onFileChange($event)"
+          hidden
+        />
+        <ion-icon name="image-outline" slot="start"></ion-icon>
+        {{ imageSrc ? 'Change (Gallery/Files)' : 'Upload from Gallery / Files' }}
+      </label>
+    </ion-button>
+
+    <!-- Button 2: Take Photo (Android only, camera-only) -->
+    <ion-button *ngIf="isAndroid" expand="block" color="primary">
+      <label class="file-label">
+        <input
+          type="file"
+          accept="image/*"
+          capture="environment"
+          (change)="onFileChange($event)"
+          hidden
+        />
+        <ion-icon name="camera-outline" slot="start"></ion-icon>
+        {{ imageSrc ? 'Retake Photo' : 'Take Photo' }}
+      </label>
+    </ion-button>
+
+    <!-- Remove -->
+    <ion-button
+      *ngIf="imageSrc"
+      expand="block"
+      fill="clear"
+      color="danger"
+      (click)="cancel()"
+    >
+      Remove
+    </ion-button>
+
+  </ion-card-content>
+</ion-card>

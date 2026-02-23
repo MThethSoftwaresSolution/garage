@@ -1,0 +1,52 @@
+.upload-container {
+  border-radius: 12px;
+}
+
+.upload-container.dragging {
+  outline: 2px dashed var(--ion-color-primary);
+  opacity: 0.95;
+}
+
+.file-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.preview-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.preview {
+  width: 100%;
+  max-width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 12px 8px 18px;
+}
+
+.empty-state ion-icon {
+  font-size: 44px;
+  margin-bottom: 6px;
+}
+
+.empty-state p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.empty-state small {
+  display: block;
+  opacity: 0.75;
+  margin-top: 4px;
+}

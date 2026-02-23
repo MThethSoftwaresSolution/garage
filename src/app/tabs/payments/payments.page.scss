@@ -1,0 +1,196 @@
+.payment-content {
+  --background: #f6f7fb;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  padding: 14px 12px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-btn {
+  font-weight: 600;
+}
+
+.banner-title {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin-right: 44px;
+}
+
+.banner-title h5 {
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.container {
+  padding: 14px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Vehicle preview card */
+.vehicle-card {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+.vehicle-hero {
+  height: 180px;
+  background: #e9ecf2;
+}
+
+.vehicle-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicle-title .name {
+  font-weight: 900;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.vehicle-title .dates {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Summary card */
+.summary-card {
+  margin-top: 14px;
+  border-radius: 18px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
+}
+
+.route {
+  position: relative;
+  padding-left: 6px;
+}
+
+.route-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0;
+}
+
+.marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  margin-top: 6px;
+  flex: 0 0 12px;
+}
+
+.marker.pickup {
+  background: #2dd36f;
+  box-shadow: 0 0 0 6px rgba(45, 211, 111, 0.15);
+}
+
+.marker.dropoff {
+  background: #111;
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Vertical dotted line between markers */
+.route-line {
+  margin-left: 5px; /* aligns under marker */
+  height: 22px;
+  border-left: 2px dotted rgba(0, 0, 0, 0.25);
+}
+
+.route-content .label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.route-content .value {
+  font-weight: 800;
+  font-size: 1rem;
+  margin-top: 2px;
+}
+
+.route-content .meta {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Sticky bottom bar */
+.sticky-pay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  z-index: 20;
+}
+
+.sticky-total {
+  flex: 1;
+}
+
+.sticky-total .small {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.55);
+  font-weight: 700;
+}
+
+.sticky-total .amount {
+  font-size: 1.25rem;
+  font-weight: 950;
+}
+
+.sticky-btn {
+  --border-radius: 14px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+}
+
+/* Spacer so last content isn't hidden behind sticky bar */
+.bottom-spacer {
+  height: 88px;
+}
+
+.black-btn {
+  --background: #000;
+  --background-hover: #111;
+  --background-activated: #222;
+  --background-focused: #111;
+
+  --color: #fff;
+
+  --border-radius: 14px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+/* Spinner white */
+.black-btn ion-spinner {
+  color: #fff;
+}
+
+/* Disabled state */
+.black-btn[disabled] {
+  --background: #333;
+  --color: #aaa;
+}

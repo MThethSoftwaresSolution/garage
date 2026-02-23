@@ -1,0 +1,58 @@
+<ion-content>
+  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
+  <div id="bg">
+
+
+  </div>
+    <h5 style="text-align: center; font-weight: bold;">GARAGE</h5>
+<br>
+
+<div class="garage-bg">
+  <!-- Host / Owner Card -->
+  <ion-card class="big-card host-card" button (click)="goHost()">
+    <ion-card-content>
+      <div class="card-top">
+        <div class="icon-box">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+        </div>
+        <ion-icon class="arrow" name="chevron-forward-outline"></ion-icon>
+      </div>
+
+      <h2>Proceed as Host</h2>
+      <p>
+        Manage your vehicles, bookings, earnings, and availability in one place.
+      </p>
+
+      <div class="tags">
+        <ion-chip color="success">Owner</ion-chip>
+        <ion-chip color="medium">Dashboard</ion-chip>
+        <ion-chip color="primary">Earnings</ion-chip>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Browse Vehicles Card -->
+  <ion-card class="big-card browse-card" button (click)="browseVehicles()">
+    <ion-card-content>
+      <div class="card-top">
+        <div class="icon-box alt">
+          <ion-icon name="car-sport-outline"></ion-icon>
+        </div>
+        <ion-icon class="arrow" name="chevron-forward-outline"></ion-icon>
+      </div>
+
+      <h2>Browse Vehicles</h2>
+      <p>
+        Explore available cars, SUVs, bakkies, and luxury rides near you.
+      </p>
+
+      <div class="tags">
+        <ion-chip color="tertiary">Sedans</ion-chip>
+        <ion-chip color="warning">SUV</ion-chip>
+        <ion-chip color="danger">Luxury</ion-chip>
+      </div>
+    </ion-card-content>
+  </ion-card>
+  </div>
+
+</ion-content>

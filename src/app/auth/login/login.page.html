@@ -1,0 +1,146 @@
+<ion-content [scrollEvents]="true"
+(ionScrollStart)="handleScrollStart()"
+(ionScroll)="handleScroll($any($event))"
+(ionScrollEnd)="handleScrollEnd()">
+<ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
+  <div id="bg">
+ 
+
+  </div>
+  <br>
+
+  <ion-img class="logo" src="./../../../assets/logo.png"></ion-img>
+
+  <p class="logo-name">Garage App</p>
+  <p class="logo-text">Garage is a car sharing platform that enables private car owners to share their luxury and sports cars, distinct, quirky, or classic cars with other users (drivers).</p>
+
+  <div *ngIf="screen == 'signin'">
+    <form [formGroup]="loginFormGroup">
+
+      <div class="ion-padding">
+
+        <ion-input formControlName="email" fill="outline" label="Email:" labelPlacement="floating"></ion-input>
+        <br>
+        <ion-input formControlName="password" fill="outline" label="Password:" for="password" labelPlacement="floating" type="password">
+          <ion-input-password-toggle slot="end" *ngIf="passwordControl?.value"> </ion-input-password-toggle>
+        </ion-input>
+
+        <ion-button class="login-button" [disabled]="!loginFormGroup.valid" (click)="login()" id="open-loading" expand="block"> 
+          <ion-spinner color="dark" *ngIf="isLoading"></ion-spinner> &nbsp; LOGIN
+        </ion-button>
+        <p class="forgot-password-text"><a (click)="change('forget')">Forgot Password</a></p>
+        <ion-button fill="outline" class="register-button" (click)="change('signup')" id="open-loading" expand="block">I'm a new user,&nbsp;REGISTER</ion-button>
+        <hr/>
+
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Activate page -->
+    <div *ngIf="screen == 'activate'">
+    <form [formGroup]="activateFormGroup">
+
+      <div class="ion-padding">
+
+        <ion-input formControlName="email" fill="outline" label="Email:" labelPlacement="floating"></ion-input>
+        <br>
+        <ion-input formControlName="otp" fill="outline" label="OTP:" for="otp" labelPlacement="floating" type="number">
+        </ion-input>
+
+        <ion-button class="login-button" [disabled]="!activateFormGroup.valid" (click)="verify()" id="open-loading" expand="block"> 
+          <ion-spinner color="dark" *ngIf="isLoading"></ion-spinner> &nbsp; VERIFY OTP
+        </ion-button>
+        <p class="forgot-password-text"><a (click)="resend()">Resend OTP</a></p>
+        <ion-button fill="outline" class="register-button" (click)="change('signup')" id="open-loading" expand="block">Back to,&nbsp;LOGIN</ion-button>
+        <hr/>
+
+      </div>
+
+    </form>
+  </div>
+
+   <!-- Sign up page -->
+   <div *ngIf="screen == 'signup'">
+    <form [formGroup]="registerFormGroup">
+      <div class="ion-padding">
+      <ion-input autocomplete="off" autocorrect="off" spellcheck="false" formControlName="firstName" fill="outline" label="First Name:" labelPlacement="floating"></ion-input>
+      <br>
+      <ion-input autocomplete="off" autocorrect="off" spellcheck="false" formControlName="lastName" fill="outline" label="Last Name:" labelPlacement="floating"></ion-input>
+      <br>
+      <ion-input autocomplete="off" autocorrect="off" spellcheck="false" formControlName="email" fill="outline" label="Email:" labelPlacement="floating"></ion-input>
+      
+      <br>
+      <ion-input autocomplete="off" autocorrect="off" spellcheck="false" formControlName="password" fill="outline" label="Password:" labelPlacement="floating">
+        <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistration?.value"></ion-input-password-toggle>
+      </ion-input>
+
+      <br>
+      <ion-input autocomplete="off" autocorrect="off" spellcheck="false" formControlName="confirmPassword" fill="outline" label="Confirm Password:" labelPlacement="floating">
+        <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistrationConfirm?.value"></ion-input-password-toggle>
+      </ion-input>
+
+      <p class="signup-text">Already have an account&nbsp;<a (click)="change('signin')">Log In</a></p>
+      <!--<a href="#">By clicking register, You agree to the terms and conditions. </a>
+              <ion-loading
+        [isOpen]="registerLoading"
+        message="Loading..."
+        spinner="crescent">
+      </ion-loading>-->
+      <p
+          *ngIf="
+    registerFormGroup.hasError('passwordMismatch') &&
+    registerFormGroup.get('confirmPassword')?.dirty
+  "
+style="color: red;">
+  Passwords do not match
+      </p>
+
+      <ion-button class="login-button" [disabled]="!registerFormGroup.valid" (click)="register()" expand="block">
+        <ion-spinner color="dark" *ngIf="registerLoading"></ion-spinner>  &nbsp; REGISTER</ion-button>
+    </div>
+    </form>
+  </div>
+
+  <!-- Forget password page -->
+  <div class="container"  *ngIf="screen == 'forget'">
+    <form [formGroup]="forgotPasswordFormGroup">
+      <div class="ion-padding">
+        <ion-input formControlName="email" fill="outline" label="Email:" labelPlacement="floating"></ion-input>
+
+        <p class="signup-text">Remembered Password&nbsp;<a (click)="change('signin')">Log In</a></p>
+        <ion-button class="login-button" [disabled]="!forgotPasswordFormGroup.valid" expand="block" (click)="forgotPassword()">
+          <ion-spinner color="dark" *ngIf="forgotPasswordLoading"></ion-spinner>  &nbsp;Reset Password</ion-button>
+      </div>
+    </form>
+  </div>
+
+  <!--Reset Password-->
+  <div class="container"  *ngIf="screen == 'reset-password'">
+      <form [formGroup]="passwordResetFormGroup">
+        <div class="ion-padding">
+
+           <ion-input formControlName="email" fill="outline" label="Email:" labelPlacement="floating" readonly=""></ion-input>
+           <br>
+
+        <ion-input formControlName="otp" fill="outline" label="OTP:" type="number" labelPlacement="floating"></ion-input>
+        
+        <br>
+        <ion-input formControlName="password" fill="outline" label="Password:" labelPlacement="floating">
+          <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistration?.value"></ion-input-password-toggle>
+        </ion-input>
+
+        <br>
+        <ion-input formControlName="confirmPassword" fill="outline" label="Confirm Password:" labelPlacement="floating">
+          <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistrationConfirm?.value"></ion-input-password-toggle>
+        </ion-input>
+
+        <p class="signup-text">Go to &nbsp;<a (click)="change('signin')">Log In</a></p>
+
+
+        <ion-button class="login-button" [disabled]="!passwordResetFormGroup.valid" (click)="resetPassword()" expand="block">
+          <ion-spinner color="dark" *ngIf="passwordResetLoading"></ion-spinner>  &nbsp; SAVE NEW PASSWORD</ion-button>
+      </div>
+    </form>
+</div>
+</ion-content>

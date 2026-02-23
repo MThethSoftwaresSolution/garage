@@ -1,0 +1,56 @@
+<ion-content>
+  <ion-menu-button class="white-menu-btn floating-menu">
+    <ion-icon name="apps"></ion-icon>
+  </ion-menu-button>
+
+          <ion-button
+    fill="clear"
+    class="white-menu-btn floating-back"
+    (click)="goBack()"
+  >
+    BACK
+  </ion-button>
+
+  <div id="bg"></div>
+
+  <h5 style="text-align: center; font-weight: bold;">Membership Fee OR Donations</h5>
+  <br>
+
+  <!-- FORM SECTION HELPERS -->
+  <div class="donation-section">
+
+    <form [formGroup]="form">
+      <div class="ion-padding">
+
+        <ion-input formControlName="amount" fill="outline" type="number" min="20" label="Amount (ZAR)"
+          labelPlacement="floating">
+        </ion-input>
+
+        <br>
+
+        <p style="text-align: right; margin: 0;">
+        <ion-button color="success" (click)="pay()" [disabled]="busy">
+          <ion-spinner *ngIf="busy" slot="start" color="dark">
+          </ion-spinner>
+          <ion-icon name="card-outline" slot="end"></ion-icon> Pay
+        </ion-button>
+        </p>
+
+
+      </div>
+    </form>
+
+  </div>
+
+      <!-- LINE AT BOTTOM OF DIV -->
+    <hr class="grey-line">
+
+  <br>
+
+  <ion-card>
+    <ion-card-content>
+      <h5>There are currently: 0 Donations.</h5>
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Sign Here</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <canvas #signatureCanvas style="border:1px solid #000; width:100%; height:200px;"></canvas>
+  <ion-row class="ion-justify-content-between ion-margin-top">
+    <ion-col>
+      <ion-button expand="full" color="medium" (click)="clear()">Clear</ion-button>
+    </ion-col>
+    <ion-col>
+      <ion-button expand="full" color="primary" (click)="save()">Save</ion-button>
+    </ion-col>
+  </ion-row>
+</ion-content>

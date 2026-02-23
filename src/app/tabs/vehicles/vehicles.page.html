@@ -1,0 +1,144 @@
+<ion-content>
+  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
+      <ion-button
+    fill="clear"
+    class="white-menu-btn floating-back"
+    (click)="goBack()"
+  >
+    BACK
+  </ion-button>
+  <div id="bg">
+
+
+  </div>
+  <h5 style="text-align: center; font-weight: bold;">VEHICLES</h5>
+<br>
+<!-- Search bar (simple + production-ready). Replace inputs with your MDB pickers if needed -->
+ <div class="container">
+  <div class="search-card">
+    <form [formGroup]="form" (ngSubmit)="searchByAvailability()">
+      <div class="row">
+        <div class="col">
+          <label>Where</label>
+          <div class="input-with-icon">
+            <ion-icon name="location-outline"></ion-icon>
+            <input class="form-control" type="text" formControlName="Location" placeholder="e.g. Sandton" />
+          </div>
+        </div>
+
+        <div class="col">
+          <label>From</label>
+          <div class="input-with-icon">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <input class="form-control" type="date" formControlName="From" />
+          </div>
+        </div>
+
+        <div class="col">
+          <label>Until</label>
+          <div class="input-with-icon">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <input class="form-control" type="date" formControlName="Until" />
+          </div>
+        </div>
+
+        <div class="col actions">
+          <button class="btn btn-primary" type="submit" [disabled]="loading || form.invalid">
+            <ion-icon name="search-outline"></ion-icon>
+            Search availability
+          </button>
+
+          <button class="btn btn-outline" type="button" (click)="refresh()" [disabled]="loading">
+            <ion-icon name="refresh-outline"></ion-icon>
+            Reset
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="loading" class="center">
+    <div class="spinner"></div>
+    <div class="muted">Loading…</div>
+  </div>
+
+  <div class="row" *ngIf="isAddressEntered && !loading">
+    <h4 *ngIf="isProvince">Vehicles in the province: <span class="bold">{{ address }}</span></h4>
+    <h4 *ngIf="!isProvince">Vehicles near <span class="bold">{{ address }}</span></h4>
+  </div>
+
+  <div *ngIf="!loading && filteredVehicles.length === 0" class="empty">
+    <ion-icon name="car-outline"></ion-icon>
+    <div>No vehicles found for the selected dates.</div>
+  </div>
+
+  <!-- Vehicle cards -->
+  <div class="grid" *ngIf="!loading && filteredVehicles.length > 0">
+    <div class="vehicle-card" *ngFor="let v of filteredVehicles" (click)="viewVehicle(v.vehicleId)">
+
+      <div class="media">
+        <img [src]="v.vehicleFirstImage || './assets/default.jpg'" [alt]="v.vehicleFullName" loading="lazy" />
+      </div>
+
+      <div class="body">
+        <div class="title-row">
+          <h5 class="title">{{ v.vehicleFullName }}</h5>
+
+          <!-- Availability badge based on selected date range -->
+          <span class="badge" [ngClass]="availabilityBadgeClass(v)">
+            <ion-icon [name]="availabilityIcon(v)"></ion-icon>
+            {{ availabilityText(v) }}
+          </span>
+        </div>
+
+        <!-- Rating + status + vetted -->
+        <div class="meta-row">
+          <div class="rating">
+            <ng-container *ngIf="v.rating != null; else noRating">
+              <span class="rating-value">{{ v.rating }}</span>
+              <ion-icon name="star"></ion-icon>
+              <span class="pill">{{ v.ratingStatus || 'Rated' }}</span>
+            </ng-container>
+            <ng-template #noRating>
+              <span class="pill pill-muted">No rating yet</span>
+              <span class="pill">{{ v.ratingStatus || 'New' }}</span>
+            </ng-template>
+          </div>
+
+          <span *ngIf="v.isVettedHost" class="pill pill-success">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            Vetted
+          </span>
+        </div>
+
+        <!-- Color -->
+        <div class="color-row">
+          <span class="color-dot" [style.background]="v.colorHex"></span>
+          <span class="muted">Color: <b>{{ v.colorName }}</b></span>
+        </div>
+
+        <!-- Province + City -->
+        <div class="location-row">
+          <ion-icon name="navigate-outline"></ion-icon>
+          <span><b>{{ v.province }}</b>, {{ v.city }}</span>
+        </div>
+
+        <div class="address muted">{{ v.address }}</div>
+      </div>
+
+      <div class="footer">
+        <button class="btn btn-sm" (click)="viewVehicle(v.vehicleId); $event.stopPropagation()">
+          <ion-icon name="eye-outline"></ion-icon>
+          View
+        </button>
+
+        <div class="price">
+          R {{ v.rate }}<span class="muted">/day</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+</ion-content>

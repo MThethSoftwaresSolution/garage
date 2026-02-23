@@ -1,0 +1,177 @@
+ 
+.logo{
+height: 110px;
+}
+#bg {
+    height: 15%;
+    background: var(--ion-color-dark) url('./../../assets/banner.png') no-repeat center center/cover;
+    border-radius: 0 0 25% 25%;
+    position: relative;
+}
+
+.white-menu-btn {
+  --color: white;
+}
+
+/* Floating menu button on top-left of banner */
+.floating-menu {
+    position: absolute;
+    top: 10px;    /* distance from top of the banner */
+    left: 10px;   /* distance from left edge */
+    z-index: 1000; /* ensure it appears above the banner */
+}
+
+.floating-back {
+  position: absolute;
+  top: 10px;
+  right: 10px; /* FAR RIGHT */
+  z-index: 1000;
+}
+
+.membership-card {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #1f1f1f, #2b2b2b);
+  color: #fff;
+  border-radius: 16px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* HEADER */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.org-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.org-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+}
+
+.org-info h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.org-info small {
+  color: #bbb;
+}
+
+.badge {
+  background: #c98b1f;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* BODY */
+.card-body {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.left,
+.middle,
+.right {
+  flex: 1;
+}
+
+.profile-img {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.middle h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.valid {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.qr-img {
+  width: 90px;
+  height: 90px;
+}
+
+/* FOOTER */
+.card-footer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.info {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.info mat-icon {
+  font-size: 20px;
+  color: #c98b1f;
+}
+
+.info label {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.info span {
+  font-size: 13px;
+}
+
+.membership-scale-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .membership-scale-wrapper {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 480px) {
+  .membership-scale-wrapper {
+    transform: scale(0.75);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 360px) {
+  .membership-scale-wrapper {
+    transform: scale(0.68);
+    transform-origin: top center;
+  }
+}
+
+.grey-line {
+  border: none;
+  height: 1px;
+  background-color: #ccc;
+  margin: 0;
+}
+

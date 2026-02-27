@@ -77,15 +77,13 @@ export class HostDashboardPage implements OnInit {
   }
 
   ngOnInit() {
+    debugger;
     // mimic logged-in user
     const currentUserRaw = localStorage.getItem('currentUser');
     if (currentUserRaw) {
-      this.userId = JSON.parse(currentUserRaw).userId;
-    } else {
-      // seed demo user if none
-      localStorage.setItem('currentUser', JSON.stringify({ userId: 'demo-user-001' }));
-      this.userId = 'demo-user-001';
-    }
+      console.log(JSON.parse(currentUserRaw));
+      this.userId = JSON.parse(currentUserRaw).id;
+    } 
 
     this.transmissions = [
       { label: 'Manual', value: 'Manual' },
@@ -225,8 +223,11 @@ export class HostDashboardPage implements OnInit {
       Address: this.address || this.form.value.Location,
       Latitude: this.tLatitude,
       Longitude: this.tLongitude,
+      UserId: this.userId
     };
 
+    debugger;
+    console.log(payload);
     this.service.saveVehicle(payload).subscribe({
       next: async () => {
         this.loading = false;

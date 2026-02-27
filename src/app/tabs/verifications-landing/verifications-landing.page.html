@@ -1,0 +1,376 @@
+<ion-content>
+ <!-- <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>-->
+      <ion-button
+    fill="clear"
+    class="white-menu-btn floating-back"
+    (click)="goBack()"
+  >
+    LOGOUT
+  </ion-button>
+  <div id="bg">
+
+
+  </div>
+  <h5 style="text-align: center; font-weight: bold;">VERIFY YOUR DETAILS</h5>
+<br>
+
+ <!-- HEADER CARDS
+
+  <ion-card *ngIf="isVerAppStarted && !isRejected" class="info-card">
+    <ion-card-header>
+      <ion-card-title>Application Submitted</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      Your application is pending validation. You may edit below.
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="isRejected" color="warning" class="info-card">
+    <ion-card-header>
+      <ion-card-title>Re-Submit Application</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      Please correct the issues and re-submit.
+    </ion-card-content>
+  </ion-card> -->
+
+  <!--<h5 class="ion-text-center">
+    User Verification ({{name}} {{surname}})
+  </h5>-->
+
+  <ion-progress-bar [value]="progress"></ion-progress-bar>
+
+  <ion-accordion-group [value]="activeStep" *ngIf="!isVerAppStarted">
+
+    <!-- ================= PERSONAL ================= -->
+
+    <ion-accordion value="step1">
+      <ion-item slot="header">
+        <ion-label>1. Personal Information</ion-label>
+      </ion-item>
+
+      <div slot="content" class="ion-padding">
+        <div [@fadeSlide]="activeStep">
+
+          <form [formGroup]="firstFormGroup">
+
+            <ion-input formControlName="name"
+              fill="outline"
+              label="First Name"
+              labelPlacement="floating" readonly>
+            </ion-input>
+
+            <ion-note color="danger" *ngIf="firstFormGroup.get('name')?.invalid && firstFormGroup.get('name')?.touched">
+              First name required
+            </ion-note>
+
+            <ion-input formControlName="surname"
+              fill="outline"
+              label="Last Name"
+              labelPlacement="floating" readonly>
+            </ion-input>
+
+            <ion-input formControlName="phone"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel"
+              fill="outline"
+              label="Phone"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-input formControlName="email"
+              type="email"
+              fill="outline"
+              label="Email"
+              labelPlacement="floating"
+              readonly>
+            </ion-input>
+
+            <ion-input formControlName="id"
+              fill="outline"
+              label="ID Number"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-note color="danger" *ngIf="firstFormGroup.get('id')?.invalid && firstFormGroup.get('id')?.touched">
+              Invalid South African ID
+            </ion-note>
+
+            <ion-select formControlName="gender"
+              fill="outline"
+              label="Gender"
+              labelPlacement="floating">
+              <ion-select-option *ngFor="let g of genders" [value]="g.value">
+                {{g.label}}
+              </ion-select-option>
+            </ion-select>
+
+            <!-- Scan ID -->
+            <ion-button expand="block" fill="outline" (click)="scanID()">
+              Scan ID (OCR Auto-Fill)
+            </ion-button>
+
+            <img *ngIf="firstFormGroup.value.fileSource"
+              [src]="firstFormGroup.value.fileSource"
+              class="preview-img">
+
+            <ion-button expand="block"
+              [disabled]="!firstFormGroup.valid"
+              (click)="goTo('step2')">
+              CONTINUE
+            </ion-button>
+
+          </form>
+
+        </div>
+      </div>
+    </ion-accordion>
+
+    <!-- ================= ADDRESS ================= -->
+
+    <ion-accordion value="step2">
+      <ion-item slot="header">
+        <ion-label>2. Address Information</ion-label>
+      </ion-item>
+
+      <div slot="content" class="ion-padding">
+        <div [@fadeSlide]="activeStep">
+
+          <form [formGroup]="formAddress">
+
+            <ion-input formControlName="StreetAddress"
+              fill="outline"
+              label="Street Address"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-input formControlName="City"
+              fill="outline"
+              label="City"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-select formControlName="Province"
+              fill="outline"
+              label="Province"
+              labelPlacement="floating">
+              <ion-select-option *ngFor="let p of provinces" [value]="p.id">
+                {{p.name}}
+              </ion-select-option>
+            </ion-select>
+
+            <ion-input formControlName="PostalCode"
+              fill="outline"
+              label="Postal Code"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-input formControlName="UnitStand"
+              fill="outline"
+              label="Unit / Stand (Optional)"
+              labelPlacement="floating">
+            </ion-input>
+
+            <!-- GPS -->
+            <ion-button expand="block" fill="outline" (click)="getGPS()">
+              Use Current GPS Location
+            </ion-button>
+
+            <!-- Upload Proof -->
+            <ion-button expand="block" fill="outline"
+              (click)="captureAndCompress('fileAddressSource', formAddress)">
+              Capture Proof of Address
+            </ion-button>
+
+            <img *ngIf="formAddress.value.fileAddressSource"
+              [src]="formAddress.value.fileAddressSource"
+              class="preview-img">
+
+            <ion-button expand="block" fill="outline"
+              (click)="goTo('step1')">
+              BACK
+            </ion-button>
+
+            <ion-button expand="block"
+              [disabled]="!formAddress.valid"
+              (click)="goTo('step3')">
+              CONTINUE
+            </ion-button>
+
+          </form>
+
+        </div>
+      </div>
+    </ion-accordion>
+
+    <!-- ================= LICENSE ================= -->
+
+    <ion-accordion value="step3">
+      <ion-item slot="header">
+        <ion-label>3. Driving License</ion-label>
+      </ion-item>
+
+      <div slot="content" class="ion-padding">
+        <div [@fadeSlide]="activeStep">
+
+          <form [formGroup]="thirdFormGroup">
+
+            <ion-input formControlName="LicenceNumber"
+              fill="outline"
+              label="License Number"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-select formControlName="Code"
+              fill="outline"
+              label="License Code"
+              labelPlacement="floating">
+              <ion-select-option *ngFor="let c of codes" [value]="c.value">
+                {{c.label}}
+              </ion-select-option>
+            </ion-select>
+
+            <p>Licence experation date</p>
+            <ion-datetime formControlName="ExpirationDate"
+              presentation="date">
+            </ion-datetime>
+
+            <ion-button expand="block" fill="outline"
+              (click)="captureAndCompress('fileLicSource', thirdFormGroup)">
+              Capture License Copy
+            </ion-button>
+
+            <img *ngIf="thirdFormGroup.value.fileLicSource"
+              [src]="thirdFormGroup.value.fileLicSource"
+              class="preview-img">
+
+            <ion-button expand="block" fill="outline"
+              (click)="goTo('step2')">
+              BACK
+            </ion-button>
+
+            <ion-button expand="block"
+              [disabled]="!thirdFormGroup.valid"
+              (click)="goTo('step4')">
+              CONTINUE
+            </ion-button>
+
+          </form>
+
+        </div>
+      </div>
+    </ion-accordion>
+
+    <!-- ================= BANK ================= -->
+
+    <ion-accordion value="step4">
+      <ion-item slot="header">
+        <ion-label>4. Bank Information</ion-label>
+      </ion-item>
+
+      <div slot="content" class="ion-padding">
+        <div [@fadeSlide]="activeStep">
+
+          <form [formGroup]="formBank">
+
+            <ion-select formControlName="BankId"
+              fill="outline"
+              label="Select Bank"
+              labelPlacement="floating">
+              <ion-select-option *ngFor="let b of banks" [value]="b.id">
+                {{b.name}}
+              </ion-select-option>
+            </ion-select>
+
+            <ion-input formControlName="BankBranch"
+              fill="outline"
+              label="Branch Code"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-input formControlName="AccountHolderName"
+              fill="outline"
+              label="Account Holder Name"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-input formControlName="AccountNumber"
+              fill="outline"
+              label="Account Number"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-select formControlName="AccountType"
+              fill="outline"
+              label="Account Type"
+              labelPlacement="floating">
+              <ion-select-option *ngFor="let t of bankAccountTypes" [value]="t.value">
+                {{t.label}}
+              </ion-select-option>
+            </ion-select>
+
+            <ion-button expand="block" fill="outline"
+              (click)="captureAndCompress('fileBankSource', formBank)">
+              Capture Bank Letter
+            </ion-button>
+
+            <img *ngIf="formBank.value.fileBankSource"
+              [src]="formBank.value.fileBankSource"
+              class="preview-img">
+
+            <ion-button expand="block" fill="outline"
+              (click)="goTo('step3')">
+              BACK
+            </ion-button>
+
+            <ion-button expand="block"
+              [disabled]="!formBank.valid"
+              (click)="goTo('step5')">
+              CONTINUE
+            </ion-button>
+
+          </form>
+
+        </div>
+      </div>
+    </ion-accordion>
+
+    <!-- ================= SUBMIT ================= -->
+
+    <ion-accordion value="step5">
+      <ion-item slot="header">
+        <ion-label>5. Submit</ion-label>
+      </ion-item>
+
+      <div slot="content" class="ion-padding">
+        <div [@fadeSlide]="activeStep">
+
+          <ion-button expand="block" fill="outline"
+            (click)="goTo('step4')">
+            BACK
+          </ion-button>
+
+          <ion-button expand="block"
+            (click)="isRejected ? reSubmit() : submit()">
+
+            {{ isRejected ? 'RE-SUBMIT' : 'SUBMIT' }}
+          </ion-button>
+
+        </div>
+      </div>
+    </ion-accordion>
+
+  </ion-accordion-group>
+
+  <ion-card *ngIf="isVerAppStarted && !isVetted">
+    <ion-card-title>
+      Verification in Progress
+    </ion-card-title>
+    <ion-card-content>
+      Your application has been submitted and pending for validations. 
+      Please be on the look out for our email notifications.
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

@@ -67,6 +67,11 @@ const routes: Routes = [
         path: 'notifications',
         loadComponent: () =>
           import('./../app/notifications/notifications.page').then(m => m.NotificationsPage)
+      },
+      {
+        path: 'verifications-landing',
+        loadComponent: () =>
+          import('./../app/tabs/verifications-landing/verifications-landing.page').then(m => m.VerificationsLandingPage)
       }
     
     ]

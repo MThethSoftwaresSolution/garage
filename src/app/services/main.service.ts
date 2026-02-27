@@ -1,6 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { delay, shareReplay } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 type AppError = { error: string };
 
@@ -15,6 +17,8 @@ export type VehicleImage = {
 
 @Injectable({ providedIn: 'root' })
 export class MainService {
+
+  private baseUrl = environment.baseUrl+'api/vehicles';
 
   // -------- Mock behavior knobs --------
   private readonly networkDelayMs = 300;
@@ -152,9 +156,14 @@ export class MainService {
     return this.countries$;
   }
 
+  // ------------------ COLORS ------------------
+  // ------------------ COLORS ------------------
   getColors(): Observable<any[]> {
-    if (this.colors$) return this.colors$;
-    this.colors$ = this.simulate(this.colorsSeed).pipe(shareReplay(1));
+    if (!this.colors$) {
+      this.colors$ = this.http
+        .get<any[]>(`${this.baseUrl}/colors`)
+        .pipe(shareReplay(1));
+    }
     return this.colors$;
   }
 
@@ -162,19 +171,28 @@ export class MainService {
     return this.simulate(this.provincesSeed);
   }
 
+  // ------------------ MAKES ------------------
   getVehicleMakes(): Observable<any[]> {
-    if (this.makes$) return this.makes$;
-    this.makes$ = this.simulate(this.makesSeed).pipe(shareReplay(1));
+    if (!this.makes$) {
+      this.makes$ = this.http
+        .get<any[]>(`${this.baseUrl}/makes`)
+        .pipe(shareReplay(1));
+    }
     return this.makes$;
   }
+  
 
-  getVehicleModelsByMake(makeId: number): Observable<any[]> {
-    return this.simulate(this.modelsByMakeSeed[Number(makeId)] ?? []);
+   getVehicleModelsByMake(makeId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/models/${makeId}`);
   }
 
+  // ------------------ ODOMETERS ------------------
   getOdometers(): Observable<any[]> {
-    if (this.odometers$) return this.odometers$;
-    this.odometers$ = this.simulate(this.odometersSeed).pipe(shareReplay(1));
+    if (!this.odometers$) {
+      this.odometers$ = this.http
+        .get<any[]>(`${this.baseUrl}/odometers`)
+        .pipe(shareReplay(1));
+    }
     return this.odometers$;
   }
 
@@ -214,7 +232,17 @@ export class MainService {
     return this.simulate({ success: true, count: newImgs.length });
   }
 
+    // ------------------ REGISTER VEHICLE ------------------
   saveVehicle(payload: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/register`, payload);
+  }
+
+  // ------------------ HOSTED VEHICLES ------------------
+  getVehicleHostOld(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/host`);
+  }
+
+  saveVehicleOld(payload: any): Observable<any> {
     const required = ['NumberPlate', 'MakeId', 'ModelId', 'Year', 'Transmission', 'MarketValue', 'ColorId'];
     for (const key of required) {
       if (payload?.[key] === null || payload?.[key] === undefined || payload?.[key] === '') {
@@ -262,6 +290,7 @@ export class MainService {
     return this.simulate({ success: true, id: vehicleId });
   }
 
+  constructor(private http: HttpClient) {}
   // -----------------------------
   // Online image selection
   // -----------------------------

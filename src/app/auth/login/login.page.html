@@ -26,7 +26,7 @@
         </ion-input>
 
         <ion-button class="login-button" [disabled]="!loginFormGroup.valid" (click)="login()" id="open-loading" expand="block"> 
-          <ion-spinner color="dark" *ngIf="isLoading"></ion-spinner> &nbsp; LOGIN
+          <ion-spinner *ngIf="isLoading" style="color: #ffffff;"></ion-spinner> &nbsp; &nbsp; LOGIN
         </ion-button>
         <p class="forgot-password-text"><a (click)="change('forget')">Forgot Password</a></p>
         <ion-button fill="outline" class="register-button" (click)="change('signup')" id="open-loading" expand="block">I'm a new user,&nbsp;REGISTER</ion-button>
@@ -49,7 +49,7 @@
         </ion-input>
 
         <ion-button class="login-button" [disabled]="!activateFormGroup.valid" (click)="verify()" id="open-loading" expand="block"> 
-          <ion-spinner color="dark" *ngIf="isLoading"></ion-spinner> &nbsp; VERIFY OTP
+          <ion-spinner *ngIf="isLoading" style="color: #ffffff;"></ion-spinner> &nbsp; VERIFY OTP
         </ion-button>
         <p class="forgot-password-text"><a (click)="resend()">Resend OTP</a></p>
         <ion-button fill="outline" class="register-button" (click)="change('signup')" id="open-loading" expand="block">Back to,&nbsp;LOGIN</ion-button>
@@ -97,7 +97,7 @@ style="color: red;">
       </p>
 
       <ion-button class="login-button" [disabled]="!registerFormGroup.valid" (click)="register()" expand="block">
-        <ion-spinner color="dark" *ngIf="registerLoading"></ion-spinner>  &nbsp; REGISTER</ion-button>
+        <ion-spinner style="color: #ffffff;" *ngIf="registerLoading"></ion-spinner>  &nbsp; REGISTER</ion-button>
     </div>
     </form>
   </div>
@@ -110,7 +110,7 @@ style="color: red;">
 
         <p class="signup-text">Remembered Password&nbsp;<a (click)="change('signin')">Log In</a></p>
         <ion-button class="login-button" [disabled]="!forgotPasswordFormGroup.valid" expand="block" (click)="forgotPassword()">
-          <ion-spinner color="dark" *ngIf="forgotPasswordLoading"></ion-spinner>  &nbsp;Reset Password</ion-button>
+          <ion-spinner style="color: #ffffff;" *ngIf="forgotPasswordLoading"></ion-spinner>  &nbsp;Reset Password</ion-button>
       </div>
     </form>
   </div>
@@ -139,7 +139,7 @@ style="color: red;">
 
 
         <ion-button class="login-button" [disabled]="!passwordResetFormGroup.valid" (click)="resetPassword()" expand="block">
-          <ion-spinner color="dark" *ngIf="passwordResetLoading"></ion-spinner>  &nbsp; SAVE NEW PASSWORD</ion-button>
+          <ion-spinner style="color: #ffffff;" *ngIf="passwordResetLoading"></ion-spinner>  &nbsp; SAVE NEW PASSWORD</ion-button>
       </div>
     </form>
 </div>

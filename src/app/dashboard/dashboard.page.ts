@@ -34,13 +34,42 @@ export class DashboardPage implements OnInit {
 }
 
  goHost() {
+
+const isVetted = localStorage.getItem('isVetted') === 'true';
+const isVerAppStarted = localStorage.getItem('isVerAppStarted') === 'true';
+
+  if(isVetted){
      this.navCtrl.navigateForward('/tabs/host-dashboard');
-    console.log('Proceed as Host');
+  }
+  else if(!isVetted && !isVerAppStarted){
+      this.presentToast(
+    'Your details have not been verified, you are being redirected to verification screen.', 'warning'
+  );
+
+  setTimeout(() => {
+    this.router.navigate(['/tabs/verifications-landing']);
+  }, 7000);
+  }
+  else{
+    this.presentToast('Your details verification is still in progress', 'danger');
+  }
+
   }
 
   browseVehicles() {
      this.navCtrl.navigateForward('/tabs/vehicles');
     console.log('Browse Vehicles');
   }
+
+  async presentToast(message: string, color: string = 'danger') {
+  const toast = await this.toastController.create({
+    message: message,
+    duration: 2000,
+    position: 'top',
+    color: color
+  });
+
+  await toast.present();
+}
 
 }

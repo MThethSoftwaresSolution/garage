@@ -26,7 +26,11 @@ const routes: Routes = [
     path: '',
     redirectTo: '/tabs/tab1',
     pathMatch: 'full'
-  }/*,
+  },/  {
+    path: 'verifications-landing',
+    loadChildren: () => import('./verifications-landing/verifications-landing.module').then( m => m.VerificationsLandingPageModule)
+  }
+*,
   {
     path: 'my-trips',
     loadChildren: () => import('./my-trips/my-trips.module').then( m => m.MyTripsPageModule)

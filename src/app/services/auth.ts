@@ -49,8 +49,15 @@ export class AuthService {
 
   
     login(body: any): Observable<any> {
+      console.log(`${this.baseUrl}/login`);
     return this.http.post(`${this.baseUrl}/login`, body);
   }
+
+      relogin(body: any): Observable<any> {
+      console.log(`${this.baseUrl}/relogin`);
+    return this.http.post(`${this.baseUrl}/relogin`, body);
+  }
+
 
     forgotPassword(Email: string) {
     return this.http.post(`${this.baseUrl}/forgot-password`, { Email })

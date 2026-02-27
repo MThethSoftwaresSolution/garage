@@ -46,8 +46,8 @@ export class LoginPage implements OnInit {
   isToastOpen: boolean = false;
 
   loginFormGroup: FormGroup = new FormGroup({
-    email: new FormControl("", [Validators.required, Validators.email]),
-    password: new FormControl("", [Validators.required])
+    email: new FormControl("mboniseh@gmail.com", [Validators.required, Validators.email]),
+    password: new FormControl("Mbo@1993", [Validators.required])
   });
 
   activateFormGroup: FormGroup = new FormGroup({
@@ -140,6 +140,7 @@ export class LoginPage implements OnInit {
   passwordReset = false;
 
  login(){
+
     this.isLoading = true;
     if (this.loginFormGroup.invalid) {
       this.loginFormGroup.markAllAsTouched();
@@ -158,20 +159,31 @@ export class LoginPage implements OnInit {
 
       if(resp.isSuccess){
 
+        console.log(resp);
+        localStorage.setItem("currentUser", JSON.stringify(resp.user));
+
         localStorage.setItem("token", resp.token);
         localStorage.setItem("id", resp.id);
         localStorage.setItem("name", resp.name);
         localStorage.setItem("phone", resp.phone);
         localStorage.setItem("surname", resp.surname);
+        localStorage.setItem("isVetted", resp.isVetted);
+        localStorage.setItem("isVerAppStarted", resp.isVerAppStarted);
         localStorage.setItem("username", resp.username);
         localStorage.setItem("roles", resp.role);
         localStorage.setItem('isAdmin', JSON.stringify(resp.isAdmin));
         localStorage.setItem('isActiveMember', JSON.stringify(resp.isActiveMember));
          this.isLoading = false;
-        this.router.navigateByUrl("tabs/dashboard");
+         if(resp.user.isVetted){
+            this.router.navigateByUrl("tabs/dashboard");
+         }else{
+          this.router.navigateByUrl("tabs/verifications-landing");
+         }
+
       }
     
     }, async (error: any)=>{
+      await this.showToast(error.error);
       console.log(error);
       this.isLoading = false;
       if(error.error === 'Please activate your account. Check your email to get an OTP.'){

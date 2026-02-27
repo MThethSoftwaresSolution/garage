@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [AppComponent],
@@ -18,7 +19,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     CommonModule,
     IonicModule.forRoot(), 
     HttpClientModule,
-    AppRoutingModule,
+    AppRoutingModule,BrowserAnimationsModule,
     IonicStorageModule.forRoot()
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

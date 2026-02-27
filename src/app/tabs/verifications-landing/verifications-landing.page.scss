@@ -19,7 +19,6 @@ height: 110px;
     top: 10px;    /* distance from top of the banner */
     left: 10px;   /* distance from left edge */
     z-index: 1000; /* ensure it appears above the banner */
-    margin-top: 30px;
 }
 
 .floating-back {
@@ -334,3 +333,25 @@ label { display:block; margin-bottom: 6px; font-size: 12px; color:#374151; font-
   animation: spin 0.9s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+
+ion-accordion {
+  margin-bottom: 16px;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+ion-input,
+ion-select {
+  margin-bottom: 16px;
+}
+
+.preview-img {
+  width: 100%;
+  border-radius: 14px;
+  margin-top: 12px;
+}
+
+.info-card {
+  border-radius: 18px;
+}

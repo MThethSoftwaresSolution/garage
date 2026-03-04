@@ -15,6 +15,7 @@ import {
 import { IonicModule, NavController } from '@ionic/angular';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { MainService } from 'src/app/services/main.service';
 
 export interface DateRange {
   from: string;  // YYYY-MM-DD
@@ -50,7 +51,7 @@ declare global {
 export class VehicleDetailsPage implements OnInit, OnDestroy {
   loading = false;
 
-  vehicleId!: number;
+  vehicleId!: any;
   vehicle: any = null;
 
   vehicleImages: string[] = [];
@@ -91,11 +92,11 @@ export class VehicleDetailsPage implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private fb: FormBuilder
+    private fb: FormBuilder, private service: MainService
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.vehicleId = Number(this.route.snapshot.paramMap.get('id'));
+    this.vehicleId = this.route.snapshot.paramMap.get('id');
 
     this.form = this.fb.group({
       From: [null, Validators.required],
@@ -140,47 +141,56 @@ export class VehicleDetailsPage implements OnInit, OnDestroy {
     this.navCtrl.back();
   }
 
-  // -----------------------
-  // Vehicle load (mock)
-  // -----------------------
-  private loadVehicle(): void {
-    this.loading = true;
+// -----------------------
+// Vehicle load
+// -----------------------
+private loadVehicle(): void {
 
-    // Replace with API/service call
-    Promise.resolve().then(() => {
-      this.vehicle = {
-        vehicleId: this.vehicleId,
-        make: 'Toyota',
-        model: 'Corolla',
-        year: 2020,
-        rate: 650,
-        province: 'Gauteng',
-        city: 'Johannesburg',
-        address: 'Sandton, Rivonia Rd',
-        transmission: 'Automatic',
-        odometer: 45000,
-        rating: 4.7,
-        ratingStatus: 'Excellent',
-        isVettedHost: true,
-        colorName: 'White',
-        colorHex: '#FFFFFF',
-        vImages: [
-          'https://commons.wikimedia.org/wiki/Special:FilePath/2020%20Toyota%20Corolla%20SE,%20front%202.29.20.jpg',
-          'https://commons.wikimedia.org/wiki/Special:FilePath/2020%20Toyota%20Corolla%20SE%20rear%202.29.20.jpg'
-        ],
-        bookings: [
-          { from: '2026-02-15', until: '2026-02-18' },
-          { from: '2026-02-20', until: '2026-02-25' },
-        ] as DateRange[],
-      };
+  this.loading = true;
 
-      this.vehicleImages = Array.isArray(this.vehicle?.vImages) ? this.vehicle.vImages : [];
-      this.bookings = Array.isArray(this.vehicle?.bookings) ? this.vehicle.bookings : [];
+  // Load vehicle details
+  this.service.getVehicleDetails(this.vehicleId)
+  .subscribe({
 
+    next: (vehicleResp: any) => {
+
+      console.log(vehicleResp);
+      this.vehicle = vehicleResp;
+
+      this.vehicleImages = Array.isArray(vehicleResp?.vImages)
+        ? vehicleResp.vImages
+        : [];
+
+      // Load bookings for calendar
+      this.service.getVehicleBookings(this.vehicleId)
+      .subscribe({
+
+        next: (bookingResp: any) => {
+
+          this.bookings = Array.isArray(bookingResp)
+            ? bookingResp
+            : [];
+
+          this.loading = false;
+
+          this.recomputeEstimateAndAvailability();
+        },
+
+        error: () => {
+          this.bookings = [];
+          this.loading = false;
+        }
+
+      });
+
+    },
+
+    error: () => {
       this.loading = false;
-      this.recomputeEstimateAndAvailability();
-    });
-  }
+    }
+
+  });
+}
 
   // -----------------------
   // Date utilities

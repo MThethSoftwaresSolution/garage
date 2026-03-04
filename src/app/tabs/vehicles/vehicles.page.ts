@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, NavController } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MainService } from 'src/app/services/main.service';
 
 type RatingStatus = 'Excellent' | 'Good' | 'Average' | 'New';
 
@@ -55,11 +56,12 @@ loading = false;
 
   // simple location banner fields (optional)
   isAddressEntered = true;
-  address = 'South Africa';
+  address = 'Your Area';
   isProvince = false;
 
 
-  constructor(private navCtrl: NavController, private fb: FormBuilder, private router: Router) { }
+  constructor(private navCtrl: NavController, private fb: FormBuilder, 
+    private router: Router, private service: MainService) { }
 
 
         goBack() {
@@ -73,8 +75,17 @@ ngOnInit(): void {
       Until: [null, Validators.required],
     });
 
-    this.vehicles = this.buildMockVehicles();
-    this.filteredVehicles = [...this.vehicles];
+    //this.vehicles = this.buildMockVehicles();
+debugger;
+      this.service.getAcceptedVehicles()
+  .subscribe((resp:any)=>{
+
+    this.vehicles = resp;
+        this.filteredVehicles = [...this.vehicles];
+
+  });
+
+
 
     // Live-update availability + list as user changes dates (production-friendly UX)
     this.form.valueChanges.subscribe(() => {

@@ -5,6 +5,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, ModalController, NavController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { MainService, VehicleImage } from 'src/app/services/main.service';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { ActionSheetController } from '@ionic/angular';
 
 @Component({
   selector: 'app-host-dashboard',
@@ -103,18 +105,14 @@ export class HostDashboardPage implements OnInit {
   }
 
   private loadDropdowns() {
-    this.service.getCountries().subscribe({
-      next: (resp: any) => this.countries = resp.map((t: any) => ({ label: t.countryName, value: t.countryId })),
-      error: async (e: any) => this.presentToast(e?.error || 'Failed to load countries', 'danger'),
-    });
 
     this.service.getColors().subscribe({
       next: (resp: any) => this.colors = resp.map((t: any) => ({ label: t.color, value: t.vehicleColorId })),
       error: async (e: any) => this.presentToast(e?.error || 'Failed to load colors', 'danger'),
     });
 
-    this.service.getProvinces(1).subscribe({
-      next: (resp: any) => this.provinces = resp.map((t: any) => ({ label: t.provinceName, value: t.provinceName })),
+    this.service.getProvinces().subscribe({
+      next: (resp: any) => this.provinces = resp.map((t: any) => ({ label: t.name, value: t.id })),
       error: async (e: any) => this.presentToast(e?.error || 'Failed to load provinces', 'danger'),
     });
 
@@ -130,6 +128,24 @@ export class HostDashboardPage implements OnInit {
   }
 
   loadHostedCars(event?: any) {
+  this.loadingList = true;
+
+  this.service.getVehicleHost(this.userId)
+    .subscribe({
+      next: (res) => {
+        this.vehicleHost = res;
+        this.loadingList = false;
+        event?.target?.complete?.();
+      },
+      error: async (e) => {
+        this.loadingList = false;
+        event?.target?.complete?.();
+        await this.presentToast(e?.error || 'Failed to load hosted cars', 'danger');
+      }
+    });
+}
+
+  /*loadHostedCars(event?: any) {
     this.loadingList = true;
     this.service.getVehicleHost(this.userId).subscribe({
       next: (resp: any) => {
@@ -143,7 +159,7 @@ export class HostDashboardPage implements OnInit {
         await this.presentToast(e?.error || 'Failed to load hosted cars', 'danger');
       },
     });
-  }
+  }*/
 
   toggleForm() {
     this.showForm = !this.showForm;
@@ -252,46 +268,128 @@ export class HostDashboardPage implements OnInit {
 /**
  * Modal component for viewing hosted vehicle images (standalone)
  */
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { register } from 'swiper/element/bundle';
+import { environment } from 'src/environments/environment';
+register();
+
 @Component({
   selector: 'app-host-images-modal',
-  template: `
-  <ion-header>
-    <ion-toolbar>
-      <ion-title>{{ title }}</ion-title>
-      <ion-buttons slot="end">
-        <ion-button (click)="close()">Close</ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
+  template: `<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ title }}</ion-title>
 
-  <ion-content>
-    <ion-refresher slot="fixed" (ionRefresh)="load($event)">
-      <ion-refresher-content></ion-refresher-content>
-    </ion-refresher>
+    <ion-buttons slot="end">
+      <ion-button (click)="addImage()">
+        <ion-icon name="camera-outline"></ion-icon>
+      </ion-button>
 
-    <div class="ion-padding">
-      <ion-text *ngIf="images.length === 0">
-        <p>No images found for this vehicle.</p>
-      </ion-text>
+      <ion-button (click)="close()">Close</ion-button>
+    </ion-buttons>
 
-      <ion-grid *ngIf="images.length > 0">
-        <ion-row>
-          <ion-col size="6" sizeMd="4" *ngFor="let img of images">
-            <ion-card>
-              <ion-img [src]="img.url"></ion-img>
-              <ion-card-content>
-                <ion-badge *ngIf="img.isCover" color="dark">Cover</ion-badge>
-                <div style="margin-top:6px; font-size: 12px; opacity: .8;">{{ img.caption }}</div>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </div>
-  </ion-content>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="ion-padding">
+
+    <ion-text *ngIf="images.length === 0">
+      <p>No images uploaded yet.</p>
+    </ion-text>
+
+    <!-- Swipe Gallery -->
+<swiper-container
+  *ngIf="images.length > 0"
+  pagination="true"
+  space-between="10"
+  slides-per-view="1">
+
+  <swiper-slide *ngFor="let img of images">
+
+    <ion-card>
+
+      <ion-img [src]="img.url"></ion-img>
+
+      <ion-card-content>
+
+        <ion-badge *ngIf="img.isCover" color="success">
+          Cover Image
+        </ion-badge>
+
+        <div style="margin-top:10px">
+
+          <ion-button
+            size="small"
+            fill="outline"
+            color="primary"
+            (click)="setCover(img)">
+            Set Cover
+          </ion-button>
+
+          <ion-button
+            size="small"
+            fill="outline"
+            color="danger"
+            (click)="deleteImage(img)">
+            Delete
+          </ion-button>
+
+        </div>
+
+      </ion-card-content>
+
+    </ion-card>
+
+  </swiper-slide>
+
+</swiper-container>
+
+    <!-- Reorder list -->
+    <ion-list *ngIf="images.length > 1">
+
+      <ion-reorder-group
+        [disabled]="false"
+        (ionItemReorder)="reorderImages($event)">
+
+        <ion-item *ngFor="let img of images">
+
+          <ion-thumbnail slot="start">
+            <ion-img [src]="img.url"></ion-img>
+          </ion-thumbnail>
+
+          <!--<ion-label>
+            Image {{ img.order }}
+          </ion-label>-->
+
+          <ion-reorder slot="end"></ion-reorder>
+
+        </ion-item>
+
+      </ion-reorder-group>
+
+    </ion-list>
+
+  </div>
+
+</ion-content>
   `,
+  styles: `swiper {
+  width: 100%;
+  height: auto;
+}
+
+ion-img {
+  max-height: 280px;
+  object-fit: cover;
+}`,
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HostImagesModalComponent implements OnInit {
 
@@ -303,8 +401,154 @@ export class HostImagesModalComponent implements OnInit {
   constructor(
     private modalCtrl: ModalController,
     private service: MainService,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private actionSheetCtrl: ActionSheetController
   ) {}
+
+    async addImage() {
+
+  const action = await this.actionSheetCtrl.create({
+    header: 'Add Vehicle Image',
+    buttons: [
+      {
+        text: 'Take Photo',
+        icon: 'camera',
+        handler: () => {
+          this.captureImage(CameraSource.Camera);
+        }
+      },
+      {
+        text: 'Choose From Gallery',
+        icon: 'images',
+        handler: () => {
+          this.captureImage(CameraSource.Photos);
+        }
+      },
+      {
+        text: 'Cancel',
+        role: 'cancel'
+      }
+    ]
+  });
+
+  await action.present();
+}
+
+async deleteImage(img: VehicleImage) {
+
+  this.service.deleteVehicleImage(img.id).subscribe(async () => {
+
+    const toast = await this.toastCtrl.create({
+      message: 'Image deleted',
+      duration: 2000,
+      color: 'success'
+    });
+
+    await toast.present();
+
+    this.load();
+  });
+
+}
+
+setCover(img: VehicleImage) {
+
+  this.service.setVehicleCoverImage(img.id).subscribe(() => {
+
+    this.load();
+
+  });
+
+}
+
+reorderImages(event: any) {
+
+  const item = this.images.splice(event.detail.from, 1)[0];
+  this.images.splice(event.detail.to, 0, item);
+
+  event.detail.complete();
+
+  const payload = this.images.map((x, index) => ({
+    id: x.id,
+    order: index
+  }));
+
+  this.service.reorderVehicleImages(payload).subscribe();
+
+}
+
+async captureImage(source: CameraSource) {
+
+  try {
+
+    const image = await Camera.getPhoto({
+      quality: 85,
+      allowEditing: false,
+      resultType: CameraResultType.Base64,
+      source: source
+    });
+
+    if (!image.base64String) return;
+
+    const blob = this.base64ToBlob(image.base64String, `image/${image.format}`);
+
+    const formData = new FormData();
+    formData.append('vehicleId', this.vehicleId);
+    formData.append('file', blob, `vehicle-${Date.now()}.${image.format}`);
+
+    this.service.uploadVehicleImage(formData).subscribe({
+      next: async () => {
+
+        const toast = await this.toastCtrl.create({
+          message: 'Image uploaded successfully',
+          duration: 2000,
+          color: 'success'
+        });
+
+        await toast.present();
+
+        this.load();
+
+      },
+      error: async () => {
+
+        const toast = await this.toastCtrl.create({
+          message: 'Upload failed',
+          duration: 2000,
+          color: 'danger'
+        });
+
+        await toast.present();
+      }
+    });
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+base64ToBlob(base64: string, contentType: string) {
+
+  const byteCharacters = atob(base64);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+
+    const slice = byteCharacters.slice(offset, offset + 512);
+
+    const byteNumbers = new Array(slice.length);
+
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+
+    byteArrays.push(byteArray);
+  }
+
+  return new Blob(byteArrays, { type: contentType });
+}
 
   ngOnInit(): void {
     this.load();
@@ -315,21 +559,30 @@ export class HostImagesModalComponent implements OnInit {
   }
 
   load(event?: any) {
-    this.service.getVehicleImages(this.vehicleId).subscribe({
-      next: (resp) => {
-        this.images = resp;
-        event?.target?.complete?.();
-      },
-      error: async (e: any) => {
-        event?.target?.complete?.();
-        const toast = await this.toastCtrl.create({
-          message: e?.error || 'Failed to load images',
-          color: 'danger',
-          duration: 2500,
-          position: 'top',
-        });
-        await toast.present();
-      }
-    });
-  }
+  this.service.getVehicleImages(this.vehicleId).subscribe({
+    next: (resp) => {
+
+      this.images = resp.map((img: VehicleImage) => ({
+        ...img,
+        url: environment.baseUrl + img.url
+      }));
+
+      console.log('Vehicle images:', this.images);
+
+      event?.target?.complete?.();
+    },
+    error: async (e: any) => {
+      event?.target?.complete?.();
+
+      const toast = await this.toastCtrl.create({
+        message: e?.error || 'Failed to load images',
+        color: 'danger',
+        duration: 2500,
+        position: 'top',
+      });
+
+      await toast.present();
+    }
+  });
+}
 }

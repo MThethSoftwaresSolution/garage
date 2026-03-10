@@ -13,8 +13,52 @@
   </div>
   <h5 style="text-align: center; font-weight: bold;">MY BOOKINGS</h5>
 <br>
-<div>
+<!-- Loading -->
+  <div *ngIf="loading" style="text-align:center;margin-top:40px;">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
 
-</div>
+  <!-- No bookings -->
+  <ion-card *ngIf="!loading && bookings.length === 0">
+    <ion-card-content>
+      You have no bookings yet.
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Booking list -->
+  <ion-list *ngIf="!loading && bookings.length > 0">
+
+    <ion-item *ngFor="let b of bookings">
+
+      <ion-label>
+        <h2>{{b.vehicleName}}</h2>
+
+        <p>
+          Pickup: {{b.fromDate | date:'mediumDate'}}
+        </p>
+
+        <p>
+          Return: {{b.untilDate | date:'mediumDate'}}
+        </p>
+
+        <p>
+          Total: R{{b.estimatedTotal}}
+        </p>
+
+      </ion-label>
+
+      <ion-button
+        slot="end"
+        color="danger"
+        size="small"
+        (click)="confirmCancel(b.bookingId)">
+
+        Cancel
+
+      </ion-button>
+
+    </ion-item>
+
+  </ion-list>
 
 </ion-content>

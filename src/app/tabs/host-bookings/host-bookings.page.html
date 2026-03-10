@@ -1,0 +1,66 @@
+<ion-content class="payment-content">
+  <!-- Header -->
+  <div class="banner">
+    <ion-button fill="clear" class="back-btn" (click)="goBack()">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      Back
+    </ion-button>
+
+    <div class="banner-title">
+      <h5>BOOKING REQUEST</h5>
+    </div>
+  </div>
+
+  
+
+   <ion-card *ngIf="hostBookings.length === 0 && !loading">
+    <ion-card-content>
+      No booking requests yet.
+    </ion-card-content>
+  </ion-card>
+
+  <ion-list *ngIf="hostBookings.length > 0">
+
+    <ion-item *ngFor="let b of hostBookings">
+
+      <ion-label>
+
+        <h2>{{b.vehicleName}}</h2>
+
+        <p>
+          Pickup: {{b.fromDate | date:'mediumDate'}}
+        </p>
+
+        <p>
+          Return: {{b.untilDate | date:'mediumDate'}}
+        </p>
+
+        <p>
+          Total: R{{b.estimatedTotal}}
+        </p>
+
+        <ion-badge *ngIf="b.isConfirmed" color="success">
+          Accepted
+        </ion-badge>
+
+        <ion-badge *ngIf="!b.isConfirmed" color="warning">
+          Pending
+        </ion-badge>
+
+      </ion-label>
+
+      <ion-button
+        *ngIf="!b.isConfirmed"
+        color="success"
+        size="small"
+        slot="end"
+        (click)="acceptBooking(b.bookingId)">
+
+        Accept
+
+      </ion-button>
+
+    </ion-item>
+
+  </ion-list>
+</ion-content>

@@ -1,0 +1,96 @@
+<ion-content class="payment-content">
+  <!-- Header -->
+  <div class="banner">
+    <ion-button fill="clear" class="back-btn" (click)="goBack()">
+      <ion-icon name="arrow-back-outline"></ion-icon>
+      Back
+    </ion-button>
+
+    <div class="banner-title">
+      <h5>BOOKING REQUEST</h5>
+    </div>
+  </div>
+
+  <div class="container" *ngIf="booking">
+    <!-- Vehicle preview -->
+    <ion-card class="vehicle-card">
+      <div class="vehicle-hero">
+        <img
+          [src]="booking?.Image || './assets/place-holder.png'"
+          alt="Vehicle"
+        />
+      </div>
+
+      <ion-card-content>
+        <div class="vehicle-title">
+          <div class="name">
+            {{ booking?.VehicleName}}
+          </div>
+          <div class="dates">
+            {{ booking.PickupDate }} → {{ booking.ReturnDate }}
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Route / locations -->
+    <ion-card class="summary-card">
+      <ion-card-header>
+        <ion-card-title>Trip details</ion-card-title>
+        <ion-card-subtitle>Pickup and drop-off</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <div class="route">
+          <!-- Pickup -->
+          <div class="route-row">
+            <div class="marker pickup"></div>
+
+            <div class="route-content">
+              <div class="label">Pickup</div>
+              <div class="value">{{ booking.PickupLocation }}</div>
+              <div class="meta">{{ booking.PickupDate }}</div>
+            </div>
+          </div>
+
+          <!-- Dotted line -->
+          <div class="route-line"></div>
+
+          <!-- Drop-off -->
+          <div class="route-row">
+            <div class="marker dropoff"></div>
+
+            <div class="route-content">
+              <div class="label">Drop-off</div>
+              <div class="value">{{ booking.ReturnLocation }}</div>
+              <div class="meta">{{ booking.ReturnDate }}</div>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Spacer so content doesn't hide behind sticky bar -->
+    <div class="bottom-spacer"></div>
+  </div>
+
+  <!-- Sticky bottom bar -->
+  <div class="sticky-pay" *ngIf="booking">
+    <!--<div class="sticky-total">
+      <div class="small">Total</div>
+      <div class="amount">R {{ booking.EstimatedTotal }}</div>
+    </div>-->
+
+<ion-button
+  size="large"
+  class="sticky-btn black-btn"
+  (click)="pay()"
+  [disabled]="loading"
+>
+  <ion-spinner *ngIf="loading" slot="start"></ion-spinner>
+  Confirm Booking
+  <ion-icon name="card-outline" slot="end"></ion-icon>
+</ion-button>
+
+  </div>
+</ion-content>

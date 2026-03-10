@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
+import { AlertController, IonicModule, NavController } from '@ionic/angular';
+import { MainService } from 'src/app/services/main.service';
 
 @Component({
   selector: 'app-my-bookings',
@@ -12,12 +13,85 @@ import { IonicModule, NavController } from '@ionic/angular';
 })
 export class MyBookingsPage implements OnInit {
 
-  constructor(private navCtrl: NavController) { }
+constructor(private navCtrl: NavController, 
+  private service: MainService, private alertCtrl: AlertController) { }
 
-  ngOnInit() {
+bookings: any[] = [];
+userId = '';
+loading = false;
+
+ngOnInit() {
+
+  const currentUserRaw = localStorage.getItem('currentUser');
+
+  if (currentUserRaw) {
+    this.userId = JSON.parse(currentUserRaw).id;
   }
 
-        goBack() {
+  this.loadBookings();
+}
+
+loadBookings() {
+
+  this.loading = true;
+
+  this.service.getBookingsByUser(this.userId)
+  .subscribe({
+
+    next: (resp:any) => {
+
+      this.bookings = resp;
+
+      console.log(this.bookings);
+      this.loading = false;
+    },
+
+    error: (err:any) => {
+      console.log(err.error);
+      this.loading = false;
+    }
+
+  });
+
+}
+
+cancelBooking(bookingId: string){
+
+  this.service.cancelBooking(bookingId)
+  .subscribe({
+
+    next: () => {
+
+      this.bookings = this.bookings.filter(b => b.bookingId !== bookingId);
+
+    },
+
+    error: (err:any) => {
+      console.log(err.error);
+    }
+
+  });
+
+}
+
+async confirmCancel(id:string){
+
+  const alert = await this.alertCtrl.create({
+    header: 'Cancel Booking',
+    message: 'Are you sure you want to cancel this booking?',
+    buttons: [
+      { text: 'No', role: 'cancel' },
+      {
+        text: 'Yes',
+        handler: () => this.cancelBooking(id)
+      }
+    ]
+  });
+
+  await alert.present();
+}
+
+  goBack() {
     this.navCtrl.back();
   }
 

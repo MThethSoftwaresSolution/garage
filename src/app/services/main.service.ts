@@ -20,11 +20,45 @@ export type VehicleImage = {
 export class MainService {
 
   private baseUrl = environment.baseUrl+'api/vehicles';
+  private mainUrl = environment.baseUrl+'api';
 
   private colors$?: Observable<any[]>;
   private makes$?: Observable<any[]>;
   private provinces$?: Observable<any[]>;
   private odometers$?: Observable<any[]>;
+
+  createBooking(model: any) {
+  return this.http.post(
+    this.mainUrl + "/bookings/createBooking",
+    model
+  );
+}
+
+getBookingsByUser(userId: string) {
+  return this.http.get<any[]>(
+    this.mainUrl + "/bookings/userBookings/" + userId
+  );
+}
+
+cancelBooking(bookingId: string) {
+  return this.http.post(
+    this.mainUrl + "/bookings/cancelBooking/" + bookingId,
+    {}
+  );
+}
+
+getHostBookings(hostId: string) {
+  return this.http.get<any[]>(
+    this.mainUrl + "/bookings/hostBookings/" + hostId
+  );
+}
+
+acceptBooking(bookingId: string) {
+  return this.http.post(
+    this.mainUrl + "/bookings/acceptBooking/" + bookingId,
+    {}
+  );
+}
 
   // ------------------ COLORS ------------------
   getColors(): Observable<any[]> {

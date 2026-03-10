@@ -508,7 +508,7 @@ private loadVehicle(): void {
     Image: this.vehicle?.vImages[0]
   };
 
-  this.navCtrl.navigateForward('tabs/payments', {
+  this.navCtrl.navigateForward('tabs/booking-request', {
     state: { booking: model }
   });
   }

@@ -28,7 +28,15 @@ const routes: Routes = [
     pathMatch: 'full'
   },/  {
     path: 'verifications-landing',
-    loadChildren: () => import('./verifications-landing/verifications-landing.module').then( m => m.VerificationsLandingPageModule)
+    loadChildren: () => import('./verifications-landing/verifications-landing.module').then( m => m.VerificationsLandingPageModule),
+  {
+    path: 'bookings-request',
+    loadChildren: () => import('./bookings-request/bookings-request.module').then( m => m.BookingsRequestPageModule)
+  },
+  {
+    path: 'host-bookings',
+    loadChildren: () => import('./host-bookings/host-bookings.module').then( m => m.HostBookingsPageModule)
+  }
   }
 *,
   {

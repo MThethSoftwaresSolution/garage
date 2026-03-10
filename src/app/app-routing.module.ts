@@ -48,6 +48,10 @@ const routes: Routes = [
         path: 'my-bookings',
         loadComponent: () =>
            import('./../app/tabs/my-bookings/my-bookings.page').then(m => m.MyBookingsPage)
+      },{
+        path: 'host-bookings',
+        loadComponent: () =>
+           import('./../app/tabs/host-bookings/host-bookings.page').then(m => m.HostBookingsPage)
       }, {
         path: 'host-dashboard',
         loadComponent: () =>
@@ -72,6 +76,11 @@ const routes: Routes = [
         path: 'verifications-landing',
         loadComponent: () =>
           import('./../app/tabs/verifications-landing/verifications-landing.page').then(m => m.VerificationsLandingPage)
+      },
+      {
+        path: 'booking-request',
+        loadComponent: () =>
+          import('./../app/tabs/bookings-request/bookings-request.page').then(m => m.BookingsRequestPage)
       }
     
     ]

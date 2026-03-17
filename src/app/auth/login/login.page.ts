@@ -46,8 +46,8 @@ export class LoginPage implements OnInit {
   isToastOpen: boolean = false;
 
   loginFormGroup: FormGroup = new FormGroup({
-    email: new FormControl("mboniseh@gmail.com", [Validators.required, Validators.email]),
-    password: new FormControl("Mbo@1993", [Validators.required])
+    email: new FormControl("", [Validators.required, Validators.email]),
+    password: new FormControl("", [Validators.required])
   });
 
   activateFormGroup: FormGroup = new FormGroup({

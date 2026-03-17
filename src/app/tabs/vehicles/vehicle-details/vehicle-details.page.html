@@ -189,13 +189,25 @@
 </div>
 
         <!-- Estimate -->
-        <div class="estimate" *ngIf="estimateDays > 0">
-          <div class="muted">Estimated days</div>
-          <div><b>{{ estimateDays }}</b></div>
+    <div class="estimate" *ngIf="estimateDays > 0">
 
-          <div class="muted">Estimated total</div>
-          <div><b>R {{ estimateTotal }}</b></div>
-        </div>
+      <div class="muted">Estimated days</div>
+      <div><b>{{ estimateDays }}</b></div>
+
+      <div class="muted">Vehicle total</div>
+      <div><b>R {{ estimateTotal | number:'1.2-2' }}</b></div>
+
+      <div class="muted">Garage fee ({{ garageFeePercent * 100 }}%)</div>
+      <div><b>R {{ garageFee | number:'1.2-2' }}</b></div>
+
+      <hr>
+
+      <div class="muted">Total payable</div>
+      <div style="font-size:18px;">
+        <b>R {{ grandTotal | number:'1.2-2' }}</b>
+      </div>
+
+    </div>
 
         <ion-button
           expand="block"

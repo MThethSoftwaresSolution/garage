@@ -124,30 +124,37 @@
 
           <ion-item lines="none"><ion-label></ion-label></ion-item>
 
+          <ion-item lines="none">
+          <ion-checkbox slot="start" (ionChange)="onOwnerCheckboxChange($event)"></ion-checkbox>
+          <ion-label>Are you the owner?</ion-label>
+        </ion-item>
+
+
           <ion-text><h3 style="text-align:center; font-weight:700;">Owner Details</h3></ion-text>
 
+
           
-            <ion-input formControlName="OwnerIdNumber" fill="outline" label="Owner ID Number" labelPlacement="floating"></ion-input>
+            <ion-input formControlName="OwnerIdNumber" [readonly]="isOwner" fill="outline" label="Owner ID Number" labelPlacement="floating"></ion-input>
           
           <br>
 
           
-            <ion-input formControlName="OwnerName" fill="outline" label="Owner Name" labelPlacement="floating"></ion-input>
+            <ion-input formControlName="OwnerName" [readonly]="isOwner" fill="outline" label="Owner Name" labelPlacement="floating"></ion-input>
           
           <br>
 
           
-            <ion-input formControlName="OwnerSurname" placeholder="Owner Surname" fill="outline" label="Owner Surname" labelPlacement="floating"></ion-input>
+            <ion-input formControlName="OwnerSurname" [readonly]="isOwner" placeholder="Owner Surname" fill="outline" label="Owner Surname" labelPlacement="floating"></ion-input>
           
           <br>
 
           
-            <ion-input formControlName="OwnerCellNumber" placeholder="Cell Number" fill="outline" label="Cell Number" labelPlacement="floating"></ion-input>
+            <ion-input formControlName="OwnerCellNumber" [readonly]="isOwner" placeholder="Cell Number" fill="outline" label="Cell Number" labelPlacement="floating"></ion-input>
           
           <br>
 
           
-            <ion-input type="email" formControlName="OwnerEmail" placeholder="Owner Email" fill="outline" label="Owner Email" labelPlacement="floating"></ion-input>
+            <ion-input type="email" formControlName="OwnerEmail" [readonly]="isOwner" placeholder="Owner Email" fill="outline" label="Owner Email" labelPlacement="floating"></ion-input>
           
           <br>
 

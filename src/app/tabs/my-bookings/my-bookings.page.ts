@@ -95,4 +95,17 @@ async confirmCancel(id:string){
     this.navCtrl.back();
   }
 
+
+pay(booking:any){
+
+this.service.initiate({
+  bookingId: booking.bookingId
+  }).subscribe((resp:any)=>{
+
+  window.location.href = resp.redirectUrl;
+
+  });
+
+}
+
 }

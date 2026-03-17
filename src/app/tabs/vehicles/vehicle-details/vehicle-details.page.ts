@@ -16,6 +16,7 @@ import { IonicModule, NavController } from '@ionic/angular';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { MainService } from 'src/app/services/main.service';
+import { environment } from 'src/environments/environment';
 
 export interface DateRange {
   from: string;  // YYYY-MM-DD
@@ -66,6 +67,7 @@ export class VehicleDetailsPage implements OnInit, OnDestroy {
   estimateTotal = 0;
 
   isCurrentlyAvailable = true;
+  garageFeePercent: number = 0;
 
   // -----------------------
   // Google Places Autocomplete
@@ -89,6 +91,9 @@ export class VehicleDetailsPage implements OnInit, OnDestroy {
     speed: 300,
   };
 
+garageFee: string|number = '';
+grandTotal: string|number = '';
+
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
@@ -97,6 +102,7 @@ export class VehicleDetailsPage implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.vehicleId = this.route.snapshot.paramMap.get('id');
+    this.garageFeePercent = environment.garageFeePercent;
 
     this.form = this.fb.group({
       From: [null, Validators.required],
@@ -258,6 +264,10 @@ private loadVehicle(): void {
     this.isCurrentlyAvailable = this.isAvailableForRange(this.selectedFrom, this.selectedUntil);
     this.estimateDays = this.diffDaysInclusive(this.selectedFrom, this.selectedUntil);
     this.estimateTotal = Number(this.vehicle.rate || 0) * this.estimateDays;
+
+this.garageFee = this.estimateTotal * this.garageFeePercent;
+
+this.grandTotal = this.estimateTotal + this.garageFee;
   }
 
   // -----------------------
@@ -503,7 +513,9 @@ private loadVehicle(): void {
     PickupLocation: this.form.value.PickupLocation,
     ReturnLocation: this.form.value.ReturnLocation,
     EstimatedDays: this.estimateDays,
-    EstimatedTotal: this.estimateTotal,
+      EstimatedTotal: this.estimateTotal,
+  GarageFee: this.garageFee,
+  GrandTotal: this.grandTotal,
     VehicleName: this.vehicle.make + '-'+this.vehicle.model,
     Image: this.vehicle?.vImages[0]
   };

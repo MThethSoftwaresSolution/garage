@@ -98,6 +98,37 @@ export class HostDashboardPage implements OnInit {
     this.loadHostedCars();
   }
 
+  isOwner = false;
+  onOwnerCheckboxChange(event: any) {
+
+  if (event.detail.checked) {
+
+    this.isOwner = event.detail.checked;
+    const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+
+    this.form.patchValue({
+      OwnerIdNumber: user.idNumber,
+      OwnerName: user.firstName,
+      OwnerSurname: user.lastName,
+      OwnerEmail: user.email,
+      OwnerCellNumber: user.phoneNumber
+    });
+
+  } 
+  else {
+
+    this.form.patchValue({
+      OwnerIdNumber: '',
+      OwnerName: '',
+      OwnerSurname: '',
+      OwnerEmail: '',
+      OwnerCellNumber: ''
+    });
+
+  }
+
+}
+
   private buildYears(min: number, max: number) {
     const arr: Array<{ label: string; value: number }> = [];
     for (let y = max; y >= min; y--) arr.push({ label: String(y), value: y });

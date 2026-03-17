@@ -37,7 +37,7 @@ ngOnInit(): void {
     }
 
     this.payFormGroup.patchValue({
-      amount: this.booking.amount
+      amount: this.booking.GrandTotal
     })
     console.log('Received booking:', this.booking);
   }
@@ -50,11 +50,10 @@ ngOnInit(): void {
     const booking = {
       vehicleId: this.booking.vehicleId,
       userId: (localStorage.getItem('id') ?? '').toLowerCase(),
-
-      fromDate: this.booking.PickupDate
-,
+      grandTotal: this.booking.GrandTotal,
+      fromDate: this.booking.PickupDate,
       untilDate: this.booking.ReturnDate,
-
+      garageFee: this.booking.GarageFee,
       pickupLocation: this.booking.PickupLocation,
       returnLocation: this.booking.ReturnLocation,
 

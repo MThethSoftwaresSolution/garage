@@ -21,46 +21,82 @@
 
   <ion-list *ngIf="hostBookings.length > 0">
 
-    <ion-item *ngFor="let b of hostBookings">
+<ion-card *ngFor="let b of hostBookings" class="booking-card">
 
-      <ion-label>
+  <div class="booking-header">
 
-        <h2>{{b.vehicleName}}</h2>
+<img
+  [src]="getImage(b.image)"
+  class="vehicle-thumb"
+/>
 
-        <p>
-          Pickup: {{b.fromDate | date:'mediumDate'}}
-        </p>
+    <div class="booking-title">
+      <h2>{{b.vehicleName}}</h2>
+      <div class="guest">Driver: {{b.guestName}}</div>
 
-        <p>
-          Return: {{b.untilDate | date:'mediumDate'}}
-        </p>
+      <ion-badge *ngIf="b.isConfirmed" color="success">
+        Accepted
+      </ion-badge>
 
-        <p>
-          Total: R{{b.estimatedTotal}}
-        </p>
+      <ion-badge *ngIf="!b.isConfirmed" color="warning">
+        Pending
+      </ion-badge>
+    </div>
 
-        <ion-badge *ngIf="b.isConfirmed" color="success">
-          Accepted
-        </ion-badge>
+  </div>
 
-        <ion-badge *ngIf="!b.isConfirmed" color="warning">
-          Pending
-        </ion-badge>
+  <ion-card-content>
 
-      </ion-label>
+    <div class="booking-row">
+      <ion-icon name="calendar-outline"></ion-icon>
+      {{b.fromDate | date:'mediumDate'}} → {{b.untilDate | date:'mediumDate'}}
+    </div>
+
+    <div class="booking-row">
+      <ion-icon name="location-outline"></ion-icon>
+      {{b.pickupLocation}}
+    </div>
+
+    <div class="booking-row">
+      <ion-icon name="time-outline"></ion-icon>
+      {{b.estimatedDays}} days
+    </div>
+
+    <div class="booking-row price">
+      Guest Paid: <strong>R {{b.grandTotal}}</strong>
+    </div>
+
+    <div class="booking-row fee">
+      Garage Fee: R {{b.garageFee}}
+    </div>
+
+    <div class="booking-row host">
+      Your Earnings: <strong>R {{b.estimatedTotal}}</strong>
+    </div>
+
+    <div class="booking-actions" *ngIf="!b.isConfirmed">
 
       <ion-button
-        *ngIf="!b.isConfirmed"
         color="success"
         size="small"
-        slot="end"
-        (click)="acceptBooking(b.bookingId)">
-
+        (click)="acceptBooking(b.bookingId)"
+      >
         Accept
-
       </ion-button>
 
-    </ion-item>
+      <ion-button
+        color="danger"
+        size="small"
+        (click)="rejectBooking(b.bookingId)"
+      >
+        Decline
+      </ion-button>
+
+    </div>
+
+  </ion-card-content>
+
+</ion-card>
 
   </ion-list>
 </ion-content>

@@ -194,3 +194,59 @@
   --background: #333;
   --color: #aaa;
 }
+
+
+.booking-card{
+margin:14px;
+border-radius:16px;
+box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+.booking-header{
+display:flex;
+gap:12px;
+padding:12px;
+align-items:center;
+}
+
+.vehicle-thumb{
+width:70px;
+height:70px;
+border-radius:12px;
+object-fit:cover;
+}
+
+.booking-title h2{
+margin:0;
+font-size:16px;
+font-weight:800;
+}
+
+.guest{
+font-size:13px;
+color:#666;
+}
+
+.booking-row{
+display:flex;
+align-items:center;
+gap:8px;
+margin:6px 0;
+font-size:14px;
+}
+
+.booking-row.price{
+margin-top:12px;
+font-weight:600;
+}
+
+.booking-row.host{
+font-size:16px;
+font-weight:800;
+}
+
+.booking-actions{
+display:flex;
+gap:10px;
+margin-top:12px;
+}

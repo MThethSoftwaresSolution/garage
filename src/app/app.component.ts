@@ -62,14 +62,14 @@ export class AppComponent {
       console.log('Deep link opened:', url);
 
       // Example: capacitor://localhost/tabs/payfast?paymentId=123&status=cancelled
-      if (url.includes('/tabs/payfast')) {
+      if (url.includes('payment-success')) {
         const parsedUrl = new URL(url);
 
         const paymentId = parsedUrl.searchParams.get('paymentId');
         const status = parsedUrl.searchParams.get('status');
 
         // Navigate inside Ionic
-        this.router.navigate(['/tabs/payfast'], {
+        this.router.navigate(['/tabs/my-bookings'], {
           queryParams: {
             paymentId,
             status

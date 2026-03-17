@@ -47,6 +47,15 @@ cancelBooking(bookingId: string) {
   );
 }
 
+  initiate(model: { bookingId: string }): Observable<any> {
+
+    return this.http.post(
+      this.mainUrl + '/PayFast/initiate',
+      model
+    );
+
+  }
+
 getHostBookings(hostId: string) {
   return this.http.get<any[]>(
     this.mainUrl + "/bookings/hostBookings/" + hostId

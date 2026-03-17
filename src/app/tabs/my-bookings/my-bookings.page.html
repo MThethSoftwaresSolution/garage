@@ -28,36 +28,74 @@
   <!-- Booking list -->
   <ion-list *ngIf="!loading && bookings.length > 0">
 
-    <ion-item *ngFor="let b of bookings">
+<ion-card *ngFor="let b of bookings" class="booking-card">
 
-      <ion-label>
-        <h2>{{b.vehicleName}}</h2>
+  <ion-card-header>
+    <ion-card-title>
+      {{b.vehicleName}}
+    </ion-card-title>
 
-        <p>
-          Pickup: {{b.fromDate | date:'mediumDate'}}
-        </p>
+    <ion-badge color="success" *ngIf="b.isConfirmed && !b.isPaid">
+      Confirmed
+    </ion-badge>
 
-        <p>
-          Return: {{b.untilDate | date:'mediumDate'}}
-        </p>
+    <ion-badge color="primary" *ngIf="b.isPaid">
+      Paid
+    </ion-badge>
 
-        <p>
-          Total: R{{b.estimatedTotal}}
-        </p>
+    <ion-badge color="warning" *ngIf="!b.isConfirmed">
+      Pending
+    </ion-badge>
 
-      </ion-label>
+  </ion-card-header>
 
-      <ion-button
-        slot="end"
-        color="danger"
-        size="small"
-        (click)="confirmCancel(b.bookingId)">
+  <ion-card-content>
 
-        Cancel
+    <div class="booking-row">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <span>
+        {{b.fromDate | date:'mediumDate'}} → {{b.untilDate | date:'mediumDate'}}
+      </span>
+    </div>
 
-      </ion-button>
+    <div class="booking-row">
+      <ion-icon name="location-outline"></ion-icon>
+      <span>{{b.pickupLocation}}</span>
+    </div>
 
-    </ion-item>
+    <div class="booking-row">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>{{b.estimatedDays}} days</span>
+    </div>
+
+    <div class="booking-row total">
+      <span>Total</span>
+      <strong>R {{b.grandTotal}}</strong>
+    </div>
+
+    <ion-button
+  expand="block"
+  color="primary"
+  size="medium"
+  *ngIf="b.isConfirmed && !b.isPaid"
+  (click)="pay(b)"
+>
+  Pay Now
+</ion-button>
+
+<ion-button
+  expand="block"
+  color="danger"
+  size="small"
+  *ngIf="!b.isPaid"
+  (click)="confirmCancel(b.bookingId)"
+>
+  Cancel Booking
+</ion-button>
+
+  </ion-card-content>
+
+</ion-card>
 
   </ion-list>
 

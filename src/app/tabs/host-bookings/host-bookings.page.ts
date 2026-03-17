@@ -6,6 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, NavController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { PaymentService } from 'src/app/services/payment.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-host-bookings',
@@ -46,7 +47,7 @@ loadHostBookings(){
   .subscribe({
 
     next:(resp:any)=>{
-
+      console.log(resp);
       this.hostBookings = resp;
 
       this.loading = false;
@@ -62,7 +63,35 @@ loadHostBookings(){
 
 }
 
+getImage(url: string | null) {
+  if (!url) return './assets/default-car.jpg';
+  return environment.baseUrl + url;
+}
+
 acceptBooking(id:string){
+
+  this.service.acceptBooking(id)
+  .subscribe({
+
+    next:()=>{
+
+      const booking = this.hostBookings.find(x => x.bookingId === id);
+
+      if(booking){
+        booking.isConfirmed = true;
+      }
+
+    },
+
+    error:(err:any)=>{
+      console.log(err.error);
+    }
+
+  });
+
+}
+
+rejectBooking(id:string){
 
   this.service.acceptBooking(id)
   .subscribe({

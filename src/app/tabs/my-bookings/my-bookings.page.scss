@@ -167,3 +167,34 @@ height: 110px;
     transform-origin: top center;
   }
 }
+
+.booking-card{
+margin:14px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.booking-row{
+display:flex;
+align-items:center;
+gap:10px;
+margin:8px 0;
+font-size:14px;
+}
+
+.booking-row ion-icon{
+font-size:18px;
+color:#666;
+}
+
+.booking-row.total{
+margin-top:10px;
+font-size:16px;
+justify-content:space-between;
+}
+
+.status-badges{
+display:flex;
+gap:6px;
+margin-top:6px;
+}

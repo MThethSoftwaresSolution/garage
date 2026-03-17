@@ -194,3 +194,25 @@
   --background: #333;
   --color: #aaa;
 }
+
+.price-row{
+display:flex;
+justify-content:space-between;
+margin:8px 0;
+font-size:14px;
+}
+
+.price-row.total{
+font-weight:700;
+font-size:16px;
+}
+
+.divider{
+height:1px;
+background:#e5e5e5;
+margin:12px 0;
+}
+
+.bottom-spacer {
+  height: 120px;
+}

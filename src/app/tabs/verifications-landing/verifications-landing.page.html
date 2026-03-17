@@ -38,6 +38,10 @@
     User Verification ({{name}} {{surname}})
   </h5>-->
 
+    <ion-refresher slot="fixed" (ionRefresh)="reload($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <ion-progress-bar [value]="progress"></ion-progress-bar>
 
   <ion-accordion-group [value]="activeStep" *ngIf="!isVerAppStarted">

@@ -17,6 +17,7 @@ import imageCompression from 'browser-image-compression';
 import { createWorker } from 'tesseract.js';
 import { Geolocation } from '@capacitor/geolocation';
 import { AuthService } from 'src/app/services/auth';
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   selector: 'app-verifications-landing',
@@ -87,6 +88,7 @@ export class VerificationsLandingPage implements OnInit {
   formAddress!: FormGroup;
   formBank!: FormGroup;
   formBankCard!: FormGroup;
+    private readonly tokenKey = 'auth_token';
   
     constructor(private navCtrl: NavController, private fb: FormBuilder, private router: Router,
       private storage: StorageService, private service: VerificationService, private authService: AuthService
@@ -122,6 +124,51 @@ export class VerificationsLandingPage implements OnInit {
   this.patchIfExisting();
 
   }
+
+    reload(event?: any) {
+  this.loading = true;
+  const email = this.currentUser.userName;
+  const creds = {Email: email, Password: 'Placeholder@76382'}
+
+this.authService.relogin(creds).subscribe((resp:any)=>{
+      this.isLoading = false;
+
+      if (resp?.token) {
+      Preferences.set({ key: this.tokenKey, value: resp.token });
+
+    }
+
+      if(resp.isSuccess){
+
+        console.log(resp);
+        localStorage.setItem("currentUser", JSON.stringify(resp.user));
+
+        localStorage.setItem("token", resp.token);
+        localStorage.setItem("id", resp.id);
+        localStorage.setItem("name", resp.name);
+        localStorage.setItem("phone", resp.phone);
+        localStorage.setItem("surname", resp.surname);
+        localStorage.setItem("isVetted", resp.isVetted);
+        localStorage.setItem("isVerAppStarted", resp.isVerAppStarted);
+        localStorage.setItem("username", resp.username);
+        localStorage.setItem("roles", resp.role);
+        localStorage.setItem('isAdmin', JSON.stringify(resp.isAdmin));
+        localStorage.setItem('isActiveMember', JSON.stringify(resp.isActiveMember));
+         this.isLoading = false;
+         if(resp.user.isVetted){
+            this.router.navigateByUrl("tabs/dashboard");
+         }else{
+          this.router.navigateByUrl("tabs/verifications-landing");
+         }
+
+      }
+    
+    }, async (error: any)=>{
+      console.log(error);
+      this.isLoading = false;
+    });
+
+}
 
   loadDropdownData(){
         this.codes = [

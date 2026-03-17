@@ -70,27 +70,58 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Spacer so content doesn't hide behind sticky bar -->
-    <div class="bottom-spacer"></div>
+    <!-- Spacer so content doesn't hide behind sticky bar 
+    <div class="bottom-spacer"></div>-->
   </div>
 
-  <!-- Sticky bottom bar -->
-  <div class="sticky-pay" *ngIf="booking">
-    <!--<div class="sticky-total">
-      <div class="small">Total</div>
-      <div class="amount">R {{ booking.EstimatedTotal }}</div>
-    </div>-->
+<ion-card class="summary-card">
+  <ion-card-header>
+    <ion-card-title>Price breakdown</ion-card-title>
+  </ion-card-header>
 
-<ion-button
-  size="large"
-  class="sticky-btn black-btn"
-  (click)="pay()"
-  [disabled]="loading"
->
-  <ion-spinner *ngIf="loading" slot="start"></ion-spinner>
-  Confirm Booking
-  <ion-icon name="card-outline" slot="end"></ion-icon>
-</ion-button>
+  <ion-card-content>
 
+    <div class="price-row">
+      <span>Vehicle total</span>
+      <span>R {{ booking.EstimatedTotal | number:'1.2-2' }}</span>
+    </div>
+
+    <div class="price-row">
+      <span>Garage service fee</span>
+      <span>R {{ booking.GarageFee | number:'1.2-2' }}</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="price-row total">
+      <span>Total payable</span>
+      <span>R {{ booking.GrandTotal | number:'1.2-2' }}</span>
+    </div>
+
+  </ion-card-content>
+</ion-card>
+
+<div class="bottom-spacer"></div>
+
+<!-- Sticky bottom bar -->
+<div class="sticky-pay" *ngIf="booking">
+
+  <div class="sticky-total">
+    <div class="small">Total payable</div>
+    <div class="amount">R {{ booking.GrandTotal | number:'1.2-2' }}</div>
   </div>
+
+  <ion-button
+    size="large"
+    class="sticky-btn black-btn"
+    (click)="pay()"
+    [disabled]="loading"
+  >
+    <ion-spinner *ngIf="loading" slot="start"></ion-spinner>
+    Confirm Booking
+    <ion-icon name="card-outline" slot="end"></ion-icon>
+  </ion-button>
+
+</div>
+
 </ion-content>

@@ -23,6 +23,10 @@ const routes: Routes = [
         path: 'donations',
         loadComponent: () =>
            import('./payfast/payfast.page').then(m => m.PayfastPage)
+      },{
+        path: 'my-exchanges',
+        loadComponent: () =>
+           import('./pages/my-exchanges/my-exchanges.page').then(m => m.MyExchangesPage)
       }
       , {
         path: 'my-vehicles',
@@ -33,7 +37,13 @@ const routes: Routes = [
         path: 'vehicles',
         loadComponent: () =>
            import('./../app/tabs/vehicles/vehicles.page').then(m => m.VehiclesPage)
-      }, {
+      },
+      {
+        path: 'exchange/:id',
+        loadComponent: () => 
+          import('./../app/tabs/exchange/exchange.page').then(m => m.ExchangePage)
+      },
+      {
         path: 'payments',
         loadComponent: () =>
            import('./../app/tabs/payments/payments.page').then(m => m.PaymentsPage)
@@ -100,6 +110,10 @@ const routes: Routes = [
     {
     path: 'activate',
     loadChildren: () => import('./auth/activate/activate.page').then( m => m.ActivatePage)
+  },
+  {
+    path: 'my-exchanges',
+    loadChildren: () => import('./pages/my-exchanges/my-exchanges.module').then( m => m.MyExchangesPageModule)
   }
 
 

@@ -1,0 +1,75 @@
+<ion-content>
+  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
+      <ion-button
+    fill="clear"
+    class="white-menu-btn floating-back"
+    (click)="goBack()"
+  >
+    BACK
+  </ion-button>
+  <div id="bg">
+
+
+  </div>
+<h5 style="text-align:center;font-weight:bold;">MY EXCHANGES</h5>
+<br>
+
+
+
+<!-- Loading -->
+<div *ngIf="loading" style="text-align:center;margin-top:40px;">
+  <ion-spinner></ion-spinner>
+</div>
+
+<!-- Empty -->
+<ion-card *ngIf="!loading && exchanges.length === 0">
+  <ion-card-content>
+    No exchanges yet.
+  </ion-card-content>
+</ion-card>
+
+<!-- List -->
+<ion-list *ngIf="!loading && exchanges.length > 0">
+
+  <ion-card *ngFor="let e of exchanges">
+
+    <ion-card-header>
+      <ion-card-title>{{e.vehicleName}}</ion-card-title>
+
+      <ion-badge color="primary" *ngIf="e.role === 'driver'">
+        Driver
+      </ion-badge>
+
+      <ion-badge color="medium" *ngIf="e.role === 'host'">
+        Host
+      </ion-badge>
+
+      <ion-badge [color]="getStatusColor(e.status)">
+        {{e.status}}
+      </ion-badge>
+
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <p>{{e.fromDate | date:'mediumDate'}} → {{e.untilDate | date:'mediumDate'}}</p>
+
+      <p *ngIf="e.locationName">
+        📍 {{e.locationName}}
+      </p>
+
+      <p *ngIf="e.meetingDateTime">
+        🕒 {{e.meetingDateTime | date:'medium'}}
+      </p>
+
+      <ion-button expand="block" (click)="openExchange(e)">
+        Open Exchange
+      </ion-button>
+
+    </ion-card-content>
+
+  </ion-card>
+
+</ion-list>
+
+</ion-content>

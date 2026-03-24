@@ -69,6 +69,32 @@ acceptBooking(bookingId: string) {
   );
 }
 
+// EXCHANGE API
+
+startExchange(data:any){
+  return this.http.post(`${this.mainUrl}/exchange/start`, data);
+}
+
+respondExchange(data:any){
+  return this.http.post(`${this.mainUrl}/exchange/respond`, data);
+}
+
+getExchange(bookingId:string){
+  return this.http.get(`${this.mainUrl}/exchange/${bookingId}`);
+}
+
+driverCheckout(data:any){
+  return this.http.post(`${this.mainUrl}/exchange/checkout`, data);
+}
+
+hostCheckin(data:any){
+  return this.http.post(`${this.mainUrl}/exchange/checkin`, data);
+}
+
+getUserExchanges(userId:string){
+  return this.http.get(`${this.baseUrl}/exchange/userExchanges/${userId}`);
+}
+
   // ------------------ COLORS ------------------
   getColors(): Observable<any[]> {
     if (!this.colors$) {

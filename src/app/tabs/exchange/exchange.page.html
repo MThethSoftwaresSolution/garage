@@ -1,0 +1,141 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Exchange</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+<!-- 🚀 NO EXCHANGE YET -->
+<div *ngIf="!exchange">
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Start Exchange</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-item>
+        <ion-label position="stacked">Meeting Date</ion-label>
+        <ion-input type="date" [(ngModel)]="meetingDate"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Meeting Time</ion-label>
+        <ion-input type="time" [(ngModel)]="meetingTime"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Location</ion-label>
+        <ion-input [(ngModel)]="location"></ion-input>
+      </ion-item>
+
+      <ion-button expand="block" (click)="startExchange()">
+        Propose Meeting
+      </ion-button>
+
+    </ion-card-content>
+  </ion-card>
+
+</div>
+
+<!-- ⏳ PENDING -->
+<!-- Only other person can respond -->
+<div *ngIf="exchange?.status === 'PENDING'">
+
+  <ion-button
+    *ngIf="isHost() && exchange.proposedBy === 'driver'"
+    (click)="accept()"
+  >
+    Accept
+  </ion-button>
+
+  <ion-button
+    *ngIf="isHost() && exchange.proposedBy === 'driver'"
+    color="danger"
+    (click)="reject()"
+  >
+    Reject
+  </ion-button>
+
+</div>
+
+<!-- 📍 CONFIRMED -->
+<div *ngIf="exchange?.status === 'CONFIRMED'">
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Meeting Confirmed</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <p>{{exchange.locationName}}</p>
+      <p>{{exchange.meetingDateTime | date:'medium'}}</p>
+
+      <ion-button expand="block" (click)="takePhoto()">
+        Take Photo
+      </ion-button>
+
+      <div *ngFor="let img of images">
+        <img [src]="img" style="width:100%;margin-top:10px;">
+      </div>
+
+      <ion-item>
+        <ion-label position="stacked">Notes</ion-label>
+        <ion-textarea [(ngModel)]="notes"></ion-textarea>
+      </ion-item>
+
+      <ion-button expand="block" color="primary" (click)="checkout()">
+        Complete Pickup (Driver)
+      </ion-button>
+
+    </ion-card-content>
+  </ion-card>
+
+</div>
+
+<!-- 🚗 CHECKOUT DONE -->
+<div *ngIf="exchange?.status === 'CHECKOUT_DONE'">
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Trip Active</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-button expand="block" (click)="takePhoto()">
+        Take Return Photos
+      </ion-button>
+
+      <div *ngFor="let img of images">
+        <img [src]="img" style="width:100%;margin-top:10px;">
+      </div>
+
+      <ion-item>
+        <ion-label position="stacked">Return Notes</ion-label>
+        <ion-textarea [(ngModel)]="notes"></ion-textarea>
+      </ion-item>
+
+      <ion-button expand="block" color="success" (click)="checkin()">
+        Complete Return (Host)
+      </ion-button>
+
+    </ion-card-content>
+  </ion-card>
+
+</div>
+
+<!-- ✅ COMPLETED -->
+<div *ngIf="exchange?.status === 'COMPLETED'">
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Trip Completed</ion-card-title>
+    </ion-card-header>
+  </ion-card>
+
+</div>
+
+</ion-content>

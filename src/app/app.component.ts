@@ -22,11 +22,12 @@ export class AppComponent {
   public appPages = [
     { title: 'HOME', url: '/tabs/dashboard', icon: 'home', active: true },
     { title: 'MY BOOKINGS', url: '/tabs/my-bookings', icon: 'cash', active: false },
-    { title: 'BOOKING REQUESTS', url: 'tabs/host-bookings', icon: 'calendar', active: false },
+    { title: 'MY EXCHANGES', url: '/tabs/my-exchanges', icon: 'swap-horizontal', active: false },
+    { title: 'MY VEHICLES BOOKING', url: 'tabs/host-bookings', icon: 'car', active: false },
     { title: 'MY TRIPS', url: '/tabs/my-trips', icon: 'analytics', active: false },
     { title: 'MY VEHICLES', url: '/tabs/host-dashboard', icon: 'calendar', active: false },
     { title: 'BROWSE VEHICLES', url: '/tabs/vehicles', icon: 'car', active: false },
-    { title: 'NOTIFCATIONS', url: '/tabs/notifications', icon: 'notifications', active: false },
+
     { title: 'PROFILE', url: '/tabs/profile', icon: 'person', active: false },
   ];
 

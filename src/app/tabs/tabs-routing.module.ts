@@ -36,6 +36,10 @@ const routes: Routes = [
   {
     path: 'host-bookings',
     loadChildren: () => import('./host-bookings/host-bookings.module').then( m => m.HostBookingsPageModule)
+  },
+  {
+    path: 'exchange',
+    loadChildren: () => import('./exchange/exchange.module').then( m => m.ExchangePageModule)
   }
   }
 *,

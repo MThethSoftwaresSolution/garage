@@ -320,31 +320,38 @@ this.grandTotal = this.estimateTotal + this.garageFee;
   // -----------------------
   // Disable booked dates + prevent crossing bookings
   // -----------------------
-  isDateEnabled = (isoString: string) => {
-    const day = isoString.slice(0, 10);
+isDateEnabled = (isoString: string) => {
+  const day = isoString.slice(0, 10);
 
-    // Always disable dates inside bookings
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+
+  // ❌ Disable past dates
+  if (this.toMs(day) < this.toMs(todayStr)) {
+    return false;
+  }
+
+  // ❌ Disable booked dates
+  for (const b of this.bookings) {
+    if (this.toMs(day) >= this.toMs(b.from) && this.toMs(day) <= this.toMs(b.until)) {
+      return false;
+    }
+  }
+
+  // ❌ Prevent selecting ranges overlapping bookings
+  if (this.selectedFrom && !this.selectedUntil) {
+    const fromCandidate = day < this.selectedFrom ? day : this.selectedFrom;
+    const untilCandidate = day < this.selectedFrom ? this.selectedFrom : day;
+
     for (const b of this.bookings) {
-      if (this.toMs(day) >= this.toMs(b.from) && this.toMs(day) <= this.toMs(b.until)) {
+      if (this.rangesOverlap(fromCandidate, untilCandidate, b.from, b.until)) {
         return false;
       }
     }
+  }
 
-    // If From selected but Until not yet, disable candidate end dates that would overlap any booking
-    if (this.selectedFrom && !this.selectedUntil) {
-      const fromCandidate = day < this.selectedFrom ? day : this.selectedFrom;
-      const untilCandidate = day < this.selectedFrom ? this.selectedFrom : day;
-
-      for (const b of this.bookings) {
-        if (this.rangesOverlap(fromCandidate, untilCandidate, b.from, b.until)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  };
-
+  return true;
+};
   // -----------------------
   // Highlighted dates
   // -----------------------

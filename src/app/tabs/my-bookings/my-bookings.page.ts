@@ -55,6 +55,10 @@ loadBookings() {
 
 }
 
+startExchange(booking:any){
+  this.navCtrl.navigateForward(`/tabs/exchange/${booking.bookingId}`);
+}
+
 cancelBooking(bookingId: string){
 
   this.service.cancelBooking(bookingId)
@@ -106,6 +110,32 @@ this.service.initiate({
 
   });
 
+}
+
+getExchangeLabel(b:any): string {
+
+  if (!b.exchange) return 'Start Exchange';
+
+  switch(b.exchange.status){
+    case 'PENDING': return 'Awaiting Confirmation';
+    case 'CONFIRMED': return 'Go to Meeting';
+    case 'CHECKOUT_DONE': return 'Complete Return';
+    case 'COMPLETED': return 'Trip Completed';
+    default: return 'Manage Exchange';
+  }
+}
+
+getExchangeColor(b:any): string {
+
+  if (!b.exchange) return 'tertiary';
+
+  switch(b.exchange.status){
+    case 'PENDING': return 'warning';
+    case 'CONFIRMED': return 'primary';
+    case 'CHECKOUT_DONE': return 'medium';
+    case 'COMPLETED': return 'success';
+    default: return 'tertiary';
+  }
 }
 
 }

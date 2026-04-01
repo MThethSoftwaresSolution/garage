@@ -175,9 +175,11 @@ export class LoginPage implements OnInit {
         localStorage.setItem('isActiveMember', JSON.stringify(resp.isActiveMember));
          this.isLoading = false;
          if(resp.user.isVetted){
-            this.router.navigateByUrl("tabs/dashboard");
+          window.location.href = 'tabs/dashboard';
+            //this.router.navigateByUrl("tabs/dashboard");
          }else{
-          this.router.navigateByUrl("tabs/verifications-landing");
+          window.location.href = 'tabs/verifications-landing';
+          //this.router.navigateByUrl("tabs/verifications-landing");
          }
 
       }

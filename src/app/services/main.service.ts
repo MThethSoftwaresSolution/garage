@@ -92,7 +92,14 @@ hostCheckin(data:any){
 }
 
 getUserExchanges(userId:string){
-  return this.http.get(`${this.baseUrl}/exchange/userExchanges/${userId}`);
+  return this.http.get(`${this.mainUrl}/exchange/userExchanges/${userId}`);
+}
+
+uploadImage(file: Blob){
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return this.http.post(`${this.mainUrl}/upload/image`, formData);
 }
 
   // ------------------ COLORS ------------------

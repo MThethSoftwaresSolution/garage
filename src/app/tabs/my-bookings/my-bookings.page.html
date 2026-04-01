@@ -35,17 +35,16 @@
       {{b.vehicleName}}
     </ion-card-title>
 
-    <ion-badge color="success" *ngIf="b.isConfirmed && !b.isPaid">
-      Confirmed
-    </ion-badge>
+<div style="margin-top:5px; display:flex; gap:5px; flex-wrap:wrap;">
 
-    <ion-badge color="primary" *ngIf="b.isPaid">
-      Paid
-    </ion-badge>
+  <ion-badge color="success" *ngIf="b.isConfirmed && !b.isPaid">Confirmed</ion-badge>
+  <ion-badge color="primary" *ngIf="b.isPaid">Paid</ion-badge>
+  <ion-badge color="warning" *ngIf="!b.isConfirmed">Pending</ion-badge>
 
-    <ion-badge color="warning" *ngIf="!b.isConfirmed">
-      Pending
-    </ion-badge>
+  <ion-badge color="medium" *ngIf="!isDriver(b)">Host</ion-badge>
+  <ion-badge color="tertiary" *ngIf="isDriver(b)">Driver</ion-badge>
+
+</div>
 
   </ion-card-header>
 

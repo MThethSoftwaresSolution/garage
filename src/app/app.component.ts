@@ -20,13 +20,14 @@ export class AppComponent {
   public router = inject(Router)
 
   public appPages = [
-    { title: 'HOME', url: '/tabs/dashboard', icon: 'home', active: true },
-    { title: 'MY BOOKINGS', url: '/tabs/my-bookings', icon: 'cash', active: false },
+    //{ title: 'HOME', url: '/tabs/dashboard', icon: 'home', active: true },
+    { title: 'HOME', url: '/tabs/vehicles', icon: 'car', active: false },
+    { title: 'MY BOOKING"S REQUESTS', url: '/tabs/my-bookings', icon: 'cash', active: false },
+    { title: 'MY VEHICLE"S BOOKINGS', url: 'tabs/host-bookings', icon: 'car', active: false },
     { title: 'MY EXCHANGES', url: '/tabs/my-exchanges', icon: 'swap-horizontal', active: false },
-    { title: 'MY VEHICLES BOOKING', url: 'tabs/host-bookings', icon: 'car', active: false },
-    { title: 'MY TRIPS', url: '/tabs/my-trips', icon: 'analytics', active: false },
-    { title: 'MY VEHICLES', url: '/tabs/host-dashboard', icon: 'calendar', active: false },
-    { title: 'BROWSE VEHICLES', url: '/tabs/vehicles', icon: 'car', active: false },
+    { title: 'TRIPS', url: '/tabs/my-trips', icon: 'analytics', active: false },
+    { title: 'FLEET', url: '/tabs/host-dashboard', icon: 'calendar', active: false },
+    
 
     { title: 'PROFILE', url: '/tabs/profile', icon: 'person', active: false },
   ];

@@ -1,10 +1,18 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Exchange</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
+  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
+      <ion-button
+    fill="clear"
+    class="white-menu-btn floating-back"
+    (click)="goBack()"
+  >
+    BACK
+  </ion-button>
+  <div id="bg">
+
+
+  </div>
+  <h5 style="text-align: center; font-weight: bold;">EXCHANGE</h5>
+<br>
 
 <!-- 🚀 NO EXCHANGE YET -->
 <div *ngIf="!exchange">
@@ -98,6 +106,16 @@
 <!-- 🚗 CHECKOUT DONE -->
 <div *ngIf="exchange?.status === 'CHECKOUT_DONE'">
 
+  <div *ngIf="checkoutImages.length > 0">
+
+  <h6>Pickup Photos</h6>
+
+  <div *ngFor="let img of checkoutImages">
+    <img [src]="img" style="width:100%; margin-top:10px;" />
+  </div>
+
+</div>
+
   <ion-card>
     <ion-card-header>
       <ion-card-title>Trip Active</ion-card-title>
@@ -131,9 +149,45 @@
 <div *ngIf="exchange?.status === 'COMPLETED'">
 
   <ion-card>
+
     <ion-card-header>
       <ion-card-title>Trip Completed</ion-card-title>
     </ion-card-header>
+
+    <ion-card-content>
+
+      <!-- 🧾 DRIVER NOTES -->
+      <div *ngIf="exchange?.checkOutNotes">
+        <h6>Driver Notes (Pickup)</h6>
+        <p>{{exchange.checkOutNotes}}</p>
+      </div>
+
+      <!-- 📸 PICKUP IMAGES -->
+      <div *ngIf="checkoutImages.length > 0">
+        <h6>Pickup Photos</h6>
+        <div *ngFor="let img of checkoutImages">
+          <img [src]="img" style="width:100%; margin-top:10px;" />
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- 🧾 HOST NOTES -->
+      <div *ngIf="exchange?.checkInNotes">
+        <h6>Host Notes (Return)</h6>
+        <p>{{exchange.checkInNotes}}</p>
+      </div>
+
+      <!-- 📸 RETURN IMAGES -->
+      <div *ngIf="checkinImages.length > 0">
+        <h6>Return Photos</h6>
+        <div *ngFor="let img of checkinImages">
+          <img [src]="img" style="width:100%; margin-top:10px;" />
+        </div>
+      </div>
+
+    </ion-card-content>
+
   </ion-card>
 
 </div>

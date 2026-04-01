@@ -23,6 +23,8 @@ export class ExchangePage implements OnInit {
   location = '';
 
   images:string[] = [];
+  checkoutImages: string[] = [];
+checkinImages: string[] = [];
   notes = '';
 
   loading = false;
@@ -30,8 +32,8 @@ export class ExchangePage implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private service: MainService,
-    private navCtrl: NavController
+    private service: MainService, 
+    private nav: NavController
   ) {}
 
   ngOnInit() {
@@ -42,10 +44,24 @@ export class ExchangePage implements OnInit {
     this.currentUserId = user.id;
   }
 
+            goBack() {
+        this.nav.back();
+      }
+
   loadExchange(){
     this.service.getExchange(this.bookingId).subscribe({
       next:(res:any)=>{
-        this.exchange = res;
+         this.exchange = res;
+
+      // ✅ parse checkout images
+      if(res.checkOutImagesJson){
+        this.checkoutImages = JSON.parse(res.checkOutImagesJson);
+      }
+
+      // ✅ parse checkin images
+      if(res.checkInImagesJson){
+        this.checkinImages = JSON.parse(res.checkInImagesJson);
+      }
       },
       error:()=>{
         this.exchange = null;
@@ -100,28 +116,25 @@ isHost(): boolean {
     });
   }
 
-  // 📸 TAKE PHOTO
-  async takePhoto(){
-    const image = await Camera.getPhoto({
-      quality: 60,
-      resultType: CameraResultType.DataUrl
-    });
-
-    this.images.push(image.dataUrl!);
-  }
-
   // 🚗 DRIVER CHECKOUT
-  checkout(){
-    this.service.driverCheckout({
-      bookingId: this.bookingId,
-      images: this.images,
-      notes: this.notes
-    }).subscribe(()=>{
-      this.loadExchange();
-      this.images = [];
-      this.notes = '';
-    });
+checkout(){
+
+  if(this.images.length < 4){
+    alert("Please upload at least 4 images");
+    return;
   }
+
+  this.service.driverCheckout({
+    bookingId: this.bookingId,
+    images: this.images, // ✅ now URLs
+    notes: this.notes
+  }).subscribe(()=>{
+    alert("Pickup completed");
+    this.loadExchange();
+  }, (error:any)=>{
+    alert(error.error);
+  });
+}
 
   // 🏁 HOST CHECKIN
   checkin(){
@@ -135,5 +148,27 @@ isHost(): boolean {
       this.notes = '';
     });
   }
+
+  async takePhoto(){
+
+  const image = await Camera.getPhoto({
+    quality: 60,
+    resultType: CameraResultType.Uri
+  });
+
+  const response = await fetch(image.webPath!);
+  const blob = await response.blob();
+
+  this.service.uploadImage(blob).subscribe({
+    next:(res:any)=>{
+      this.images.push(res.url); // ✅ now storing URL
+    },
+    error:(err)=>{
+      console.error(err);
+      alert("Image upload failed");
+    }
+  });
+
+}
 
 }

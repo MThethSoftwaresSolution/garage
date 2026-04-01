@@ -22,6 +22,8 @@ loading = false;
 
 ngOnInit() {
 
+  this.bookings = [];
+
   const currentUserRaw = localStorage.getItem('currentUser');
 
   if (currentUserRaw) {
@@ -29,6 +31,10 @@ ngOnInit() {
   }
 
   this.loadBookings();
+}
+
+isDriver(b:any): boolean {
+  return b.userId === this.userId;
 }
 
 loadBookings() {

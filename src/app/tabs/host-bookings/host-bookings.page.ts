@@ -30,6 +30,8 @@ constructor(private payment: PaymentService, private toastCtrl: ToastController,
 
 ngOnInit(){
 
+  this.hostBookings = [];
+
   const currentUserRaw = localStorage.getItem('currentUser');
 
   if(currentUserRaw){

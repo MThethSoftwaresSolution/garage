@@ -95,6 +95,14 @@ getUserExchanges(userId:string){
   return this.http.get(`${this.mainUrl}/exchange/userExchanges/${userId}`);
 }
 
+getMessages(bookingId: string){
+  return this.http.get(`${this.mainUrl}/chat/${bookingId}`);
+}
+
+sendMessage(data:any){
+  return this.http.post(`${this.mainUrl}/chat`, data);
+}
+
 uploadImage(file: Blob){
   const formData = new FormData();
   formData.append('file', file);

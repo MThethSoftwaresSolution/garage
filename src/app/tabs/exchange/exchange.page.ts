@@ -44,6 +44,13 @@ checkinImages: string[] = [];
     this.currentUserId = user.id;
   }
 
+  handleRefresh(event: any) {
+  setTimeout(() => {
+    this.loadExchange();
+    event.target.complete(); // stops the spinner
+  }, 2000);
+}
+
             goBack() {
         this.nav.back();
       }

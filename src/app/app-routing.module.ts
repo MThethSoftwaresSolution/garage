@@ -44,6 +44,11 @@ const routes: Routes = [
           import('./../app/tabs/exchange/exchange.page').then(m => m.ExchangePage)
       },
       {
+        path: 'chat/:id',
+        loadComponent: () => 
+          import('./../app/pages/chat/chat.page').then(m => m.ChatPage)
+      },
+      {
         path: 'payments',
         loadComponent: () =>
            import('./../app/tabs/payments/payments.page').then(m => m.PaymentsPage)
@@ -114,6 +119,10 @@ const routes: Routes = [
   {
     path: 'my-exchanges',
     loadChildren: () => import('./pages/my-exchanges/my-exchanges.module').then( m => m.MyExchangesPageModule)
+  },
+  {
+    path: 'chat',
+    loadChildren: () => import('./pages/chat/chat.module').then( m => m.ChatPageModule)
   }
 
 

@@ -14,7 +14,9 @@
 <h5 style="text-align:center;font-weight:bold;">TRIPS</h5>
 <br>
 
-
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
 <!-- Loading -->
 <div *ngIf="loading" style="text-align:center;margin-top:40px;">
@@ -65,9 +67,27 @@
         🕒 {{e.meetingDateTime | date:'medium'}}
       </p>
 
-      <ion-button expand="block" (click)="openExchange(e)">
-        Open Exchange
-      </ion-button>
+<ion-button 
+  expand="block" 
+  [disabled]="!canOpenExchange(e)"
+  (click)="openExchange(e)"
+>
+  Open Exchange
+</ion-button>
+
+<!-- spacing -->
+<div style="height:8px;"></div>
+
+<!-- 💬 CHAT -->
+<ion-button 
+  expand="block"
+  fill="outline"
+  color="tertiary"
+  *ngIf="canChat(e)"
+  (click)="openChat(e)"
+>
+  Chat
+</ion-button>
 
     </ion-card-content>
 

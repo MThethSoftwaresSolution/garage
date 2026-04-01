@@ -1,0 +1,57 @@
+.chat-container {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🧑‍💻 MY MESSAGE (RIGHT) */
+.my-msg {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.my-msg .bubble {
+  background: #dcf8c6;
+  color: #000;
+  padding: 10px 12px;
+  border-radius: 16px 16px 4px 16px;
+  max-width: 75%;
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
+/* 👤 OTHER MESSAGE (LEFT) */
+.other-msg {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+.other-msg .bubble {
+  background: #ffffff;
+  color: #000;
+  padding: 10px 12px;
+  border-radius: 16px 16px 16px 4px;
+  max-width: 75%;
+  font-size: 14px;
+  word-wrap: break-word;
+  border: 1px solid #eee;
+}
+
+/* 🕒 TIME */
+.time {
+  font-size: 10px;
+  text-align: right;
+  margin-top: 4px;
+  color: #666;
+}
+
+ion-content {
+  --background: #e5ddd5;
+}
+
+.chat-input {
+  --background: #fff;
+  border-top: 1px solid #ddd;
+}

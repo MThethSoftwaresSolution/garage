@@ -44,8 +44,14 @@ ngOnInit() {
   }
 
   this.loadHostBookings();
+}
 
-
+handleRefresh(event: any) {
+  setTimeout(() => {
+    this.loadBookings();
+    this.loadHostBookings();
+    event.target.complete(); // stops the spinner
+  }, 2000);
 }
 
 isDriver(b:any): boolean {

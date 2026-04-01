@@ -14,6 +14,10 @@
   <h5 style="text-align: center; font-weight: bold;">EXCHANGE</h5>
 <br>
 
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
 <!-- 🚀 NO EXCHANGE YET -->
 <div *ngIf="!exchange">
 

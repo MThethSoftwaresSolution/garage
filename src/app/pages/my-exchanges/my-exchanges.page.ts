@@ -25,6 +25,13 @@ export class MyExchangesPage implements OnInit {
     this.loadExchanges();
   }
 
+  handleRefresh(event: any) {
+  setTimeout(() => {
+    this.loadExchanges();
+    event.target.complete(); // stops the spinner
+  }, 2000);
+}
+
   goBack() {
     this.navCtrl.back();
   }
@@ -57,6 +64,19 @@ export class MyExchangesPage implements OnInit {
     default: return 'dark';
   }
 
+}
+
+canOpenExchange(e:any): boolean {
+  return !!e && e.status !== 'REJECTED';
+}
+
+canChat(e:any): boolean {
+  return this.canOpenExchange(e);
+}
+
+openChat(e:any){
+  if(!this.canChat(e)) return;
+  this.navCtrl.navigateForward(`/tabs/chat/${e.bookingId}`);
 }
 
 }

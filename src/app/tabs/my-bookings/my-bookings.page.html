@@ -15,6 +15,9 @@
   </div>
   <h5 style="text-align: center; font-weight: bold;">BOOKINGS</h5>
 <br>
+    <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 <!-- Loading -->
   <div *ngIf="loading" style="text-align:center;margin-top:40px;">
     <ion-spinner name="crescent"></ion-spinner>

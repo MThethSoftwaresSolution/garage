@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Vehicle Exchange Chat</ion-title>
+            <ion-button
+    fill="clear"
+    class="white-menu-btn floating-back"
+    (click)="goBack()"
+  >
+    BACK
+  </ion-button>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div class="chat-container">
+
+  <div *ngFor="let msg of messages" 
+       [ngClass]="msg.senderId === currentUserId ? 'my-msg' : 'other-msg'">
+
+    <div class="bubble">
+      {{msg.text}}
+      <div class="time">
+        {{msg.createdAt | date:'shortTime'}}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+  <!--<div *ngFor="let msg of messages">
+    <div [style.text-align]="msg.senderId === currentUserId ? 'right' : 'left'">
+      <ion-chip color="light">
+        {{msg.text}}
+      </ion-chip>
+    </div>
+  </div>-->
+
+</ion-content>
+
+<ion-footer>
+  <ion-item lines="none" class="chat-input">
+
+    <ion-input 
+      [(ngModel)]="newMessage" 
+      placeholder="Message">
+    </ion-input>
+
+    <ion-button shape="round" (click)="sendMessage()">
+      Send
+    </ion-button>
+
+  </ion-item>
+</ion-footer>

@@ -19,6 +19,487 @@ height: 110px;
     top: 10px;    /* distance from top of the banner */
     left: 10px;   /* distance from left edge */
     z-index: 1000; /* ensure it appears above the banner */
+    margin-top: 30px;
+}
+
+.floating-back {
+  position: absolute;
+  top: 10px;
+  right: 10px; /* FAR RIGHT */
+  z-index: 1000;
+}
+
+.membership-card {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #1f1f1f, #2b2b2b);
+  color: #fff;
+  border-radius: 16px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* HEADER */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.org-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.org-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+}
+
+.org-info h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.org-info small {
+  color: #bbb;
+}
+
+.badge {
+  background: #c98b1f;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* BODY */
+.card-body {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.left,
+.middle,
+.right {
+  flex: 1;
+}
+
+.profile-img {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.middle h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.valid {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.qr-img {
+  width: 90px;
+  height: 90px;
+}
+
+/* FOOTER */
+.card-footer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.info {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.info mat-icon {
+  font-size: 20px;
+  color: #c98b1f;
+}
+
+.info label {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.info span {
+  font-size: 13px;
+}
+
+.membership-scale-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .membership-scale-wrapper {
+    transform: scale(0.85);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 480px) {
+  .membership-scale-wrapper {
+    transform: scale(0.75);
+    transform-origin: top center;
+  }
+}
+
+@media (max-width: 360px) {
+  .membership-scale-wrapper {
+    transform: scale(0.68);
+    transform-origin: top center;
+  }
+}
+
+.booking-card{
+margin:14px;
+border-radius:16px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.booking-row{
+display:flex;
+align-items:center;
+gap:10px;
+margin:8px 0;
+font-size:14px;
+}
+
+.booking-row ion-icon{
+font-size:18px;
+color:#666;
+}
+
+.booking-row.total{
+margin-top:10px;
+font-size:16px;
+justify-content:space-between;
+}
+
+.status-badges{
+display:flex;
+gap:6px;
+margin-top:6px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*JOIN HOST SECTION*/
+.payment-content {
+  --background: #f6f7fb;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  padding: 14px 12px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-btn {
+  font-weight: 600;
+}
+
+.banner-title {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin-right: 44px;
+}
+
+.banner-title h5 {
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+}
+
+.container {
+  padding: 14px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Vehicle preview card */
+.vehicle-card {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+.vehicle-hero {
+  height: 180px;
+  background: #e9ecf2;
+}
+
+.vehicle-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicle-title .name {
+  font-weight: 900;
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.vehicle-title .dates {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Summary card */
+.summary-card {
+  margin-top: 14px;
+  border-radius: 18px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
+}
+
+.route {
+  position: relative;
+  padding-left: 6px;
+}
+
+.route-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 10px 0;
+}
+
+.marker {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  margin-top: 6px;
+  flex: 0 0 12px;
+}
+
+.marker.pickup {
+  background: #2dd36f;
+  box-shadow: 0 0 0 6px rgba(45, 211, 111, 0.15);
+}
+
+.marker.dropoff {
+  background: #111;
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Vertical dotted line between markers */
+.route-line {
+  margin-left: 5px; /* aligns under marker */
+  height: 22px;
+  border-left: 2px dotted rgba(0, 0, 0, 0.25);
+}
+
+.route-content .label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.route-content .value {
+  font-weight: 800;
+  font-size: 1rem;
+  margin-top: 2px;
+}
+
+.route-content .meta {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* Sticky bottom bar */
+.sticky-pay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 12px 14px;
+  //display: flex;
+  gap: 12px;
+  align-items: center;
+  z-index: 20;
+}
+
+/*.sticky-total {
+  flex: 1;
+}*/
+
+.sticky-total .small {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.55);
+  font-weight: 700;
+}
+
+.sticky-total .amount {
+  font-size: 1.25rem;
+  font-weight: 950;
+}
+
+.sticky-btn {
+  --border-radius: 14px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+}
+
+/* Spacer so last content isn't hidden behind sticky bar */
+.bottom-spacer {
+  height: 88px;
+}
+
+.black-btn {
+  --background: #000;
+  --background-hover: #111;
+  --background-activated: #222;
+  --background-focused: #111;
+
+  --color: #fff;
+
+  --border-radius: 14px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+/* Spinner white */
+.black-btn ion-spinner {
+  color: #fff;
+}
+
+/* Disabled state */
+.black-btn[disabled] {
+  --background: #333;
+  --color: #aaa;
+}
+
+
+.booking-card{
+margin:14px;
+border-radius:16px;
+box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+.booking-header{
+display:flex;
+gap:12px;
+padding:12px;
+align-items:center;
+}
+
+.vehicle-thumb{
+width:70px;
+height:70px;
+border-radius:12px;
+object-fit:cover;
+}
+
+.booking-title h2{
+margin:0;
+font-size:16px;
+font-weight:800;
+}
+
+.guest{
+font-size:13px;
+color:#666;
+}
+
+.booking-row{
+display:flex;
+align-items:center;
+gap:8px;
+margin:6px 0;
+font-size:14px;
+}
+
+.booking-row.price{
+margin-top:12px;
+font-weight:600;
+}
+
+.booking-row.host{
+font-size:16px;
+font-weight:800;
+}
+
+.booking-actions{
+display:flex;
+gap:10px;
+margin-top:12px;
+}
+
+ 
+.logo{
+height: 110px;
+}
+#bg {
+    height: 15%;
+    background: var(--ion-color-dark) url('./../../../assets/banner.png') no-repeat center center/cover;
+    border-radius: 0 0 25% 25%;
+    position: relative;
+}
+
+.white-menu-btn {
+  --color: white;
+}
+
+/* Floating menu button on top-left of banner */
+.floating-menu {
+    position: absolute;
+    top: 10px;    /* distance from top of the banner */
+    left: 10px;   /* distance from left edge */
+    z-index: 1000; /* ensure it appears above the banner */
+    margin-top: 30px;
 }
 
 .floating-back {

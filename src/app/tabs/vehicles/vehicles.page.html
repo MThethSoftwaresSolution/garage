@@ -1,12 +1,6 @@
 <ion-content>
   <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
-      <ion-button
-    fill="clear"
-    class="white-menu-btn floating-back"
-    (click)="goBack()"
-  >
-    BACK
-  </ion-button>
+      
   <div id="bg">
 
 
@@ -15,7 +9,13 @@
 <br>
 <!-- Search bar (simple + production-ready). Replace inputs with your MDB pickers if needed -->
  <div class="container">
-  <div class="search-card">
+
+  <button class="btn btn-outline" (click)="toggleFilters()">
+  <ion-icon [name]="showFilters ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+  {{ showFilters ? 'Hide Filters' : 'Show Filters' }}
+</button>
+<br>
+  <div class="search-card" *ngIf="showFilters">
     <form [formGroup]="form" (ngSubmit)="searchByAvailability()">
       <div class="row">
         <div class="col">
@@ -62,7 +62,7 @@
     <div class="muted">Loading…</div>
   </div>
 
-  <div class="row" *ngIf="isAddressEntered && !loading">
+  <!--<div class="row" *ngIf="isAddressEntered && !loading">
     <h4 *ngIf="isProvince">Vehicles in the province: <span class="bold">{{ address }}</span></h4>
     <h4 *ngIf="!isProvince">Vehicles near <span class="bold">{{ address }}</span></h4>
   </div>
@@ -70,8 +70,8 @@
   <div *ngIf="!loading && filteredVehicles.length === 0" class="empty">
     <ion-icon name="car-outline"></ion-icon>
     <div>No vehicles found for the selected dates.</div>
-  </div>
-
+  </div>-->
+<br>
   <!-- Vehicle cards -->
   <div class="grid" *ngIf="!loading && filteredVehicles.length > 0">
     <div class="vehicle-card" *ngFor="let v of filteredVehicles" (click)="viewVehicle(v.vehicleId)">

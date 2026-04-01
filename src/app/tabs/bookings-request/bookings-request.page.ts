@@ -77,7 +77,7 @@ ngOnInit(): void {
       await toast.present();
 
       setTimeout(() => {
-        this.router.navigate(['tabs/my-bookings']);
+        window.location.href = 'tabs/my-bookings';
       }, 3000);
 
       },

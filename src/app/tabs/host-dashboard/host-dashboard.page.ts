@@ -58,6 +58,7 @@ export class HostDashboardPage implements OnInit {
     Color: new FormControl('', [Validators.required]),
     Transmission: new FormControl('', [Validators.required]),
     MarketValue: new FormControl(0, [Validators.required]),
+    VehicleValueAmount: new FormControl(0, [Validators.required]),
 
     OwnerIdNumber: new FormControl('', [Validators.required]),
     OwnerName: new FormControl('', [Validators.required]),
@@ -258,6 +259,7 @@ export class HostDashboardPage implements OnInit {
       NumberPlate: this.form.value.NumberPlate,
       Transmission: this.form.value.Transmission,
       MarketValue: this.form.value.MarketValue,
+      VehicleValueAmount: this.form.value.VehicleValueAmount,
 
       OwnerIdNumber: this.form.value.OwnerIdNumber,
       OwnerName: this.form.value.OwnerName,
@@ -279,7 +281,7 @@ export class HostDashboardPage implements OnInit {
       next: async () => {
         this.loading = false;
         await this.presentToast('Vehicle submitted for approval!', 'success');
-        this.form.reset({ CountryId: 1, MarketValue: 0 });
+        this.form.reset({ CountryId: 1, MarketValue: 0, VehicleValueAmount: 0 });
         this.showForm = false;
         this.loadHostedCars();
       },

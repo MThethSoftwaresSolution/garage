@@ -1,5 +1,7 @@
 <ion-content>
-  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
+
+  <ion-menu-button class="white-menu-btn floating-menu">
+    <ion-icon name="apps"></ion-icon></ion-menu-button>
       <ion-button
     fill="clear"
     class="white-menu-btn floating-back"
@@ -11,7 +13,7 @@
 
 
   </div>
-  <h5 style="text-align: center; font-weight: bold;">MY BOOKINGS</h5>
+  <h5 style="text-align: center; font-weight: bold;">BOOKINGS</h5>
 <br>
 <!-- Loading -->
   <div *ngIf="loading" style="text-align:center;margin-top:40px;">
@@ -20,9 +22,9 @@
 
   <!-- No bookings -->
   <ion-card *ngIf="!loading && bookings.length === 0">
-    <ion-card-content>
+    <!--<ion-card-content>
       You have no bookings yet.
-    </ion-card-content>
+    </ion-card-content>-->
   </ion-card>
 
   <!-- Booking list -->
@@ -101,6 +103,96 @@
 >
   {{ getExchangeLabel(b) }}
 </ion-button>
+
+  </ion-card-content>
+
+</ion-card>
+
+  </ion-list>
+
+  <!--VEHICLE'S BOOKINGS-->
+
+
+     <ion-card *ngIf="hostBookings.length === 0 && !loading">
+    <!--<ion-card-content>
+      No booking requests yet.
+    </ion-card-content>-->
+  </ion-card>
+
+  <ion-list *ngIf="hostBookings.length > 0">
+
+<ion-card *ngFor="let b of hostBookings" class="booking-card">
+
+  <div class="booking-header">
+
+<img
+  [src]="getImage(b.image)"
+  class="vehicle-thumb"
+/>
+
+    <div class="booking-title">
+      <h2>{{b.vehicleName}}</h2>
+      <div class="guest">Driver: {{b.guestName}}</div>
+
+      <ion-badge *ngIf="b.isConfirmed" color="success">
+        Accepted
+      </ion-badge>
+
+      <ion-badge *ngIf="!b.isConfirmed" color="warning">
+        Pending
+      </ion-badge>
+    </div>
+
+  </div>
+
+  <ion-card-content>
+
+    <div class="booking-row">
+      <ion-icon name="calendar-outline"></ion-icon>
+      {{b.fromDate | date:'mediumDate'}} → {{b.untilDate | date:'mediumDate'}}
+    </div>
+
+    <div class="booking-row">
+      <ion-icon name="location-outline"></ion-icon>
+      {{b.pickupLocation}}
+    </div>
+
+    <div class="booking-row">
+      <ion-icon name="time-outline"></ion-icon>
+      {{b.estimatedDays}} days
+    </div>
+
+    <div class="booking-row price">
+      Guest Paid: <strong>R {{b.grandTotal}}</strong>
+    </div>
+
+    <div class="booking-row fee">
+      Garage Fee: R {{b.garageFee}}
+    </div>
+
+    <div class="booking-row host">
+      Your Earnings: <strong>R {{b.estimatedTotal}}</strong>
+    </div>
+
+    <div class="booking-actions" *ngIf="!b.isConfirmed">
+
+      <ion-button
+        color="success"
+        size="small"
+        (click)="acceptBooking(b.bookingId)"
+      >
+        Accept
+      </ion-button>
+
+      <ion-button
+        color="danger"
+        size="small"
+        (click)="rejectBooking(b.bookingId)"
+      >
+        Decline
+      </ion-button>
+
+    </div>
 
   </ion-card-content>
 

@@ -156,7 +156,7 @@ this.authService.relogin(creds).subscribe((resp:any)=>{
         localStorage.setItem('isActiveMember', JSON.stringify(resp.isActiveMember));
          this.isLoading = false;
          if(resp.user.isVetted){
-            this.router.navigateByUrl("tabs/dashboard");
+            this.router.navigateByUrl("tabs/vehicles");
          }else{
           this.router.navigateByUrl("tabs/verifications-landing");
          }
@@ -599,7 +599,7 @@ submit() {
         localStorage.setItem('isActiveMember', JSON.stringify(resp.isActiveMember));
          this.isLoading = false;
          if(resp.user.isVetted){
-            this.router.navigateByUrl("tabs/dashboard");
+            this.router.navigateByUrl("tabs/vehicles");
          }else{
           window.location.reload();
          }

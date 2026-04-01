@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlertController, IonicModule, NavController } from '@ionic/angular';
 import { MainService } from 'src/app/services/main.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-my-bookings',
@@ -18,11 +19,16 @@ constructor(private navCtrl: NavController,
 
 bookings: any[] = [];
 userId = '';
+
+hostBookings: any[] = [];
+hostId = '';
+
 loading = false;
 
 ngOnInit() {
 
   this.bookings = [];
+  this.hostBookings = [];
 
   const currentUserRaw = localStorage.getItem('currentUser');
 
@@ -30,7 +36,16 @@ ngOnInit() {
     this.userId = JSON.parse(currentUserRaw).id;
   }
 
+
   this.loadBookings();
+
+  if(currentUserRaw){
+    this.hostId = JSON.parse(currentUserRaw).id;
+  }
+
+  this.loadHostBookings();
+
+
 }
 
 isDriver(b:any): boolean {
@@ -142,6 +157,81 @@ getExchangeColor(b:any): string {
     case 'COMPLETED': return 'success';
     default: return 'tertiary';
   }
+}
+
+loadHostBookings(){
+
+  this.loading = true;
+
+  this.service.getHostBookings(this.hostId)
+  .subscribe({
+
+    next:(resp:any)=>{
+      console.log(resp);
+      this.hostBookings = resp;
+
+      this.loading = false;
+
+    },
+
+    error:(err:any)=>{
+      console.log(err.error);
+      this.loading = false;
+    }
+
+  });
+
+}
+
+getImage(url: string | null) {
+  if (!url) return './assets/default-car.jpg';
+  return environment.baseUrl + url;
+}
+
+acceptBooking(id:string){
+
+  this.service.acceptBooking(id)
+  .subscribe({
+
+    next:()=>{
+
+      const booking = this.hostBookings.find(x => x.bookingId === id);
+
+      if(booking){
+        booking.isConfirmed = true;
+      }
+
+    },
+
+    error:(err:any)=>{
+      console.log(err.error);
+    }
+
+  });
+
+}
+
+rejectBooking(id:string){
+
+  this.service.acceptBooking(id)
+  .subscribe({
+
+    next:()=>{
+
+      const booking = this.hostBookings.find(x => x.bookingId === id);
+
+      if(booking){
+        booking.isConfirmed = true;
+      }
+
+    },
+
+    error:(err:any)=>{
+      console.log(err.error);
+    }
+
+  });
+
 }
 
 }

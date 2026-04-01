@@ -24,7 +24,7 @@ constructor(
       const userId = localStorage.getItem('id');
 
       if (userId) {
-        this.router.navigateByUrl('/tabs/dashboard', { replaceUrl: true });
+        this.router.navigateByUrl('/tabs/vehicles', { replaceUrl: true });
       } else {
         this.router.navigateByUrl('/login', { replaceUrl: true });
       }

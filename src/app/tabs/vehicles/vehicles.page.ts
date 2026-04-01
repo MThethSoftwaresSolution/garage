@@ -47,6 +47,12 @@ export interface VehicleCardVm {
   imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class VehiclesPage implements OnInit {
+
+  showFilters = false;
+
+toggleFilters() {
+  this.showFilters = !this.showFilters;
+}
 loading = false;
 
   form!: FormGroup;

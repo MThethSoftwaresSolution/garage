@@ -11,7 +11,7 @@
 
 
   </div>
-<h5 style="text-align:center;font-weight:bold;">MY EXCHANGES</h5>
+<h5 style="text-align:center;font-weight:bold;">TRIPS</h5>
 <br>
 
 
@@ -24,7 +24,7 @@
 <!-- Empty -->
 <ion-card *ngIf="!loading && exchanges.length === 0">
   <ion-card-content>
-    No exchanges yet.
+    No Trips at the moment.
   </ion-card-content>
 </ion-card>
 
@@ -35,6 +35,8 @@
 
     <ion-card-header>
       <ion-card-title>{{e.vehicleName}}</ion-card-title>
+
+      <div style="margin-top:5px; display:flex; gap:5px; flex-wrap:wrap;">
 
       <ion-badge color="primary" *ngIf="e.role === 'driver'">
         Driver
@@ -47,6 +49,7 @@
       <ion-badge [color]="getStatusColor(e.status)">
         {{e.status}}
       </ion-badge>
+      </div>
 
     </ion-card-header>
 

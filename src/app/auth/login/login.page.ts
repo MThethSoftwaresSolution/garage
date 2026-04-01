@@ -46,8 +46,8 @@ export class LoginPage implements OnInit {
   isToastOpen: boolean = false;
 
   loginFormGroup: FormGroup = new FormGroup({
-    email: new FormControl("", [Validators.required, Validators.email]),
-    password: new FormControl("", [Validators.required])
+    email: new FormControl("driver@mailinator.com", [Validators.required, Validators.email]),
+    password: new FormControl("Mbo@1993", [Validators.required])
   });
 
   activateFormGroup: FormGroup = new FormGroup({
@@ -175,7 +175,7 @@ export class LoginPage implements OnInit {
         localStorage.setItem('isActiveMember', JSON.stringify(resp.isActiveMember));
          this.isLoading = false;
          if(resp.user.isVetted){
-          window.location.href = 'tabs/dashboard';
+          window.location.href = 'tabs/vehicles';
             //this.router.navigateByUrl("tabs/dashboard");
          }else{
           window.location.href = 'tabs/verifications-landing';

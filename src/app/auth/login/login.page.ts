@@ -178,8 +178,7 @@ export class LoginPage implements OnInit {
           window.location.href = 'tabs/vehicles';
             //this.router.navigateByUrl("tabs/dashboard");
          }else{
-          window.location.href = 'tabs/verifications-landing';
-          //this.router.navigateByUrl("tabs/verifications-landing");
+          this.router.navigateByUrl('/tabs/profile?completeProfile=true');
          }
 
       }

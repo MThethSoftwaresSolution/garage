@@ -1,124 +1,232 @@
-
-.logo{
-    display: block;
-    width: 150px;
-    height: auto;
-    margin-left: auto;
-    margin-right: auto;
-}
-.logo-name{
-    font-size: 22px;
-    font-weight: 500;
-    text-align: center;
-    margin-bottom: 10px;
-    margin-top: 15px;
-    color: black;
-}
-.logo-text{
-    font-size: 12px;
-    font-weight: 300;
-    text-align: center;
-    margin-bottom: 20px;
-    color: black;
-}
-.forget-text{
-    a{
-        text-decoration: none;
-        color: black;
-    }
-    text-align: end;
-    margin-bottom: -10px;
-    padding-right: 20px;
-}
-.login-button{
-  --padding-start: 20px;
-  --padding-end: 20px;
-  height: 50px;
-
-  --border-radius: 12px;
-  --border-width: 1px;
-  --border-style: solid;
-  --border-color: black;
-
-  --box-shadow: none;
-  margin-top: 20px;
-}
-.register-button {
-  --padding-start: 20px;
-  --padding-end: 20px;
-  height: 50px;
-
-  --border-radius: 12px;
-  --border-width: 1px;
-  --border-style: solid;
-  --border-color: black;
-
-  --box-shadow: none;
-  margin-top: 20px;
-}
-.google-button{
-    padding-left: 20px;
-    padding-right: 20px;
-    height: 50px;
-    --border-radius: 12px;
-    margin-top: 20px;
-    margin-bottom: 40px;
-    --box-shadow: none;
+ion-content {
+  --background: #f4f4f2;
 }
 
-.pad-button{
-    padding-left: 20px;
-    padding-right: 20px;
+.auth-page {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.9), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f3f3f0 45%, #ececea 100%);
+  padding-bottom: 24px;
 }
 
-.pad-text{
-    padding-left: 20px;
-    padding-right: 20px;
-}
-
-.signup-text{
-    a{
-        text-decoration: none;
-        color: var(--ion-color-primary);
-    }
-    padding-right: 20px;
-    text-align: end;
-}
-.forgot-password-text{
-    a{
-        text-decoration: none;
-        color: var(--ion-color-primary);
-    }
-    padding-right: 30px;
-    text-align: end;
-}
-ion-footer {
-    display: block;
-    // position: relative;
-    -ms-flex-order: 1;
-    order: 1;
-    width: 100%;
-    z-index: 10;
-}
-.copyright{
-    text-align: center;
-}    
-.logo{
-height: 110px;
-}
 #bg {
-    height: 15%;
-    background: var(--ion-color-dark) url('../../../assets/banner.png') no-repeat center center/cover;
-    border-radius: 0 0 25% 25%;
-    position: relative;
+  height: 190px;
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.82), rgba(20, 20, 20, 0.55)),
+    url('../../../assets/banner.png') no-repeat center center / cover;
+  border-radius: 0 0 38px 38px;
+  position: relative;
+  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.22);
 }
 
-/* Floating menu button on top-left of banner */
 .floating-menu {
-    position: absolute;
-    top: 10px;    /* distance from top of the banner */
-    left: 10px;   /* distance from left edge */
-    z-index: 1000; /* ensure it appears above the banner */
-    --color: white; /* icon color */
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 1000;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 22px;
+  }
 }
 
+.auth-card {
+  width: calc(100% - 32px);
+  max-width: 460px;
+  margin: -78px auto 0;
+  padding: 24px 20px 22px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 24px 55px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(18px);
+  position: relative;
+  z-index: 5;
+}
+
+.brand-section {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.logo-shell {
+  width: 118px;
+  height: 118px;
+  margin: 0 auto 12px;
+  border-radius: 32px;
+  background:
+    linear-gradient(145deg, #ffffff, #f1f1ef);
+  box-shadow:
+    0 18px 35px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+}
+
+.logo {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.logo-name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #111111;
+  letter-spacing: -0.5px;
+}
+
+.logo-text {
+  max-width: 340px;
+  margin: 8px auto 0;
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 400;
+  color: #666666;
+}
+
+.form-section {
+  animation: fadeUp 0.35s ease both;
+}
+
+.premium-input {
+  margin-bottom: 14px;
+  --background: #ffffff;
+  --border-radius: 16px;
+  --border-color: #dedede;
+  --border-width: 1px;
+  --highlight-color-focused: #111111;
+  --highlight-color-valid: #111111;
+  --highlight-color-invalid: #c0392b;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  color: #111111;
+  font-size: 14px;
+}
+
+.login-button,
+.register-button {
+  height: 54px;
+  margin-top: 12px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  --border-radius: 16px;
+  --box-shadow: none;
+}
+
+.login-button {
+  --background: #111111;
+  --background-activated: #000000;
+  --background-focused: #000000;
+  --color: #ffffff;
+}
+
+.register-button {
+  --background: #ffffff;
+  --color: #111111;
+  --border-color: #111111;
+  --border-width: 1px;
+  --border-style: solid;
+}
+
+.login-button ion-spinner,
+.register-button ion-spinner {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  color: #ffffff;
+}
+
+.forgot-password-text,
+.signup-text {
+  margin: 14px 4px 4px;
+  text-align: right;
+  font-size: 13px;
+  color: #777777;
+
+  a {
+    color: #111111;
+    text-decoration: none;
+    font-weight: 800;
+  }
+}
+
+.signup-text {
+  text-align: center;
+  margin-top: 18px;
+}
+
+.error-text {
+  margin: 4px 2px 12px;
+  color: #c0392b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 4px;
+
+  span {
+    height: 1px;
+    flex: 1;
+    background: #e2e2df;
+  }
+
+  small {
+    color: #888888;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+.copyright {
+  text-align: center;
+  margin: 18px 0 0;
+  font-size: 12px;
+  color: #777777;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 768px) {
+  #bg {
+    height: 220px;
+  }
+
+  .auth-card {
+    margin-top: -92px;
+    padding: 30px 28px 26px;
+  }
+
+  .logo-shell {
+    width: 128px;
+    height: 128px;
+  }
+}

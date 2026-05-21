@@ -19,7 +19,6 @@ export class ChatService {
   }
 
   sendMessage(bookingId: string, userId: string, message: string) {
-    debugger;
     return this.hubConnection.invoke('SendMessage', bookingId, userId, message);
   }
 

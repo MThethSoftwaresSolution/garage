@@ -9,40 +9,36 @@ import { MenuController } from '@ionic/angular';
   styleUrls: ['app.component.scss'],
   standalone: false,
 })
-
 export class AppComponent {
   profile = {
-    name: 'Mboniseni Thethwayo',
-    email: 'Mboniseh@gmail.com',
+    name: 'Garage User',
+    email: '',
   };
 
-  isLoggedIn: boolean = false;
-  public router = inject(Router)
+  isLoggedIn = false;
+  public router = inject(Router);
 
   public appPages = [
-    /*{ title: 'HOME', url: '/tabs/dashboard', icon: 'home', active: true },*/
     { title: 'HOME', url: '/tabs/vehicles', icon: 'home', active: true },
-    /*{ title: 'MY BOOKING"S REQUESTS', url: '/tabs/my-bookings', icon: 'cash', active: false },*/
-    { title: 'BOOKINGS', url: 'tabs/my-bookings', icon: 'car', active: false },
+    { title: 'BOOKINGS', url: '/tabs/my-bookings', icon: 'car', active: false },
     { title: 'TRIPS', url: '/tabs/my-exchanges', icon: 'swap-horizontal', active: false },
     { title: 'FLEET', url: '/tabs/host-dashboard', icon: 'calendar', active: false },
     { title: 'PROFILE', url: '/tabs/profile', icon: 'person', active: false },
   ];
 
-  constructor(private menuCtrl: MenuController) { 
+  constructor(private menuCtrl: MenuController) {
     this.initializeMenuControl();
     this.initializeDeepLinks();
   }
 
   onItemTap(page: any) {
     if (!page?.active) {
-      const index = this.appPages.findIndex((x: any) => x.active);
-      this.appPages[index].active = false;
+      this.appPages.forEach((x: any) => (x.active = false));
       page.active = true;
     }
 
     if (page?.url) {
-      // navigate
+      this.menuCtrl.close();
       this.router.navigateByUrl(page.url);
     } else {
       this.logout();
@@ -53,47 +49,91 @@ export class AppComponent {
     localStorage.clear();
     this.menuCtrl.close();
     this.router.navigateByUrl('/login');
-   }
+  }
 
-    private initializeDeepLinks() {
+  private initializeDeepLinks() {
     App.addListener('appUrlOpen', (event) => {
-      const url = event.url;
-      console.log('Deep link opened:', url);
+      console.log('Deep link opened:', event.url);
 
-      // Example: capacitor://localhost/tabs/payfast?paymentId=123&status=cancelled
-      if (url.includes('payment-success')) {
-        const parsedUrl = new URL(url);
+      try {
+        const parsedUrl = new URL(event.url);
+
+        const isGaragePaymentLink =
+          parsedUrl.protocol === 'garage:' &&
+          parsedUrl.hostname === 'payment-result';
+
+        if (!isGaragePaymentLink) {
+          return;
+        }
 
         const paymentId = parsedUrl.searchParams.get('paymentId');
         const status = parsedUrl.searchParams.get('status');
 
-        // Navigate inside Ionic
+        if (status === 'success') {
+          this.setActiveMenu('/tabs/my-exchanges');
+
+          this.router.navigate(['/tabs/my-exchanges'], {
+            queryParams: {
+              paymentId,
+              status,
+            },
+          });
+
+          return;
+        }
+
+        if (status === 'cancelled') {
+          this.setActiveMenu('/tabs/my-bookings');
+
+          this.router.navigate(['/tabs/my-bookings'], {
+            queryParams: {
+              paymentId,
+              status,
+            },
+          });
+
+          return;
+        }
+
+        this.setActiveMenu('/tabs/my-bookings');
+
         this.router.navigate(['/tabs/my-bookings'], {
           queryParams: {
             paymentId,
-            status
-          }
+            status: status || 'unknown',
+          },
         });
+      } catch (error) {
+        console.error('Failed to process deep link:', error);
       }
     });
   }
 
-     initializeMenuControl() {
-    this.router.events.subscribe(event => {
+  private setActiveMenu(url: string) {
+    this.appPages.forEach((page: any) => {
+      page.active = page.url === url;
+    });
+  }
+
+  initializeMenuControl() {
+    this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const userId = localStorage.getItem('id');
-        const name = localStorage.getItem('name');
-        const surname = localStorage.getItem('surname');
-        const email = localStorage.getItem('username');
+        const name = localStorage.getItem('name') || '';
+        const surname = localStorage.getItem('surname') || '';
+        const email = localStorage.getItem('username') || '';
+
+        this.setActiveMenu(event.urlAfterRedirects);
+
         if (!userId) {
-          this.menuCtrl.enable(false); // 🔒 hide & disable menu
+          this.menuCtrl.enable(false);
         } else {
-          //Pull names
-            this.profile = {
-              name: name! +' '+surname!,
-              email: email!,
-            };
-          this.menuCtrl.enable(true);  // 🔓 show menu
+          this.profile = {
+            name: `${name} ${surname}`.trim() || 'Garage User',
+            email,
+          };
+
+          this.menuCtrl.enable(true);
         }
       }
     });

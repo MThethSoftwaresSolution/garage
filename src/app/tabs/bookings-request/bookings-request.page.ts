@@ -27,17 +27,18 @@ constructor(private payment: PaymentService, private toastCtrl: ToastController,
   loading: boolean = false;
 
 ngOnInit(): void {
+  debugger;
   this.loading = false;
     const nav = this.router.getCurrentNavigation();
     this.booking = nav?.extras?.state?.['booking'];
-
+console.log('Booking request page received booking:', this.booking);
     if (!this.booking) {
       // If user refreshes page, state is lost → redirect back
-      this.router.navigateByUrl('/tabs/vehicle/:'+this.booking.vehicleId);
+      this.router.navigateByUrl('/tabs/vehicle/'+this.booking.vehicleId);
     }
 
     this.payFormGroup.patchValue({
-      amount: this.booking.GrandTotal
+      amount: this.booking.grandTotal
     })
     console.log('Received booking:', this.booking);
   }
@@ -51,16 +52,15 @@ ngOnInit(): void {
       vehicleId: this.booking.vehicleId,
       userId: (localStorage.getItem('id') ?? '').toLowerCase(),
       grandTotal: this.booking.GrandTotal,
-      fromDate: this.booking.PickupDate,
-      untilDate: this.booking.ReturnDate,
-      garageFee: this.booking.GarageFee,
-      pickupLocation: this.booking.PickupLocation,
-      returnLocation: this.booking.ReturnLocation,
-
-      estimatedDays: this.booking.EstimatedDays,
-      estimatedTotal: this.booking.EstimatedTotal
+      fromDate: this.booking.from,
+      untilDate: this.booking.until,
+      garageFee: this.booking.garageFee,
+      pickupLocation: this.booking.pickupLocation,
+      returnLocation: this.booking.returnLocation,
+      estimatedDays: this.booking.estimatedDays,
+      estimatedTotal: this.booking.vehicleTotal
     };
-
+debugger;
     this.service.createBooking(booking)
     .subscribe({
 

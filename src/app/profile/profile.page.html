@@ -1,55 +1,392 @@
-<ion-content>
-  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
-      <ion-button
-    fill="clear"
-    class="white-menu-btn floating-back"
-    (click)="goBack()"
-  >
-    BACK
-  </ion-button>
-  <div id="bg">
+<ion-header class="premium-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button>
+        <ion-icon name="apps-outline"></ion-icon>
+      </ion-menu-button>
+    </ion-buttons>
 
+    <ion-title>Profile</ion-title>
 
-  </div>
-  <h5 style="text-align: center; font-weight: bold;">Profile</h5>
-<br>
-<div>
-      <form [formGroup]="profileUpdateFormGroup">
-      <div class="ion-padding">
-      <ion-input formControlName="firstName" fill="outline" label="First Name:" labelPlacement="floating"></ion-input>
-      <br>
-      <ion-input formControlName="lastName" fill="outline" label="Last Name:" labelPlacement="floating"></ion-input>
-      <br>
-      <ion-input formControlName="phoneNumber" fill="outline" label="Phone Number:" labelPlacement="floating"></ion-input>
-      <br>
-      <ion-input formControlName="email" fill="outline" label="Email:" labelPlacement="floating" readonly="true"></ion-input>
-      
-      <br>
-      <ion-checkbox (click)="changePassword()">Change Password?</ion-checkbox>
-      <p *ngIf="isPasswordUpdate" style="padding: 20px;">
-       <small>Enter Password and Confirm Password, if you would like to change your password!</small>
-      </p>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-      <ion-input formControlName="password" fill="outline" label="Password:" labelPlacement="floating" *ngIf="isPasswordUpdate">
-        <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistration?.value"></ion-input-password-toggle>
-      </ion-input>
-<br>
-      <ion-input formControlName="confirmPassword" fill="outline" label="Confirm Password:" labelPlacement="floating" *ngIf="isPasswordUpdate">
-        <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistrationConfirm?.value"></ion-input-password-toggle>
-      </ion-input>
-<p *ngIf="
-    profileUpdateFormGroup.hasError('passwordMismatch') &&
-    profileUpdateFormGroup.get('confirmPassword')?.dirty
-  "
-style="color: red;">
-  Passwords do not match
-      </p>
-      <br>
-      <br>
-      <ion-button class="login-button" [disabled]="!profileUpdateFormGroup.valid" (click)="update()" expand="block">
-        <ion-spinner color="dark" *ngIf="registerLoading"></ion-spinner> UPDATE</ion-button>
-    </div>
+<ion-content class="profile-content">
+  <main class="page-wrap">
+
+    <section class="profile-summary-card">
+      <div class="avatar-wrap">
+        <div class="avatar" *ngIf="!profile?.imagePath">
+          {{ getInitials() }}
+        </div>
+
+        <img
+          class="avatar-img"
+          *ngIf="profile?.imagePath"
+          [src]="profile.imagePath"
+          alt="Profile photo"
+        />
+
+        <label class="avatar-upload">
+          <ion-icon name="camera-outline"></ion-icon>
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            (change)="uploadDocument($event, 'imagePath')"
+          />
+        </label>
+      </div>
+
+      <div class="profile-main">
+        <h2>
+          {{ profileUpdateFormGroup.get('firstName')?.value || 'My' }}
+          {{ profileUpdateFormGroup.get('lastName')?.value || 'Profile' }}
+        </h2>
+
+        <p>{{ profileUpdateFormGroup.get('email')?.value }}</p>
+
+        <span class="verification-pill" [ngClass]="getVerificationClass()">
+          {{ getVerificationLabel() }}
+        </span>
+      </div>
+    </section>
+
+    <section class="progress-card">
+      <div class="progress-copy">
+        <p class="eyebrow dark">Verification</p>
+        <h3>Complete your profile for faster approval</h3>
+      </div>
+
+      <div class="checks">
+        <div [class.done]="hasFile(profile?.idCopy)">
+          <ion-icon name="card-outline"></ion-icon>
+          <span>ID</span>
+        </div>
+
+        <div [class.done]="hasFile(profile?.poaCopy)">
+          <ion-icon name="home-outline"></ion-icon>
+          <span>Address</span>
+        </div>
+
+        <div [class.done]="hasFile(profile?.licenseCopy)">
+          <ion-icon name="car-sport-outline"></ion-icon>
+          <span>Licence</span>
+        </div>
+
+        <div [class.done]="hasFile(profile?.bankLetter)">
+          <ion-icon name="business-outline"></ion-icon>
+          <span>Bank</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="tabs-card">
+      <button type="button" [class.active]="selectedSection === 'personal'" (click)="setSection('personal')">
+        Personal
+      </button>
+
+      <button type="button" [class.active]="selectedSection === 'address'" (click)="setSection('address')">
+        Address
+      </button>
+
+      <button type="button" [class.active]="selectedSection === 'documents'" (click)="setSection('documents')">
+        Docs
+      </button>
+
+      <button type="button" [class.active]="selectedSection === 'bank'" (click)="setSection('bank')">
+        Bank
+      </button>
+
+      <button type="button" [class.active]="selectedSection === 'licence'" (click)="setSection('licence')">
+        Licence
+      </button>
+    </section>
+
+    <section *ngIf="isLoading" class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading profile...</p>
+    </section>
+
+    <form *ngIf="!isLoading" [formGroup]="profileUpdateFormGroup" class="form-shell">
+
+      <!-- PERSONAL -->
+      <section class="premium-form-card" *ngIf="selectedSection === 'personal'">
+        <div class="section-heading">
+          <div class="section-icon">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+
+          <div>
+            <h2>Personal details</h2>
+            <p>Your basic account and identity information.</p>
+          </div>
+        </div>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">First Name</ion-label>
+          <ion-input formControlName="firstName"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Last Name</ion-label>
+          <ion-input formControlName="lastName"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Phone Number</ion-label>
+          <ion-input formControlName="phoneNumber" type="tel"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input readonly-input">
+          <ion-label position="stacked">Email</ion-label>
+          <ion-input formControlName="email" readonly="true"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">ID Number</ion-label>
+          <ion-input formControlName="idNumber"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Gender</ion-label>
+          <ion-select formControlName="gender" placeholder="Select gender">
+            <ion-select-option value="Male">Male</ion-select-option>
+            <ion-select-option value="Female">Female</ion-select-option>
+            <ion-select-option value="Other">Other</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <div class="password-toggle">
+          <div>
+            <strong>Change password</strong>
+            <span>Update your password only when needed.</span>
+          </div>
+
+          <ion-toggle [checked]="isPasswordUpdate" (ionChange)="changePassword()"></ion-toggle>
+        </div>
+
+        <div *ngIf="isPasswordUpdate" class="password-box">
+          <ion-item class="premium-input">
+            <ion-label position="stacked">New Password</ion-label>
+            <ion-input formControlName="password" type="password">
+              <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistration?.value"></ion-input-password-toggle>
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="premium-input">
+            <ion-label position="stacked">Confirm Password</ion-label>
+            <ion-input formControlName="confirmPassword" type="password">
+              <ion-input-password-toggle slot="end" *ngIf="passwordControlRegistrationConfirm?.value"></ion-input-password-toggle>
+            </ion-input>
+          </ion-item>
+
+          <p
+            class="error-text"
+            *ngIf="profileUpdateFormGroup.hasError('passwordMismatch') && profileUpdateFormGroup.get('confirmPassword')?.dirty">
+            Passwords do not match.
+          </p>
+        </div>
+      </section>
+
+      <!-- ADDRESS -->
+      <section class="premium-form-card" *ngIf="selectedSection === 'address'">
+        <div class="section-heading">
+          <div class="section-icon">
+            <ion-icon name="location-outline"></ion-icon>
+          </div>
+
+          <div>
+            <h2>Address details</h2>
+            <p>Used for verification and account trust.</p>
+          </div>
+        </div>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Location</ion-label>
+          <ion-input formControlName="location"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Street Address</ion-label>
+          <ion-input formControlName="streetAddress"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Unit / Stand</ion-label>
+          <ion-input formControlName="unitStand"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">City</ion-label>
+          <ion-input formControlName="city"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Postal Code</ion-label>
+          <ion-input formControlName="postalCode"></ion-input>
+        </ion-item>
+      </section>
+
+      <!-- DOCUMENTS -->
+      <section class="premium-form-card" *ngIf="selectedSection === 'documents'">
+        <div class="section-heading">
+          <div class="section-icon">
+            <ion-icon name="document-attach-outline"></ion-icon>
+          </div>
+
+          <div>
+            <h2>Documents</h2>
+            <p>Upload clear copies for account verification.</p>
+          </div>
+        </div>
+
+        <div class="upload-list">
+          <label class="upload-card">
+            <div>
+              <ion-icon name="card-outline"></ion-icon>
+              <strong>ID Copy</strong>
+              <span>{{ hasFile(profile?.idCopy) ? 'Uploaded' : 'Required' }}</span>
+            </div>
+
+            <ion-spinner *ngIf="documentUploading.idCopy" name="crescent"></ion-spinner>
+            <ion-icon *ngIf="!documentUploading.idCopy && hasFile(profile?.idCopy)" name="checkmark-circle"></ion-icon>
+            <ion-icon *ngIf="!documentUploading.idCopy && !hasFile(profile?.idCopy)" name="cloud-upload-outline"></ion-icon>
+
+            <input type="file" accept="image/*,.pdf" hidden (change)="uploadDocument($event, 'idCopy')" />
+          </label>
+
+          <label class="upload-card">
+            <div>
+              <ion-icon name="home-outline"></ion-icon>
+              <strong>Proof of Address</strong>
+              <span>{{ hasFile(profile?.poaCopy) ? 'Uploaded' : 'Required' }}</span>
+            </div>
+
+            <ion-spinner *ngIf="documentUploading.poaCopy" name="crescent"></ion-spinner>
+            <ion-icon *ngIf="!documentUploading.poaCopy && hasFile(profile?.poaCopy)" name="checkmark-circle"></ion-icon>
+            <ion-icon *ngIf="!documentUploading.poaCopy && !hasFile(profile?.poaCopy)" name="cloud-upload-outline"></ion-icon>
+
+            <input type="file" accept="image/*,.pdf" hidden (change)="uploadDocument($event, 'poaCopy')" />
+          </label>
+        </div>
+      </section>
+
+      <!-- BANK -->
+      <section class="premium-form-card" *ngIf="selectedSection === 'bank'">
+        <div class="section-heading">
+          <div class="section-icon">
+            <ion-icon name="business-outline"></ion-icon>
+          </div>
+
+          <div>
+            <h2>Banking details</h2>
+            <p>Used for secure payments and payouts.</p>
+          </div>
+        </div>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Account Holder Name</ion-label>
+          <ion-input formControlName="accountHolderName"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Bank Branch</ion-label>
+          <ion-input formControlName="bankBranch"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Account Number</ion-label>
+          <ion-input formControlName="accountNumber"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Account Type</ion-label>
+          <ion-select formControlName="accountType" placeholder="Select account type">
+            <ion-select-option value="Cheque">Cheque</ion-select-option>
+            <ion-select-option value="Savings">Savings</ion-select-option>
+            <ion-select-option value="Current">Current</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <label class="upload-card single">
+          <div>
+            <ion-icon name="document-text-outline"></ion-icon>
+            <strong>Bank Confirmation Letter</strong>
+            <span>{{ hasFile(profile?.bankLetter) ? 'Uploaded' : 'Upload document' }}</span>
+          </div>
+
+          <ion-spinner *ngIf="documentUploading.bankLetter" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="!documentUploading.bankLetter && hasFile(profile?.bankLetter)" name="checkmark-circle"></ion-icon>
+          <ion-icon *ngIf="!documentUploading.bankLetter && !hasFile(profile?.bankLetter)" name="cloud-upload-outline"></ion-icon>
+
+          <input type="file" accept="image/*,.pdf" hidden (change)="uploadDocument($event, 'bankLetter')" />
+        </label>
+      </section>
+
+      <!-- LICENCE -->
+      <section class="premium-form-card" *ngIf="selectedSection === 'licence'">
+        <div class="section-heading">
+          <div class="section-icon">
+            <ion-icon name="car-sport-outline"></ion-icon>
+          </div>
+
+          <div>
+            <h2>Driver licence</h2>
+            <p>Required for driver verification and vehicle exchange trust.</p>
+          </div>
+        </div>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Licence Number</ion-label>
+          <ion-input formControlName="licenceNumber"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Licence Code</ion-label>
+          <ion-input formControlName="code" placeholder="Example: B, C1, EC"></ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Expiry Date</ion-label>
+          <ion-input formControlName="licExpirationDate" type="date"></ion-input>
+        </ion-item>
+
+        <label class="upload-card single">
+          <div>
+            <ion-icon name="id-card-outline"></ion-icon>
+            <strong>Licence Copy</strong>
+            <span>{{ hasFile(profile?.licenseCopy) ? 'Uploaded' : 'Upload document' }}</span>
+          </div>
+
+          <ion-spinner *ngIf="documentUploading.licenseCopy" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="!documentUploading.licenseCopy && hasFile(profile?.licenseCopy)" name="checkmark-circle"></ion-icon>
+          <ion-icon *ngIf="!documentUploading.licenseCopy && !hasFile(profile?.licenseCopy)" name="cloud-upload-outline"></ion-icon>
+
+          <input type="file" accept="image/*,.pdf" hidden (change)="uploadDocument($event, 'licenseCopy')" />
+        </label>
+      </section>
+
+      <section class="sticky-save">
+        <ion-button
+          expand="block"
+          class="black-btn"
+          [disabled]="profileUpdateFormGroup.invalid || registerLoading"
+          (click)="update()">
+          <ion-spinner color="light" *ngIf="registerLoading"></ion-spinner>
+          <span *ngIf="!registerLoading">
+  {{ getVerificationLabel() === 'Incomplete' ? 'Complete Profile' : 'Update Profile' }}
+</span>
+        </ion-button>
+      </section>
+
     </form>
-</div>
 
+    <div class="bottom-spacer"></div>
+  </main>
 </ion-content>

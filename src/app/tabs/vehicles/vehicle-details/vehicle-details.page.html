@@ -1,235 +1,240 @@
-<ion-content>
-  <!-- Banner + Back -->
-  <div class="banner">
-    <ion-button fill="clear" class="back-btn" (click)="goBack()">
-      <ion-icon name="arrow-back-outline"></ion-icon>
-      Back
-    </ion-button>
-    <h5>VEHICLE</h5>
-  </div>
+<ion-header class="premium-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back-outline" slot="start"></ion-icon>
+        Back
+      </ion-button>
+    </ion-buttons>
 
-  <div class="container">
-    <div *ngIf="loading" class="center">
-      <ion-spinner name="crescent"></ion-spinner>
-      <div class="muted">Loading…</div>
-    </div>
+    <ion-title>Vehicle</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-    <ng-container *ngIf="!loading && vehicle">
-      <!-- Images -->
-      <div class="card">
-        <swiper-container
-          *ngIf="vehicleImages.length > 0"
-          slides-per-view="1"
-          pagination="true"
-          navigation="true"
-          class="vehicle-swiper"
-        >
-          <swiper-slide *ngFor="let img of vehicleImages">
-            <img class="hero-img" [src]="img" alt="Vehicle image" />
-          </swiper-slide>
-        </swiper-container>
+<ion-content class="vehicle-details-page">
 
-        <img
-          *ngIf="vehicleImages.length === 0"
-          class="hero-img"
-          src="./assets/default.jpg"
-          alt="Default vehicle image"
-        />
-      </div>
+  <section *ngIf="loading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading vehicle...</p>
+  </section>
 
-      <!-- Title + rating/vetted -->
-      <div class="title-row">
-        <h4 class="title">
-          {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.year }}
-        </h4>
+  <ng-container *ngIf="!loading && vehicle">
 
-        <span class="pill" *ngIf="vehicle.isVettedHost">
+    <section class="image-section">
+      <swiper-container
+        *ngIf="vehicleImages.length > 0"
+        slides-per-view="1"
+        pagination="true"
+        navigation="true"
+        class="vehicle-swiper">
+
+        <swiper-slide *ngFor="let img of vehicleImages">
+          <img class="hero-img" [src]="img" alt="Vehicle image" />
+        </swiper-slide>
+      </swiper-container>
+
+      <img
+        *ngIf="vehicleImages.length === 0"
+        class="hero-img"
+        src="./assets/default.jpg"
+        alt="Default vehicle image" />
+
+      <ion-badge class="price-badge">
+        R{{ vehicle.rate }} / day
+      </ion-badge>
+    </section>
+
+    <section class="content-wrap">
+
+      <div class="title-card">
+        <div>
+          <p class="eyebrow">Garage Vehicle</p>
+          <h1>{{ vehicle.make }} {{ vehicle.model }}</h1>
+          <p class="subtitle">{{ vehicle.year }} model</p>
+        </div>
+
+        <span class="vetted-pill" *ngIf="vehicle.isVettedHost">
           <ion-icon name="shield-checkmark-outline"></ion-icon>
           Vetted
         </span>
       </div>
 
-      <div class="sub-row">
-        <span class="rating" *ngIf="vehicle.rating != null; else noRating">
+      <div class="rating-row">
+        <span class="rating-pill" *ngIf="vehicle.rating != null; else noRating">
           <b>{{ vehicle.rating }}</b>
           <ion-icon name="star"></ion-icon>
-          <span class="muted">{{ vehicle.ratingStatus || 'Rated' }}</span>
+          {{ vehicle.ratingStatus || 'Rated' }}
         </span>
+
         <ng-template #noRating>
-          <span class="muted">No rating yet</span>
+          <span class="rating-pill muted-pill">
+            <ion-icon name="sparkles-outline"></ion-icon>
+            New listing
+          </span>
         </ng-template>
       </div>
 
-      <!-- Location + meta -->
-      <div class="meta">
-        <div class="meta-item">
+      <section class="info-card">
+        <h2>Vehicle details</h2>
+
+        <div class="location-line">
           <ion-icon name="navigate-outline"></ion-icon>
-          <span><b>{{ vehicle.province }}</b>, {{ vehicle.city }}</span>
+          <span>
+            <b>{{ vehicle.province }}</b>
+            <ng-container *ngIf="vehicle.city">, {{ vehicle.city }}</ng-container>
+          </span>
         </div>
-        <div class="meta-item muted">
-          {{ vehicle.address }}
-        </div>
+
+        <p class="address" *ngIf="vehicle.address">{{ vehicle.address }}</p>
 
         <div class="meta-grid">
           <div class="meta-chip">
             <ion-icon name="color-palette-outline"></ion-icon>
-            <span>Color: <b>{{ vehicle.colorName }}</b></span>
-            <span class="dot" [style.background]="vehicle.colorHex"></span>
+            <span>Color</span>
+            <b>{{ vehicle.colorName }}</b>
           </div>
 
           <div class="meta-chip" *ngIf="vehicle.transmission">
             <ion-icon name="git-branch-outline"></ion-icon>
-            <span>Transmission: <b>{{ vehicle.transmission }}</b></span>
+            <span>Transmission</span>
+            <b>{{ vehicle.transmission }}</b>
           </div>
 
           <div class="meta-chip" *ngIf="vehicle.odometer != null">
             <ion-icon name="speedometer-outline"></ion-icon>
-            <span>Mileage: <b>{{ vehicle.odometer }}</b></span>
+            <span>Mileage</span>
+            <b>{{ vehicle.odometer }}</b>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Availability -->
-      <div class="availability card">
-        <div class="availability-top">
-          <div class="price">
-            R {{ vehicle.rate }} <span class="muted">/ day</span>
-          </div>
-
-          <span class="badge" [ngClass]="availabilityBadgeClass()">
-            <ion-icon [name]="availabilityIcon()"></ion-icon>
-            {{ availabilityText() }}
-          </span>
-        </div>
-
-        <div class="muted small" *ngIf="selectedFrom && selectedUntil">
-          Selected: <b>{{ selectedFrom }}</b> → <b>{{ selectedUntil }}</b>
-        </div>
-
-        <div class="muted small" *ngIf="selectedFrom && !selectedUntil">
-          Selected From: <b>{{ selectedFrom }}</b> (tap again to choose Until)
-        </div>
-      </div>
-
-      <!-- Booking form -->
-      <form [formGroup]="form" class="card" (ngSubmit)="continue()">
-        <h6 class="section-title">Book this vehicle</h6>
-
-        <!-- ONE calendar with disabling + highlighting -->
+      <section class="availability-card">
         <div>
-          <label>
-            Dates
-            <span class="muted small">(Tap once for From, tap again for Until)</span>
-          </label>
-
-          <div class="muted small" style="margin-bottom: 8px;">
-            Picking: <b>{{ selectedFrom && !selectedUntil ? 'Until' : 'From' }}</b>
-          </div>
-
-          <ion-datetime
-            presentation="date"
-            [firstDayOfWeek]="1"
-            [isDateEnabled]="isDateEnabled"
-            [highlightedDates]="highlightedDates"
-            (ionChange)="onCalendarChange($event)"
-          ></ion-datetime>
-
-          <ion-button fill="clear" size="small" type="button" (click)="clearDates()">
-            Clear dates
-          </ion-button>
+          <p class="eyebrow dark">Availability</p>
+          <h2>Choose booking dates</h2>
         </div>
 
-<!-- Locations -->
-<div class="grid2">
-  <!-- Pickup -->
-  <div>
-    <label>Pickup location</label>
-    <ion-item lines="none" class="input-item">
-      <ion-icon name="location-outline" slot="start"></ion-icon>
-      <ion-input
-        formControlName="PickupLocation"
-        placeholder="e.g. Sandton"
-        (ionInput)="onPickupInput($event)"
-        autocomplete="off"
-      ></ion-input>
-    </ion-item>
+        <span class="status-badge" [ngClass]="availabilityBadgeClass()">
+          <ion-icon [name]="availabilityIcon()"></ion-icon>
+          {{ availabilityText() }}
+        </span>
 
-    <ion-list *ngIf="pickupPredictions.length > 0" class="places-list">
-      <ion-item button *ngFor="let p of pickupPredictions" (click)="selectPickupPrediction(p)">
-        <ion-label>
-          <div><b>{{ p.structured_formatting?.main_text || p.description }}</b></div>
-          <div class="muted small">{{ p.structured_formatting?.secondary_text }}</div>
-        </ion-label>
-      </ion-item>
-    </ion-list>
-  </div>
+        <p class="selection-note" *ngIf="selectedFrom && selectedUntil">
+          Selected: <b>{{ selectedFrom }}</b> → <b>{{ selectedUntil }}</b>
+        </p>
 
-  <!-- Return -->
-  <div>
-    <label>Return location</label>
-    <ion-item lines="none" class="input-item">
-      <ion-icon name="location-outline" slot="start"></ion-icon>
-      <ion-input
-        formControlName="ReturnLocation"
-        placeholder="e.g. Rosebank"
-        (ionInput)="onReturnInput($event)"
-        autocomplete="off"
-      ></ion-input>
-    </ion-item>
+        <p class="selection-note" *ngIf="selectedFrom && !selectedUntil">
+          Selected From: <b>{{ selectedFrom }}</b>. Now choose the return date.
+        </p>
+      </section>
 
-    <ion-list *ngIf="returnPredictions.length > 0" class="places-list">
-      <ion-item button *ngFor="let p of returnPredictions" (click)="selectReturnPrediction(p)">
-        <ion-label>
-          <div><b>{{ p.structured_formatting?.main_text || p.description }}</b></div>
-          <div class="muted small">{{ p.structured_formatting?.secondary_text }}</div>
-        </ion-label>
-      </ion-item>
-    </ion-list>
-  </div>
-</div>
+      <form [formGroup]="form" class="booking-card" (ngSubmit)="continue()">
+        <h2>Book this vehicle</h2>
+        <p class="form-subtitle">Tap once for pickup date, then tap again for return date.</p>
 
-        <!-- Estimate -->
-    <div class="estimate" *ngIf="estimateDays > 0">
+        <ion-datetime
+          presentation="date"
+          [firstDayOfWeek]="1"
+          [isDateEnabled]="isDateEnabled"
+          [highlightedDates]="highlightedDates"
+          (ionChange)="onCalendarChange($event)">
+        </ion-datetime>
 
-      <div class="muted">Estimated days</div>
-      <div><b>{{ estimateDays }}</b></div>
+        <ion-button fill="clear" size="small" type="button" class="clear-btn" (click)="clearDates()">
+          Clear dates
+        </ion-button>
 
-      <div class="muted">Vehicle total</div>
-      <div><b>R {{ estimateTotal | number:'1.2-2' }}</b></div>
+        <div class="places-grid">
+          <div>
+            <label>Pickup location</label>
+            <ion-item lines="none" class="input-item">
+              <ion-icon name="location-outline" slot="start"></ion-icon>
+              <ion-input
+                formControlName="PickupLocation"
+                placeholder="Start typing pickup location"
+                (ionInput)="onPickupInput($event)"
+                autocomplete="off">
+              </ion-input>
+            </ion-item>
 
-      <div class="muted">Garage fee ({{ garageFeePercent * 100 }}%)</div>
-      <div><b>R {{ garageFee | number:'1.2-2' }}</b></div>
+            <ion-list *ngIf="pickupPredictions.length > 0" class="places-list">
+              <ion-item button *ngFor="let p of pickupPredictions" (click)="selectPickupPrediction(p)">
+                <ion-label>
+                  <div><b>{{ p.structured_formatting?.main_text || p.description }}</b></div>
+                  <div class="muted small">{{ p.structured_formatting?.secondary_text }}</div>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+          </div>
 
-      <hr>
+          <div>
+            <label>Return location</label>
+            <ion-item lines="none" class="input-item">
+              <ion-icon name="location-outline" slot="start"></ion-icon>
+              <ion-input
+                formControlName="ReturnLocation"
+                placeholder="Start typing return location"
+                (ionInput)="onReturnInput($event)"
+                autocomplete="off">
+              </ion-input>
+            </ion-item>
 
-      <div class="muted">Total payable</div>
-      <div style="font-size:18px;">
-        <b>R {{ grandTotal | number:'1.2-2' }}</b>
-      </div>
+            <ion-list *ngIf="returnPredictions.length > 0" class="places-list">
+              <ion-item button *ngFor="let p of returnPredictions" (click)="selectReturnPrediction(p)">
+                <ion-label>
+                  <div><b>{{ p.structured_formatting?.main_text || p.description }}</b></div>
+                  <div class="muted small">{{ p.structured_formatting?.secondary_text }}</div>
+                </ion-label>
+              </ion-item>
+            </ion-list>
+          </div>
+        </div>
 
-    </div>
+        <div class="estimate-card" *ngIf="estimateDays > 0">
+          <div>
+            <span>Estimated days</span>
+            <b>{{ estimateDays }}</b>
+          </div>
+
+          <div>
+            <span>Vehicle total</span>
+            <b>R{{ estimateTotal | number:'1.2-2' }}</b>
+          </div>
+
+          <div>
+            <span>Garage fee</span>
+            <b>R{{ garageFee | number:'1.2-2' }}</b>
+          </div>
+
+          <div class="grand-total">
+            <span>Total payable</span>
+            <b>R{{ grandTotal | number:'1.2-2' }}</b>
+          </div>
+        </div>
 
         <ion-button
           expand="block"
           type="submit"
-          [disabled]="form.invalid || !isCurrentlyAvailable"
-        >
-          Continue
+          class="continue-btn"
+          [disabled]="form.invalid || !isCurrentlyAvailable">
+          Continue Booking
         </ion-button>
 
-        <div class="hint muted" *ngIf="!isCurrentlyAvailable && selectedFrom && selectedUntil">
-          The selected range overlaps a booked period. Please choose different dates.
-        </div>
+        <p class="hint" *ngIf="!isCurrentlyAvailable && selectedFrom && selectedUntil">
+          The selected date range is already booked. Please choose different dates.
+        </p>
       </form>
 
-      <!-- Booked ranges preview -->
-      <div class="card" *ngIf="bookings.length > 0">
-        <h6 class="section-title">Booked dates</h6>
-        <div class="booked" *ngFor="let b of bookings">
+      <section class="booked-card" *ngIf="bookings.length > 0">
+        <h2>Booked dates</h2>
+
+        <div class="booked-row" *ngFor="let b of bookings">
           <ion-icon name="calendar-outline"></ion-icon>
           <span>{{ b.from }} → {{ b.until }}</span>
         </div>
-      </div>
-    </ng-container>
-  </div>
+      </section>
+
+    </section>
+  </ng-container>
+
 </ion-content>

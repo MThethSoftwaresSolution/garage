@@ -1,179 +1,379 @@
- 
-.logo{
-height: 110px;
-}
-#bg {
-    height: 15%;
-    background: var(--ion-color-dark) url('/assets/banner.png') no-repeat center center/cover;
-    border-radius: 0 0 25% 25%;
-    position: relative;
-}
-
-.white-menu-btn {
-  --color: white;
-}
-
-/* Floating menu button on top-left of banner */
-.floating-menu {
-    position: absolute;
-    top: 10px;    /* distance from top of the banner */
-    left: 10px;   /* distance from left edge */
-    z-index: 1000; /* ensure it appears above the banner */
-    margin-top: 30px;
-}
-
-.floating-back {
-  position: absolute;
-  top: 10px;
-  right: 10px; /* FAR RIGHT */
-  z-index: 1000;
-}
-
-.membership-card {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background: linear-gradient(135deg, #1f1f1f, #2b2b2b);
-  color: #fff;
-  border-radius: 16px;
-  font-family: 'Roboto', sans-serif;
+ion-content.garage-host-page {
+  --background: #f5f1f1;
 }
 
 /* HEADER */
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.premium-header {
+  ion-toolbar {
+    --background: #111214;
+    --color: #ffffff;
+    --border-width: 0;
+    min-height: 64px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  }
+
+  ion-title {
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  ion-button,
+  ion-menu-button,
+  .header-action {
+    --color: #ffffff;
+  }
+
+  ion-icon {
+    font-size: 22px;
+  }
 }
 
-.org-info {
+/* HERO */
+.host-hero {
+  margin: 16px;
+  padding: 26px;
+  border-radius: 30px;
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.92), rgba(31, 31, 31, 0.72)),
+    url('/assets/banner.png') center/cover no-repeat;
+  color: #ffffff;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+
+  h1 {
+    margin: 8px 0 10px;
+    font-size: 30px;
+    line-height: 1.06;
+    font-weight: 950;
+    letter-spacing: -1px;
+  }
+
+  .subtitle {
+    margin: 0 0 20px;
+    max-width: 330px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.78);
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.72);
+
+  &.dark {
+    color: rgba(0, 0, 0, 0.48);
+  }
+}
+
+.primary-cta,
+.submit-btn {
+  --background: #000000;
+  --background-activated: #222222;
+  --color: #ffffff;
+  --border-radius: 999px;
+  height: 50px;
+  font-weight: 900;
+  text-transform: none;
+}
+
+/* SUMMARY */
+.fleet-summary {
+  margin: 0 16px 16px;
+  padding: 18px;
+  border-radius: 26px;
+  background: #ffffff;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+
+  h2 {
+    margin: 4px 0 0;
+    font-size: 22px;
+    font-weight: 950;
+    color: #111111;
+  }
+}
+
+.summary-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: #111111;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 28px;
+  }
+}
+
+/* FORM */
+.premium-form-card {
+  margin: 16px;
+  padding: 18px;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
+}
+
+.form-top,
+.section-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h2 {
+    margin: 4px 0 0;
+    font-size: 20px;
+    font-weight: 950;
+    color: #111111;
+    letter-spacing: -0.4px;
+  }
+}
+
+.section-block {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid #eeeeee;
+}
+
+.section-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  ion-icon {
+    padding: 10px;
+    border-radius: 16px;
+    background: #f2f2f2;
+    color: #111111;
+    font-size: 22px;
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 950;
+    color: #111111;
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #777777;
+  }
+}
+
+.field-group {
+  display: grid;
+  gap: 14px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.org-logo {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-}
-
-.org-info h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.org-info small {
-  color: #bbb;
-}
-
-.badge {
-  background: #c98b1f;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: bold;
-  text-align: center;
-  font-size: 12px;
-}
-
-/* BODY */
-.card-body {
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-}
-
-.left,
-.middle,
-.right {
-  flex: 1;
-}
-
-.profile-img {
-  width: 90px;
-  height: 90px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-.middle h2 {
-  margin: 0 0 8px;
-  font-size: 18px;
-}
-
-.valid {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #ccc;
+ion-input,
+ion-select {
+  --background: #ffffff;
+  --border-color: #dcdcdc;
+  --border-radius: 16px;
+  --border-width: 1px;
+  --highlight-color-focused: #000000;
+  --color: #111111;
+  --placeholder-color: #777777;
   font-size: 14px;
 }
 
-.qr-img {
-  width: 90px;
-  height: 90px;
-}
-
-/* FOOTER */
-.card-footer {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.info {
+.selected-location {
   display: flex;
   gap: 8px;
   align-items: flex-start;
+  padding: 12px;
+  border-radius: 16px;
+  background: #f4f4f4;
+  color: #222222;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+
+  ion-icon {
+    font-size: 18px;
+    color: #111111;
+    flex-shrink: 0;
+  }
 }
 
-.info mat-icon {
-  font-size: 20px;
-  color: #c98b1f;
+.owner-check {
+  --background: #f7f7f7;
+  --border-radius: 18px;
+  margin-bottom: 14px;
+  border-radius: 18px;
+
+  ion-label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #222222;
+  }
 }
 
-.info label {
-  font-size: 11px;
-  color: #aaa;
+.submit-btn {
+  margin-top: 24px;
 }
 
-.info span {
-  font-size: 13px;
+/* HOSTED VEHICLES */
+.hosted-section {
+  margin: 24px 16px 40px;
 }
 
-.membership-scale-wrapper {
+.empty-card {
+  margin: 16px 0 0;
+  border-radius: 26px;
+  box-shadow: none;
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+
+  ion-card-content {
+    text-align: center;
+    padding: 30px 18px;
+
+    ion-icon {
+      font-size: 46px;
+      color: #111111;
+      margin-bottom: 8px;
+    }
+
+    h3 {
+      margin: 4px 0;
+      font-size: 18px;
+      font-weight: 950;
+      color: #111111;
+    }
+
+    p {
+      margin: 6px 0 0;
+      color: #777777;
+      font-size: 13px;
+    }
+  }
+}
+
+.vehicle-grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.vehicle-card {
+  overflow: hidden;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.09);
+}
+
+.vehicle-image {
+  position: relative;
+  height: 190px;
+  background: #e8e8e8;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .status-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    border-radius: 999px;
+    padding: 7px 10px;
+    font-weight: 900;
+  }
+}
+
+.vehicle-info {
+  padding: 16px;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 950;
+    color: #111111;
+  }
+
+  p {
+    margin: 6px 0 14px;
+    color: #777777;
+    font-size: 13px;
+    font-weight: 650;
+  }
+}
+
+.vehicle-meta {
   display: flex;
-  justify-content: center;
   align-items: center;
-}
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  background: #f7f7f7;
 
-@media (max-width: 768px) {
-  .membership-scale-wrapper {
-    transform: scale(0.85);
-    transform-origin: top center;
+  span {
+    font-size: 12px;
+    font-weight: 850;
+    color: #555555;
+  }
+
+  strong {
+    font-size: 14px;
+    color: #000000;
+    font-weight: 950;
   }
 }
 
-@media (max-width: 480px) {
-  .membership-scale-wrapper {
-    transform: scale(0.75);
-    transform-origin: top center;
+.vehicle-actions {
+  margin-top: 14px;
+
+  ion-button {
+    --border-radius: 999px;
+    font-weight: 900;
+    text-transform: none;
   }
 }
 
-@media (max-width: 360px) {
-  .membership-scale-wrapper {
-    transform: scale(0.68);
-    transform-origin: top center;
+@media (min-width: 760px) {
+  .vehicle-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-ion-thumbnail {
-  --size: 64px;
-  --border-radius: 10px;
-}
+@media (max-width: 430px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
 
-ion-img {
-  object-fit: cover;
+  .host-hero {
+    padding: 22px;
+
+    h1 {
+      font-size: 25px;
+    }
+  }
+
+  .premium-form-card {
+    padding: 14px;
+  }
 }

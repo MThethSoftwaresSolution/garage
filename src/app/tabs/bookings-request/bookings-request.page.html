@@ -16,7 +16,7 @@
     <ion-card class="vehicle-card">
       <div class="vehicle-hero">
         <img
-          [src]="booking?.Image || './assets/place-holder.png'"
+          [src]="booking?.image || './assets/place-holder.png'"
           alt="Vehicle"
         />
       </div>
@@ -24,10 +24,10 @@
       <ion-card-content>
         <div class="vehicle-title">
           <div class="name">
-            {{ booking?.VehicleName}}
+            {{ booking?.vehicleName}}
           </div>
           <div class="dates">
-            {{ booking.PickupDate }} → {{ booking.ReturnDate }}
+            {{ booking.until }} → {{ booking.until }}
           </div>
         </div>
       </ion-card-content>
@@ -48,8 +48,8 @@
 
             <div class="route-content">
               <div class="label">Pickup</div>
-              <div class="value">{{ booking.PickupLocation }}</div>
-              <div class="meta">{{ booking.PickupDate }}</div>
+              <div class="value">{{ booking.pickupLocation }}</div>
+              <div class="meta">{{ booking.pickupDate }}</div>
             </div>
           </div>
 
@@ -62,8 +62,8 @@
 
             <div class="route-content">
               <div class="label">Drop-off</div>
-              <div class="value">{{ booking.ReturnLocation }}</div>
-              <div class="meta">{{ booking.ReturnDate }}</div>
+              <div class="value">{{ booking.returnLocation }}</div>
+              <div class="meta">{{ booking.returnDate }}</div>
             </div>
           </div>
         </div>
@@ -83,19 +83,19 @@
 
     <div class="price-row">
       <span>Vehicle total</span>
-      <span>R {{ booking.EstimatedTotal | number:'1.2-2' }}</span>
+      <span>R {{ booking.vehicleTotal | number:'1.2-2' }}</span>
     </div>
 
     <div class="price-row">
       <span>Garage service fee</span>
-      <span>R {{ booking.GarageFee | number:'1.2-2' }}</span>
+      <span>R {{ booking.garageFee | number:'1.2-2' }}</span>
     </div>
 
     <div class="divider"></div>
 
     <div class="price-row total">
       <span>Total payable</span>
-      <span>R {{ booking.GrandTotal | number:'1.2-2' }}</span>
+      <span>R {{ booking.grandTotal | number:'1.2-2' }}</span>
     </div>
 
   </ion-card-content>
@@ -108,7 +108,7 @@
 
   <div class="sticky-total">
     <div class="small">Total payable</div>
-    <div class="amount">R {{ booking.GrandTotal | number:'1.2-2' }}</div>
+    <div class="amount">R {{ booking.grandTotal | number:'1.2-2' }}</div>
   </div>
 
   <ion-button

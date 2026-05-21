@@ -69,6 +69,13 @@ acceptBooking(bookingId: string) {
   );
 }
 
+rejectBooking(bookingId: string) {
+  return this.http.post(
+    this.mainUrl + "/bookings/rejectBooking/" + bookingId,
+    {}
+  );
+}
+
 // EXCHANGE API
 
 startExchange(data:any){
@@ -81,6 +88,36 @@ respondExchange(data:any){
 
 getExchange(bookingId:string){
   return this.http.get(`${this.mainUrl}/exchange/${bookingId}`);
+}
+
+searchPlaces(input: string) {
+  return this.http.get(`${this.mainUrl}/places/autocomplete`, {
+    params: { input }
+  });
+}
+
+getProfile(userId: string) {
+  return this.http.get(`${environment.baseUrl}account/profile/${userId}`);
+}
+
+updateProfile(data: any) {
+  return this.http.post(`${environment.baseUrl}account/profile/update`, data);
+}
+
+uploadProfileDocument(userId: string, documentType: string, file: File) {
+  const formData = new FormData();
+
+  formData.append('userId', userId);
+  formData.append('documentType', documentType);
+  formData.append('file', file);
+
+  return this.http.post(`${environment.baseUrl}account/profile/upload-document`, formData);
+}
+
+getPlaceDetails(placeId: string) {
+  return this.http.get(`${this.mainUrl}/places/details`, {
+    params: { placeId }
+  });
 }
 
 driverCheckout(data:any){

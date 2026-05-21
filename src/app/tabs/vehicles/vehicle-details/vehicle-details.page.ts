@@ -1,44 +1,32 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  CUSTOM_ELEMENTS_SCHEMA,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
-  Validators,
+  Validators
 } from '@angular/forms';
-import { IonicModule, NavController } from '@ionic/angular';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+
+import {
+  IonicModule,
+  NavController,
+  ToastController
+} from '@ionic/angular';
+
+import { ActivatedRoute, Router } from '@angular/router';
+
+import { register } from 'swiper/element/bundle';
+
 import { MainService } from 'src/app/services/main.service';
-import { environment } from 'src/environments/environment';
 
-export interface DateRange {
-  from: string;  // YYYY-MM-DD
-  until: string; // YYYY-MM-DD
-}
+register();
 
-type HighlightStyle = { textColor?: string; backgroundColor?: string };
+declare const google: any;
 
-// Minimal prediction type (Google returns more fields, we only use these)
-type PlacePrediction = {
-  description: string;
-  place_id: string;
-  structured_formatting?: {
-    main_text?: string;
-    secondary_text?: string;
-  };
-};
-
-declare global {
-  interface Window {
-    google?: any;
-  }
+interface DateRange {
+  from: string;
+  until: string;
 }
 
 @Component({
@@ -46,489 +34,624 @@ declare global {
   templateUrl: './vehicle-details.page.html',
   styleUrls: ['./vehicle-details.page.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, ReactiveFormsModule],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class VehicleDetailsPage implements OnInit, OnDestroy {
+export class VehicleDetailsPage implements OnInit {
+
   loading = false;
 
-  vehicleId!: any;
+  vehicleId: any;
+
   vehicle: any = null;
 
   vehicleImages: string[] = [];
+
   bookings: DateRange[] = [];
 
   form!: FormGroup;
+
+  pickupPredictions: any[] = [];
+  returnPredictions: any[] = [];
+
+  autocompleteService: any;
 
   selectedFrom: string | null = null;
   selectedUntil: string | null = null;
 
   estimateDays = 0;
   estimateTotal = 0;
+  garageFee = 0;
+  grandTotal = 0;
 
   isCurrentlyAvailable = true;
-  garageFeePercent: number = 0;
 
-  // -----------------------
-  // Google Places Autocomplete
-  // -----------------------
-  // Replace with your key OR inject via environment
-  private readonly GOOGLE_API_KEY = 'AIzaSyDa--3FF5GJlp45yRBB5-nr8icglGEhzqE';
-  private readonly COUNTRY_RESTRICTION = 'za'; // South Africa (remove for global)
-
-  pickupPredictions: PlacePrediction[] = [];
-  returnPredictions: PlacePrediction[] = [];
-
-  private autoService?: any;   // google.maps.places.AutocompleteService
-  private placesService?: any; // google.maps.places.PlacesService
-
-  private pickupInput$ = new Subject<string>();
-  private returnInput$ = new Subject<string>();
-  private subs = new Subscription();
-
-  slideOpts = {
-    initialSlide: 0,
-    speed: 300,
-  };
-
-garageFee: string|number = '';
-grandTotal: string|number = '';
+  highlightedDates: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private navCtrl: NavController,
-    private fb: FormBuilder, private service: MainService
+    private fb: FormBuilder,
+    private router: Router,
+    private service: MainService,
+    private toastCtrl: ToastController
   ) {}
 
-  async ngOnInit(): Promise<void> {
-    this.vehicleId = this.route.snapshot.paramMap.get('id');
-    this.garageFeePercent = environment.garageFeePercent;
+  ngOnInit(): void {
+
+    this.vehicleId =
+      this.route.snapshot.paramMap.get('id');
 
     this.form = this.fb.group({
-      From: [null, Validators.required],
-      Until: [null, Validators.required],
+
       PickupLocation: ['', Validators.required],
-      ReturnLocation: ['', Validators.required],
+
+      ReturnLocation: ['', Validators.required]
+
     });
 
-    // Form recalculations
-    this.subs.add(
-      this.form.valueChanges.subscribe(() => {
-        this.syncSelectedDates();
-        this.recomputeEstimateAndAvailability();
-      })
-    );
-
-    // Debounced input streams (prevents API spam)
-    this.subs.add(
-      this.pickupInput$.pipe(debounceTime(250), distinctUntilChanged()).subscribe((q) => {
-        this.fetchPredictions(q, 'pickup');
-      })
-    );
-
-    this.subs.add(
-      this.returnInput$.pipe(debounceTime(250), distinctUntilChanged()).subscribe((q) => {
-        this.fetchPredictions(q, 'return');
-      })
-    );
-
-    // Load Google Places + init services
-    await this.ensureGooglePlacesLoaded();
-    this.initPlacesServices();
+    this.initGooglePlaces();
 
     this.loadVehicle();
+
   }
 
-  ngOnDestroy(): void {
-    this.subs.unsubscribe();
-  }
-
-  goBack(): void {
+  goBack() {
     this.navCtrl.back();
   }
 
-// -----------------------
-// Vehicle load
-// -----------------------
-private loadVehicle(): void {
+  loadVehicle() {
 
-  this.loading = true;
+    this.loading = true;
 
-  // Load vehicle details
-  this.service.getVehicleDetails(this.vehicleId)
-  .subscribe({
-
-    next: (vehicleResp: any) => {
-
-      console.log(vehicleResp);
-      this.vehicle = vehicleResp;
-
-      this.vehicleImages = Array.isArray(vehicleResp?.vImages)
-        ? vehicleResp.vImages
-        : [];
-
-      // Load bookings for calendar
-      this.service.getVehicleBookings(this.vehicleId)
+    this.service
+      .getVehicleDetails(this.vehicleId)
       .subscribe({
 
-        next: (bookingResp: any) => {
+        next: (resp: any) => {
 
-          this.bookings = Array.isArray(bookingResp)
-            ? bookingResp
-            : [];
+          console.log('Vehicle details response:', resp);
+          this.vehicle = resp;
+
+this.vehicleImages =
+  resp.vImages ||
+  resp.images ||
+  resp.vehicleImages ||
+  [];
+          this.bookings =
+            resp.bookings ||
+            [];
+
+          this.buildHighlightedDates();
 
           this.loading = false;
 
-          this.recomputeEstimateAndAvailability();
         },
 
-        error: () => {
-          this.bookings = [];
+        error: async (e: any) => {
+
           this.loading = false;
+
+          await this.presentToast(
+            e?.error || 'Failed to load vehicle',
+            'danger'
+          );
+
         }
 
       });
 
-    },
+  }
 
-    error: () => {
-      this.loading = false;
+  initGooglePlaces() {
+
+    if (typeof google === 'undefined') {
+      return;
     }
 
-  });
+    this.autocompleteService =
+      new google.maps.places.AutocompleteService();
+
+  }
+
+  onPickupInput(event: any) {
+
+    const value = event?.target?.value || '';
+
+    if (!value || value.length < 2) {
+
+      this.pickupPredictions = [];
+
+      return;
+    }
+
+    this.autocompleteService.getPlacePredictions(
+      {
+        input: value,
+        componentRestrictions: {
+          country: 'za'
+        }
+      },
+      (predictions: any[]) => {
+
+        this.pickupPredictions =
+          predictions || [];
+
+      }
+    );
+
+  }
+
+  onReturnInput(event: any) {
+
+    const value = event?.target?.value || '';
+
+    if (!value || value.length < 2) {
+
+      this.returnPredictions = [];
+
+      return;
+    }
+
+    this.autocompleteService.getPlacePredictions(
+      {
+        input: value,
+        componentRestrictions: {
+          country: 'za'
+        }
+      },
+      (predictions: any[]) => {
+
+        this.returnPredictions =
+          predictions || [];
+
+      }
+    );
+
+  }
+
+  selectPickupPrediction(prediction: any) {
+
+    this.form.patchValue({
+
+      PickupLocation:
+        prediction.description
+
+    });
+
+    this.pickupPredictions = [];
+
+  }
+
+  selectReturnPrediction(prediction: any) {
+
+    this.form.patchValue({
+
+      ReturnLocation:
+        prediction.description
+
+    });
+
+    this.returnPredictions = [];
+
+  }
+
+  async onCalendarChange(event: any) {
+
+    const value = event.detail.value;
+
+    if (!value) {
+      return;
+    }
+
+    const selectedDate =
+      this.formatDate(value);
+
+    if (
+      !this.selectedFrom ||
+      (this.selectedFrom && this.selectedUntil)
+    ) {
+
+      this.selectedFrom = selectedDate;
+      this.selectedUntil = null;
+
+      this.calculateEstimate();
+
+      return;
+    }
+
+    if (
+      this.selectedFrom &&
+      !this.selectedUntil
+    ) {
+
+      const fromDate =
+        new Date(this.selectedFrom);
+
+      const untilDate =
+        new Date(selectedDate);
+
+      if (
+        untilDate.getTime() <
+        fromDate.getTime()
+      ) {
+
+        await this.presentToast(
+          'Return date cannot be before pickup date.',
+          'warning'
+        );
+
+        return;
+      }
+
+      this.selectedUntil = selectedDate;
+
+      this.calculateEstimate();
+
+    }
+
+  }
+
+clearDates() {
+  this.selectedFrom = null;
+  this.selectedUntil = null;
+
+  this.estimateDays = 0;
+  this.estimateTotal = 0;
+  this.garageFee = 0;
+  this.grandTotal = 0;
+
+  this.isCurrentlyAvailable = true;
+
+  this.buildHighlightedDates();
 }
 
-  // -----------------------
-  // Date utilities
-  // -----------------------
-  private normalizeToYmd(value: any): string | null {
-    if (!value) return null;
-    if (typeof value === 'string') return value.slice(0, 10);
-    if (value instanceof Date) {
-      const y = value.getFullYear();
-      const m = String(value.getMonth() + 1).padStart(2, '0');
-      const d = String(value.getDate()).padStart(2, '0');
-      return `${y}-${m}-${d}`;
-    }
-    return null;
-  }
+  calculateEstimate() {
 
-  private toMs(ymd: string): number {
-    const [y, m, d] = ymd.split('-').map(Number);
-    return new Date(y, m - 1, d).getTime();
-  }
+    if (
+      !this.selectedFrom ||
+      !this.selectedUntil
+    ) {
 
-  private rangesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string): boolean {
-    const aS = this.toMs(aStart);
-    const aE = this.toMs(aEnd);
-    const bS = this.toMs(bStart);
-    const bE = this.toMs(bEnd);
-    return aS <= bE && bS <= aE;
-  }
-
-  private syncSelectedDates(): void {
-    this.selectedFrom = this.normalizeToYmd(this.form.get('From')?.value);
-    this.selectedUntil = this.normalizeToYmd(this.form.get('Until')?.value);
-
-    if (this.selectedFrom && this.selectedUntil && this.selectedUntil < this.selectedFrom) {
-      const tmp = this.selectedFrom;
-      this.selectedFrom = this.selectedUntil;
-      this.selectedUntil = tmp;
-      this.form.patchValue({ From: this.selectedFrom, Until: this.selectedUntil }, { emitEvent: false });
-    }
-  }
-
-  private isAvailableForRange(from: string, until: string): boolean {
-    for (const b of this.bookings) {
-      if (this.rangesOverlap(from, until, b.from, b.until)) return false;
-    }
-    return true;
-  }
-
-  private diffDaysInclusive(from: string, until: string): number {
-    const ms = this.toMs(until) - this.toMs(from);
-    const days = Math.floor(ms / (1000 * 60 * 60 * 24));
-    return Math.max(1, days === 0 ? 1 : days);
-  }
-
-  private recomputeEstimateAndAvailability(): void {
-    if (!this.vehicle) return;
-
-    if (!this.selectedFrom || !this.selectedUntil) {
       this.estimateDays = 0;
+
       this.estimateTotal = 0;
+
+      this.garageFee = 0;
+
+      this.grandTotal = 0;
+
       this.isCurrentlyAvailable = true;
+
       return;
     }
 
-    this.isCurrentlyAvailable = this.isAvailableForRange(this.selectedFrom, this.selectedUntil);
-    this.estimateDays = this.diffDaysInclusive(this.selectedFrom, this.selectedUntil);
-    this.estimateTotal = Number(this.vehicle.rate || 0) * this.estimateDays;
+    const from =
+      new Date(this.selectedFrom);
 
-this.garageFee = this.estimateTotal * this.garageFeePercent;
+    const until =
+      new Date(this.selectedUntil);
 
-this.grandTotal = this.estimateTotal + this.garageFee;
+    const diffMs =
+      until.getTime() -
+      from.getTime();
+
+    const days =
+      Math.max(
+        1,
+        Math.ceil(
+          diffMs / (1000 * 60 * 60 * 24)
+        ) + 1
+      );
+
+    this.estimateDays = days;
+
+    const rate =
+      Number(this.vehicle?.rate || 0);
+
+    this.estimateTotal =
+      rate * days;
+
+    this.garageFee =
+      this.estimateTotal * 0.12;
+
+    this.grandTotal =
+      this.estimateTotal +
+      this.garageFee;
+
+    this.isCurrentlyAvailable =
+      this.checkAvailability();
+
+      this.buildHighlightedDates();
+
   }
 
-  // -----------------------
-  // Single calendar selection
-  // -----------------------
-  onCalendarChange(ev: CustomEvent) {
-    const picked = this.normalizeToYmd((ev as any).detail?.value);
-    if (!picked) return;
+  checkAvailability(): boolean {
 
-    // New range if none OR already complete
-    if (!this.selectedFrom || (this.selectedFrom && this.selectedUntil)) {
-      this.selectedFrom = picked;
-      this.selectedUntil = null;
-      this.form.patchValue({ From: this.selectedFrom, Until: null }, { emitEvent: true });
-      return;
+    if (
+      !this.selectedFrom ||
+      !this.selectedUntil
+    ) {
+      return true;
     }
 
-    // Set until
-    this.selectedUntil = picked;
+    const start =
+      this.toDateOnlyMs(
+        new Date(this.selectedFrom)
+      );
 
-    // Swap if reversed
-    if (this.selectedFrom && this.selectedUntil && this.selectedUntil < this.selectedFrom) {
-      const tmp = this.selectedFrom;
-      this.selectedFrom = this.selectedUntil;
-      this.selectedUntil = tmp;
+    const end =
+      this.toDateOnlyMs(
+        new Date(this.selectedUntil)
+      );
+
+    for (const booking of this.bookings) {
+
+      const bStart =
+        this.toDateOnlyMs(
+          new Date(booking.from)
+        );
+
+      const bEnd =
+        this.toDateOnlyMs(
+          new Date(booking.until)
+        );
+
+      if (
+        start <= bEnd &&
+        bStart <= end
+      ) {
+        return false;
+      }
+
     }
 
-    this.form.patchValue({ From: this.selectedFrom, Until: this.selectedUntil }, { emitEvent: true });
+    return true;
+
   }
 
-  clearDates(): void {
-    this.selectedFrom = null;
-    this.selectedUntil = null;
-    this.form.patchValue({ From: null, Until: null }, { emitEvent: true });
+buildHighlightedDates() {
+  const dates: any[] = [];
+
+  // Booked dates
+  for (const booking of this.bookings) {
+    const start = new Date(booking.from);
+    const end = new Date(booking.until);
+    const current = new Date(start);
+
+    while (current.getTime() <= end.getTime()) {
+      dates.push({
+        date: this.formatDate(current),
+        textColor: '#991b1b',
+        backgroundColor: '#fee2e2'
+      });
+
+      current.setDate(current.getDate() + 1);
+    }
   }
 
-  availabilityText(): 'Available' | 'Unavailable' {
-    if (!this.selectedFrom || !this.selectedUntil) return 'Available';
-    return this.isCurrentlyAvailable ? 'Available' : 'Unavailable';
+  // Selected From only
+  if (this.selectedFrom && !this.selectedUntil) {
+    dates.push({
+      date: this.selectedFrom,
+      textColor: '#ffffff',
+      backgroundColor: '#000000'
+    });
   }
 
-  availabilityIcon(): string {
-    return this.availabilityText() === 'Available' ? 'checkmark-circle' : 'close-circle';
+  // Selected range
+  if (this.selectedFrom && this.selectedUntil) {
+    const start = new Date(this.selectedFrom);
+    const end = new Date(this.selectedUntil);
+    const current = new Date(start);
+
+    while (current.getTime() <= end.getTime()) {
+      dates.push({
+        date: this.formatDate(current),
+        textColor: '#ffffff',
+        backgroundColor: '#000000'
+      });
+
+      current.setDate(current.getDate() + 1);
+    }
   }
 
-  availabilityBadgeClass(): string {
-    return this.availabilityText() === 'Available' ? 'badge-available' : 'badge-unavailable';
-  }
+  this.highlightedDates = dates;
+}
 
-  // -----------------------
-  // Disable booked dates + prevent crossing bookings
-  // -----------------------
 isDateEnabled = (isoString: string) => {
-  const day = isoString.slice(0, 10);
+  const day = this.formatDate(isoString);
+  const date = this.toDateOnlyMs(new Date(day));
+  const today = this.toDateOnlyMs(new Date());
 
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0, 10);
-
-  // ❌ Disable past dates
-  if (this.toMs(day) < this.toMs(todayStr)) {
+  if (date < today) {
     return false;
   }
 
-  // ❌ Disable booked dates
-  for (const b of this.bookings) {
-    if (this.toMs(day) >= this.toMs(b.from) && this.toMs(day) <= this.toMs(b.until)) {
+  // Disable already booked dates
+  for (const booking of this.bookings) {
+    const bStart = this.toDateOnlyMs(new Date(booking.from));
+    const bEnd = this.toDateOnlyMs(new Date(booking.until));
+
+    if (date >= bStart && date <= bEnd) {
       return false;
-    }
-  }
-
-  // ❌ Prevent selecting ranges overlapping bookings
-  if (this.selectedFrom && !this.selectedUntil) {
-    const fromCandidate = day < this.selectedFrom ? day : this.selectedFrom;
-    const untilCandidate = day < this.selectedFrom ? this.selectedFrom : day;
-
-    for (const b of this.bookings) {
-      if (this.rangesOverlap(fromCandidate, untilCandidate, b.from, b.until)) {
-        return false;
-      }
     }
   }
 
   return true;
 };
-  // -----------------------
-  // Highlighted dates
-  // -----------------------
-  highlightedDates = (isoString: string): HighlightStyle | undefined => {
-    const day = isoString.slice(0, 10);
 
-    // Booked styling
-    for (const b of this.bookings) {
-      if (this.toMs(day) >= this.toMs(b.from) && this.toMs(day) <= this.toMs(b.until)) {
-        return {
-          backgroundColor: 'var(--ion-color-medium)',
-          textColor: 'var(--ion-color-medium-contrast)',
-        };
-      }
-    }
+  continue() {
 
-    // Only From selected
-    if (this.selectedFrom && !this.selectedUntil) {
-      if (day === this.selectedFrom) {
-        return {
-          backgroundColor: 'var(--ion-color-primary)',
-          textColor: 'var(--ion-color-primary-contrast)',
-        };
-      }
-      return undefined;
-    }
+    if (
+      !this.selectedFrom ||
+      !this.selectedUntil
+    ) {
 
-    // From..Until range selected
-    if (this.selectedFrom && this.selectedUntil) {
-      const start = this.toMs(this.selectedFrom);
-      const end = this.toMs(this.selectedUntil);
-      const d = this.toMs(day);
+      this.presentToast(
+        'Please select booking dates.',
+        'warning'
+      );
 
-      if (d >= start && d <= end) {
-        return {
-          backgroundColor: 'var(--ion-color-primary)',
-          textColor: 'var(--ion-color-primary-contrast)',
-        };
-      }
-    }
-
-    return undefined;
-  };
-
-  // -----------------------
-  // Google Places: script loading + services
-  // -----------------------
-  private ensureGooglePlacesLoaded(): Promise<void> {
-    // Already loaded
-    if (window.google?.maps?.places) return Promise.resolve();
-
-    // If script already added, wait for it
-    const existing = document.querySelector<HTMLScriptElement>('script[data-google-places="true"]');
-    if (existing) {
-      return new Promise((resolve) => {
-        existing.addEventListener('load', () => resolve());
-        existing.addEventListener('error', () => resolve()); // resolve to avoid blocking UI
-      });
-    }
-
-    // Inject script
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.dataset['googlePlaces'] = 'true';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(
-        this.GOOGLE_API_KEY
-      )}&libraries=places`;
-      script.async = true;
-      script.defer = true;
-
-      script.onload = () => resolve();
-      script.onerror = () => resolve(); // resolve to avoid blocking UI
-
-      document.head.appendChild(script);
-    });
-  }
-
-  private initPlacesServices(): void {
-    if (!window.google?.maps?.places) return;
-
-    this.autoService = new window.google.maps.places.AutocompleteService();
-
-    // PlacesService requires an element
-    const dummy = document.createElement('div');
-    this.placesService = new window.google.maps.places.PlacesService(dummy);
-  }
-
-  // Called by ionInput (we push into debounced streams)
-  onPickupInput(ev: any) {
-    const value: string = ev?.target?.value ?? '';
-    this.form.patchValue({ PickupLocation: value }, { emitEvent: false });
-    this.pickupInput$.next(value);
-  }
-
-  onReturnInput(ev: any) {
-    const value: string = ev?.target?.value ?? '';
-    this.form.patchValue({ ReturnLocation: value }, { emitEvent: false });
-    this.returnInput$.next(value);
-  }
-
-  private fetchPredictions(query: string, which: 'pickup' | 'return') {
-    const q = (query || '').trim();
-
-    if (!q || q.length < 3 || !this.autoService) {
-      if (which === 'pickup') this.pickupPredictions = [];
-      else this.returnPredictions = [];
       return;
     }
 
-    const request: any = {
-      input: q,
-      // optional restriction to SA
-      componentRestrictions: this.COUNTRY_RESTRICTION ? { country: this.COUNTRY_RESTRICTION } : undefined,
+    if (!this.isCurrentlyAvailable) {
+
+      this.presentToast(
+        'Selected dates are unavailable.',
+        'danger'
+      );
+
+      return;
+    }
+
+    if (this.form.invalid) {
+
+      this.form.markAllAsTouched();
+
+      this.presentToast(
+        'Please complete pickup and return locations.',
+        'warning'
+      );
+
+      return;
+    }
+
+    const bookingPayload = {
+
+      vehicleId: this.vehicleId,
+
+      from: this.selectedFrom,
+
+      until: this.selectedUntil,
+
+      pickupLocation:
+        this.form.value.PickupLocation,
+
+      returnLocation:
+        this.form.value.ReturnLocation,
+
+      grandTotal:
+        this.grandTotal,
+
+      estimatedDays:
+        this.estimateDays,
+
+        garageFee: this.garageFee,
+
+        image: this.vehicleImages[0] || null,
+        vehicleName: this.vehicle?.make + ' ' + this.vehicle?.model,
+        vehicleTotal: this.estimateTotal
+
     };
 
-    this.autoService.getPlacePredictions(request, (preds: PlacePrediction[] | null) => {
-      const list = preds || [];
-      if (which === 'pickup') this.pickupPredictions = list;
-      else this.returnPredictions = list;
-    });
-  }
-
-  selectPickupPrediction(p: PlacePrediction) {
-    this.pickupPredictions = [];
-    this.fillPlace(p?.place_id, 'PickupLocation');
-  }
-
-  selectReturnPrediction(p: PlacePrediction) {
-    this.returnPredictions = [];
-    this.fillPlace(p?.place_id, 'ReturnLocation');
-  }
-
-  private fillPlace(placeId: string, controlName: 'PickupLocation' | 'ReturnLocation') {
-    if (!placeId || !this.placesService) return;
-
-    this.placesService.getDetails(
-      { placeId, fields: ['formatted_address', 'name'] },
-      (place: any, status: any) => {
-        const ok = status === window.google.maps.places.PlacesServiceStatus.OK;
-        if (!ok || !place) return;
-
-        const full = place.formatted_address || place.name || '';
-        this.form.patchValue({ [controlName]: full }, { emitEvent: true });
-      }
+    console.log(
+      'Booking payload:',
+      bookingPayload
     );
+
+this.router.navigate(
+  ['/tabs/booking-request'],
+  {
+    state: {
+      booking: bookingPayload
+    }
+  }
+);
+
   }
 
-  // -----------------------
-  // Submit
-  // -----------------------
-  continue(): void {
-  // 🔹 Remove focus before navigation
-  (document.activeElement as HTMLElement)?.blur();
+  availabilityText():
+    'Available' | 'Unavailable' {
 
-  this.syncSelectedDates();
-  this.recomputeEstimateAndAvailability();
+    return this.isCurrentlyAvailable
+      ? 'Available'
+      : 'Unavailable';
 
-  if (this.form.invalid || !this.vehicle) return;
-  if (!this.selectedFrom || !this.selectedUntil) return;
-  if (!this.isCurrentlyAvailable) return;
-
-  const model = {
-    vehicleId: this.vehicle.vehicleId,
-    PickupDate: this.selectedFrom,
-    ReturnDate: this.selectedUntil,
-    PickupLocation: this.form.value.PickupLocation,
-    ReturnLocation: this.form.value.ReturnLocation,
-    EstimatedDays: this.estimateDays,
-      EstimatedTotal: this.estimateTotal,
-  GarageFee: this.garageFee,
-  GrandTotal: this.grandTotal,
-    VehicleName: this.vehicle.make + '-'+this.vehicle.model,
-    Image: this.vehicle?.vImages[0]
-  };
-
-  this.navCtrl.navigateForward('tabs/booking-request', {
-    state: { booking: model }
-  });
   }
+
+  availabilityIcon(): string {
+
+    return this.isCurrentlyAvailable
+      ? 'checkmark-circle'
+      : 'close-circle';
+
+  }
+
+  availabilityBadgeClass(): string {
+
+    return this.isCurrentlyAvailable
+      ? 'badge-available'
+      : 'badge-unavailable';
+
+  }
+
+  private formatDate(
+    value: any
+  ): string {
+
+    const d =
+      new Date(value);
+
+    const yyyy =
+      d.getFullYear();
+
+    const mm =
+      String(
+        d.getMonth() + 1
+      ).padStart(2, '0');
+
+    const dd =
+      String(
+        d.getDate()
+      ).padStart(2, '0');
+
+    return `${yyyy}-${mm}-${dd}`;
+
+  }
+
+  private toDateOnlyMs(
+    d: Date
+  ): number {
+
+    return new Date(
+      d.getFullYear(),
+      d.getMonth(),
+      d.getDate()
+    ).getTime();
+
+  }
+
+  private async presentToast(
+    message: string,
+    color:
+      | 'success'
+      | 'warning'
+      | 'danger'
+      | 'primary' = 'primary'
+  ) {
+
+    const toast =
+      await this.toastCtrl.create({
+
+        message,
+
+        color,
+
+        duration: 2400,
+
+        position: 'top'
+
+      });
+
+    await toast.present();
+
+  }
+
 }

@@ -1,9 +1,74 @@
-
-.compact-tabs {
-  justify-content: center;
+.premium-tabs {
+  height: 74px;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(18px);
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 -12px 35px rgba(0, 0, 0, 0.08);
+  justify-content: space-between;
 }
 
-.compact-tabs ion-tab-button {
-  flex: 0 0 auto;   // 🔑 stops overspreading
-  min-width: 72px;  // optional: keeps them readable
+.premium-tabs ion-tab-button {
+  --background: transparent;
+  --color: #7a7f88;
+  --color-selected: #000;
+  flex: 1;
+  min-width: 0;
+  max-width: 86px;
+}
+
+.tab-shell {
+  height: 54px;
+  min-width: 58px;
+  padding: 7px 8px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  transition: all 0.22s ease;
+}
+
+.tab-shell ion-icon {
+  font-size: 21px;
+}
+
+.tab-shell ion-label {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1px;
+  text-transform: none;
+}
+
+.premium-tabs ion-tab-button.tab-selected .tab-shell {
+  background: #000;
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  transform: translateY(-5px);
+}
+
+.premium-tabs ion-tab-button.tab-selected ion-icon,
+.premium-tabs ion-tab-button.tab-selected ion-label {
+  color: #fff;
+}
+
+@media (max-width: 380px) {
+  .premium-tabs {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .tab-shell {
+    min-width: 52px;
+    padding: 7px 5px;
+  }
+
+  .tab-shell ion-label {
+    font-size: 9px;
+  }
+
+  .tab-shell ion-icon {
+    font-size: 20px;
+  }
 }

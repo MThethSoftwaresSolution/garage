@@ -1,227 +1,288 @@
-<ion-header>
-  <ion-toolbar color="dark">
-
+<ion-header class="premium-header">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button
-        defaultHref="/tabs/vehicles"
-        text="Back"
-        color="light">
-      </ion-back-button>
+      <ion-menu-button>
+        <ion-icon name="apps-outline"></ion-icon>
+      </ion-menu-button>
     </ion-buttons>
 
-    <ion-title>Host</ion-title>
+    <ion-title>Fleet</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button (click)="toggleForm()">
-        <ion-icon [name]="showForm ? 'close' : 'add'" slot="start"></ion-icon>
-        {{ showForm ? 'Close' : 'Host Vehicle' }}
+      <ion-button class="header-action" (click)="toggleForm()">
+        <ion-icon [name]="showForm ? 'close-outline' : 'add-outline'"></ion-icon>
       </ion-button>
     </ion-buttons>
-
   </ion-toolbar>
 </ion-header>
 
-<ion-content style="padding: 5px;">
-
-      <!-- Host Vehicle Form -->
-    <ion-card *ngIf="showForm" style="margin-top:16px;">
-      <ion-card-header>
-        <h4 style="text-align:center;">Host / Add Vehicle</h4>
-        <!--<ion-card-title style="text-align:center;"></ion-card-title>-->
-      </ion-card-header>
-
-      <ion-card-content style="padding: 5px">
-        <form [formGroup]="form">
-  <div class="ion-padding">
-          <ion-text><h3 style="text-align:center; font-weight:700;">Location</h3></ion-text>
-
-          
-            <ion-input formControlName="Location" placeholder="Search / Enter location" fill="outline" label="Where" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-select formControlName="Province" placeholder="Select Province" fill="outline" label="Province" labelPlacement="floating">
-              <ion-select-option *ngFor="let p of provinces" [value]="p.value">{{ p.label }}</ion-select-option>
-            </ion-select>
-          
-          <br>
-
-          
-            <ion-input formControlName="StreetAddress" placeholder="Street Address" fill="outline" label="Street Address" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-input formControlName="City" placeholder="City" fill="outline" label="City" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-input formControlName="PostalCode" placeholder="Postal Code" fill="outline" label="Postal Code" labelPlacement="floating"></ion-input>
-          
-
-          <ion-item lines="none"><ion-label></ion-label></ion-item>
-
-          <ion-text><h3 style="text-align:center; font-weight:700;">Vehicle Details</h3></ion-text>
-
-          
-            <ion-input formControlName="VN" placeholder="VN" fill="outline" label="VN" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-select formControlName="Year" placeholder="Select Year" fill="outline" label="Year" labelPlacement="floating">
-              <ion-select-option *ngFor="let y of years" [value]="y.value">{{ y.label }}</ion-select-option>
-            </ion-select>
-          
-          <br>
-
-          
-            <ion-select formControlName="Make" placeholder="Select Make" fill="outline" label="Make" labelPlacement="floating" (ionChange)="searchModel($event.detail.value)">
-              <ion-select-option *ngFor="let m of makes" [value]="m.value">{{ m.label }}</ion-select-option>
-            </ion-select>
-          
-          <br>
-
-          
-            <ion-select formControlName="Model" placeholder="Select Model" fill="outline" label="Model" labelPlacement="floating">
-              <ion-select-option *ngFor="let md of models" [value]="md.value">{{ md.label }}</ion-select-option>
-            </ion-select>
-          
-          <br>
-
-          
-            <ion-select formControlName="Transmission" placeholder="Select Transmission" fill="outline" label="Transmission" labelPlacement="floating">
-              <ion-select-option *ngFor="let tr of transmissions" [value]="tr.value">{{ tr.label }}</ion-select-option>
-            </ion-select>
-          
-          <br>
-
-          
-            <ion-select formControlName="Odometer" placeholder="Select Odometer" fill="outline" label="Odometer" labelPlacement="floating">
-              <ion-select-option *ngFor="let o of odometers" [value]="o.value">{{ o.label }}</ion-select-option>
-            </ion-select>
-          
-          <br>
-
-          
-            <ion-input formControlName="NumberPlate" placeholder="Number Plate" fill="outline" label="Number Plate" labelPlacement="floating"></ion-input>
-          
-                      <br>
-
-          
-            <ion-input type="number" formControlName="VehicleValueAmount" placeholder="Market Value (R)" fill="outline" label="Market Value (R)" labelPlacement="floating"></ion-input>
-          
-          
-          <br>
-
-          
-            <ion-input type="number" formControlName="MarketValue" placeholder="Rate / Day (R)" fill="outline" label="Rate / Day (R)" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-label position="stacked">Color</ion-label>
-            <ion-select formControlName="Color" placeholder="Select Color" placeholder="Select Color" fill="outline" label="Select Color" labelPlacement="floating">
-              <ion-select-option *ngFor="let c of colors" [value]="c.value">{{ c.label }}</ion-select-option>
-            </ion-select>
-          
-
-          <ion-item lines="none"><ion-label></ion-label></ion-item>
-
-          <ion-item lines="none">
-          <ion-checkbox slot="start" (ionChange)="onOwnerCheckboxChange($event)"></ion-checkbox>
-          <ion-label>Are you the owner?</ion-label>
-        </ion-item>
-
-
-          <ion-text><h3 style="text-align:center; font-weight:700;">Owner Details</h3></ion-text>
-
-
-          
-            <ion-input formControlName="OwnerIdNumber" [readonly]="isOwner" fill="outline" label="Owner ID Number" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-input formControlName="OwnerName" [readonly]="isOwner" fill="outline" label="Owner Name" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-input formControlName="OwnerSurname" [readonly]="isOwner" placeholder="Owner Surname" fill="outline" label="Owner Surname" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-input formControlName="OwnerCellNumber" [readonly]="isOwner" placeholder="Cell Number" fill="outline" label="Cell Number" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          
-            <ion-input type="email" formControlName="OwnerEmail" [readonly]="isOwner" placeholder="Owner Email" fill="outline" label="Owner Email" labelPlacement="floating"></ion-input>
-          
-          <br>
-
-          <div style="margin-top: 16px;">
-            <ion-button expand="block" color="dark" (click)="listCar()" [disabled]="loading">
-              <ion-spinner *ngIf="loading" name="crescent" style="margin-right:10px;"></ion-spinner>
-              {{ loading ? 'Saving...' : 'Submit Vehicle' }}
-            </ion-button>
-          </div>
-</div>
-        </form>
-      </ion-card-content>
-    </ion-card>
-
+<ion-content class="garage-host-page">
   <ion-refresher slot="fixed" (ionRefresh)="loadHostedCars($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div style="padding: 5px;">
+  <section class="host-hero">
+    <p class="eyebrow">Garage Partner</p>
+    <h1>List your vehicle and start earning.</h1>
+    <p class="subtitle">
+      Add your car, select its location, upload photos and submit for Garage approval.
+    </p>
 
-    <!-- Hosted Vehicles -->
-    <ion-text>
-      <h5 style="text-align:center; font-weight:700;">Your Hosted Vehicles</h5>
-    </ion-text>
+    <ion-button expand="block" class="primary-cta" (click)="toggleForm()">
+      <ion-icon [name]="showForm ? 'chevron-up-outline' : 'add-circle-outline'" slot="start"></ion-icon>
+      {{ showForm ? 'Hide Form' : 'Host Vehicle' }}
+    </ion-button>
+  </section>
 
-    <ion-card *ngIf="loadingList">
-      <ion-card-content style="text-align:center;">
-        <ion-spinner name="crescent"></ion-spinner>
-        <div style="margin-top:10px;">Loading...</div>
-      </ion-card-content>
-    </ion-card>
+  <section class="fleet-summary">
+    <div>
+      <p class="eyebrow dark">Your fleet</p>
+      <h2>{{ vehicleHost.length || 0 }} Vehicle{{ vehicleHost.length === 1 ? '' : 's' }}</h2>
+    </div>
 
-    <ion-card *ngIf="!loadingList && vehicleHost.length === 0">
+    <div class="summary-icon">
+      <ion-icon name="car-sport-outline"></ion-icon>
+    </div>
+  </section>
+
+  <section *ngIf="showForm" class="premium-form-card">
+    <form [formGroup]="form">
+      <div class="form-top">
+        <div>
+          <p class="eyebrow dark">Vehicle onboarding</p>
+          <h2>Host / Add Vehicle</h2>
+        </div>
+
+        <ion-badge color="dark">Review Required</ion-badge>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title">
+          <ion-icon name="location-outline"></ion-icon>
+          <div>
+            <h3>Vehicle Location</h3>
+            <p>Start typing and select the correct place from Google suggestions.</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <ion-input
+            id="garage-location-search"
+            formControlName="Location"
+            fill="outline"
+            label="Select vehicle location"
+            labelPlacement="floating"
+            placeholder="Example: Sandton City, Johannesburg">
+          </ion-input>
+
+          <div *ngIf="address" class="selected-location">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <span>{{ address }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title">
+          <ion-icon name="car-sport-outline"></ion-icon>
+          <div>
+            <h3>Vehicle Details</h3>
+            <p>Information customers will see before booking.</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <ion-input formControlName="VN" fill="outline" label="VIN / VN" labelPlacement="floating"></ion-input>
+
+          <div class="two-col">
+            <ion-select formControlName="Year" fill="outline" label="Year" labelPlacement="floating" interface="action-sheet">
+              <ion-select-option *ngFor="let y of years" [value]="y.value">
+                {{ y.label }}
+              </ion-select-option>
+            </ion-select>
+
+            <ion-select formControlName="Transmission" fill="outline" label="Transmission" labelPlacement="floating" interface="action-sheet">
+              <ion-select-option *ngFor="let tr of transmissions" [value]="tr.value">
+                {{ tr.label }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+
+          <ion-select
+            formControlName="Make"
+            fill="outline"
+            label="Make"
+            labelPlacement="floating"
+            interface="action-sheet"
+            (ionChange)="searchModel($event.detail.value)">
+            <ion-select-option *ngFor="let m of makes" [value]="m.value">
+              {{ m.label }}
+            </ion-select-option>
+          </ion-select>
+
+          <ion-select formControlName="Model" fill="outline" label="Model" labelPlacement="floating" interface="action-sheet">
+            <ion-select-option *ngFor="let md of models" [value]="md.value">
+              {{ md.label }}
+            </ion-select-option>
+          </ion-select>
+
+          <div class="two-col">
+            <ion-select formControlName="Odometer" fill="outline" label="Odometer" labelPlacement="floating" interface="action-sheet">
+              <ion-select-option *ngFor="let o of odometers" [value]="o.value">
+                {{ o.label }}
+              </ion-select-option>
+            </ion-select>
+
+            <ion-select formControlName="Color" fill="outline" label="Color" labelPlacement="floating" interface="action-sheet">
+              <ion-select-option *ngFor="let c of colors" [value]="c.value">
+                {{ c.label }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+
+          <ion-input formControlName="NumberPlate" fill="outline" label="Number Plate" labelPlacement="floating"></ion-input>
+
+          <div class="two-col">
+            <ion-input
+              type="number"
+              formControlName="VehicleValueAmount"
+              fill="outline"
+              label="Vehicle Value (R)"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-input
+              type="number"
+              formControlName="MarketValue"
+              fill="outline"
+              label="Rate / Day (R)"
+              labelPlacement="floating">
+            </ion-input>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title">
+          <ion-icon name="person-circle-outline"></ion-icon>
+          <div>
+            <h3>Owner Details</h3>
+            <p>Used for vetting and ownership verification.</p>
+          </div>
+        </div>
+
+        <ion-item lines="none" class="owner-check">
+          <ion-checkbox slot="start" (ionChange)="onOwnerCheckboxChange($event)"></ion-checkbox>
+          <ion-label>I am the vehicle owner</ion-label>
+        </ion-item>
+
+        <div class="field-group">
+          <ion-input
+            formControlName="OwnerIdNumber"
+            [readonly]="isOwner"
+            fill="outline"
+            label="Owner ID Number"
+            labelPlacement="floating">
+          </ion-input>
+
+          <div class="two-col">
+            <ion-input
+              formControlName="OwnerName"
+              [readonly]="isOwner"
+              fill="outline"
+              label="Owner Name"
+              labelPlacement="floating">
+            </ion-input>
+
+            <ion-input
+              formControlName="OwnerSurname"
+              [readonly]="isOwner"
+              fill="outline"
+              label="Owner Surname"
+              labelPlacement="floating">
+            </ion-input>
+          </div>
+
+          <ion-input
+            formControlName="OwnerCellNumber"
+            [readonly]="isOwner"
+            fill="outline"
+            label="Owner Cell Number"
+            labelPlacement="floating">
+          </ion-input>
+
+          <ion-input
+            type="email"
+            formControlName="OwnerEmail"
+            [readonly]="isOwner"
+            fill="outline"
+            label="Owner Email"
+            labelPlacement="floating">
+          </ion-input>
+        </div>
+      </div>
+
+      <ion-button expand="block" class="submit-btn" (click)="listCar()" [disabled]="loading">
+        <ion-spinner *ngIf="loading" name="crescent" slot="start"></ion-spinner>
+        {{ loading ? 'Submitting...' : 'Submit Vehicle for Review' }}
+      </ion-button>
+    </form>
+  </section>
+
+  <section class="hosted-section">
+    <div class="section-heading-row">
+      <div>
+        <p class="eyebrow dark">Fleet</p>
+        <h2>Your Hosted Vehicles</h2>
+      </div>
+
+      <ion-badge color="medium">{{ vehicleHost.length }}</ion-badge>
+    </div>
+
+    <ion-card *ngIf="loadingList" class="empty-card">
       <ion-card-content>
-        You have no hosted vehicles yet. Tap <b>Host Vehicle</b> to add one.
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading your vehicles...</p>
       </ion-card-content>
     </ion-card>
 
-    <ion-list *ngIf="!loadingList && vehicleHost.length > 0">
-      <ion-item *ngFor="let t of vehicleHost">
-      <ion-thumbnail slot="start">
-        <ion-img
-          [src]="t.coverImage || './../../../assets/place-holder.png'"
-          (ionError)="t.coverImage = null">
-        </ion-img>
-      </ion-thumbnail>
+    <ion-card *ngIf="!loadingList && vehicleHost.length === 0" class="empty-card">
+      <ion-card-content>
+        <ion-icon name="car-outline"></ion-icon>
+        <h3>No vehicles yet</h3>
+        <p>Tap Host Vehicle to add your first car.</p>
+      </ion-card-content>
+    </ion-card>
 
-        <ion-label>
-          <h2 style="font-weight:700;">{{ t.numberPlate }} | <ion-badge slot="end" [color]="statusColor(t)">{{ statusText(t) }}</ion-badge></h2>
-          <p>{{ t.color }} • {{ t.make }} • {{ t.model }} • {{ t.year }}</p>
-          <p>Transmission: {{ t.transmission }} | Odometer: {{ t.odometer }}</p>
-          <p>Rate: R{{ t.rate }} / day | Photos: {{ t.imagesCount }}</p>
-        </ion-label>
+    <div *ngIf="!loadingList && vehicleHost.length > 0" class="vehicle-grid">
+      <article class="vehicle-card" *ngFor="let t of vehicleHost">
+        <div class="vehicle-image">
+          <img
+            [src]="t.coverImage || './../../../assets/place-holder.png'"
+            (error)="t.coverImage = null" />
 
-        
+          <ion-badge [color]="statusColor(t)" class="status-badge">
+            {{ statusText(t) }}
+          </ion-badge>
+        </div>
 
-        <ion-button slot="end" fill="clear" (click)="openImages(t)">
-          <ion-icon name="images-outline"></ion-icon>
-        </ion-button>
-      </ion-item>
-    </ion-list>
+        <div class="vehicle-info">
+          <h3>{{ t.make }} {{ t.model }}</h3>
+          <p>{{ t.year }} • {{ t.color }} • {{ t.transmission }}</p>
 
-  </div>
+          <div class="vehicle-meta">
+            <span>{{ t.numberPlate }}</span>
+            <strong>R{{ t.rate }} / day</strong>
+          </div>
+
+          <div class="vehicle-actions">
+            <ion-button fill="outline" size="small" color="dark" (click)="openImages(t)">
+              <ion-icon name="images-outline" slot="start"></ion-icon>
+              Photos
+            </ion-button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
 </ion-content>

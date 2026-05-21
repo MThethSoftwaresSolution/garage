@@ -1,201 +1,381 @@
- 
-.logo{
-height: 110px;
-}
-#bg {
-    height: 15%;
-    background: var(--ion-color-dark) url('./../../../assets/banner.png') no-repeat center center/cover;
-    border-radius: 0 0 25% 25%;
-    position: relative;
-}
-
-.white-menu-btn {
-  --color: white;
-}
-
-/* Floating menu button on top-left of banner */
-.floating-menu {
-    position: absolute;
-    top: 10px;    /* distance from top of the banner */
-    left: 10px;   /* distance from left edge */
-    z-index: 1000; /* ensure it appears above the banner */
-    margin-top: 30px;
-}
-
-.floating-back {
-  position: absolute;
-  top: 10px;
-  right: 10px; /* FAR RIGHT */
-  z-index: 1000;
-}
-
-.membership-card {
-  max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background: linear-gradient(135deg, #1f1f1f, #2b2b2b);
-  color: #fff;
-  border-radius: 16px;
-  font-family: 'Roboto', sans-serif;
+.exchanges-content {
+  --background: #f5f1f1;
 }
 
 /* HEADER */
-.card-header {
+.premium-header {
+  ion-toolbar {
+    --background: #111214;
+    --color: #ffffff;
+    --border-width: 0;
+    min-height: 64px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  }
+
+  ion-title {
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  ion-button,
+  ion-menu-button {
+    --color: #ffffff;
+  }
+
+  ion-icon {
+    font-size: 22px;
+  }
+}
+
+/* HERO */
+.premium-hero {
+  margin: 16px;
+  padding: 26px;
+  border-radius: 30px;
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(28, 28, 28, 0.72)),
+    url('/assets/banner.png') center/cover no-repeat;
+  color: #ffffff;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+
+  h1 {
+    margin: 8px 0 10px;
+    font-size: 31px;
+    font-weight: 950;
+    letter-spacing: -1px;
+    line-height: 1.05;
+  }
+
+  span {
+    display: block;
+    max-width: 320px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.78);
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+
+  &.dark {
+    color: rgba(0, 0, 0, 0.48);
+  }
+}
+
+.page-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* SUMMARY */
+.summary-card {
+  background: #ffffff;
+  border-radius: 26px;
+  padding: 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+
+  h2 {
+    margin: 4px 0 0;
+    font-size: 22px;
+    font-weight: 950;
+    color: #111111;
+  }
 }
 
-.org-info {
+.summary-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: #111111;
+  color: #ffffff;
   display: flex;
   align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 28px;
+  }
+}
+
+/* STATES */
+.loading-state,
+.empty-state {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px;
+}
+
+.loading-state {
+  ion-spinner {
+    width: 38px;
+    height: 38px;
+  }
+
+  p {
+    margin-top: 14px;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 800;
+  }
+}
+
+.empty-state {
+  margin-top: 16px;
+  background: #ffffff;
+  border-radius: 28px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.07);
+
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 26px;
+    background: #111111;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+
+    ion-icon {
+      font-size: 40px;
+    }
+  }
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 950;
+    color: #111111;
+  }
+
+  p {
+    margin: 0;
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+/* LIST */
+.trip-list {
+  margin-top: 16px;
+  display: grid;
+  gap: 15px;
+}
+
+.trip-card {
+  background: #ffffff;
+  border-radius: 26px;
+  padding: 16px;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.08);
+}
+
+.trip-top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.vehicle-mark {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #111111, #333333);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 58px;
+
+  ion-icon {
+    font-size: 30px;
+  }
+}
+
+.trip-title {
+  flex: 1;
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 950;
+    color: #111111;
+  }
+
+  p {
+    margin: 5px 0 0;
+    font-size: 12px;
+    font-weight: 750;
+    color: #667085;
+  }
+}
+
+.badge-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.role-pill {
+  padding: 7px 11px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+
+  &.driver {
+    background: #111111;
+    color: #ffffff;
+  }
+
+  &.host {
+    background: #eceef2;
+    color: #111111;
+  }
+}
+
+.status-badge {
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.6px;
+}
+
+/* DETAILS */
+.trip-details {
+  margin-top: 15px;
+  background: #f7f7f8;
+  border-radius: 18px;
+  padding: 12px;
+  display: grid;
   gap: 12px;
 }
 
-.org-logo {
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-}
-
-.org-info h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.org-info small {
-  color: #bbb;
-}
-
-.badge {
-  background: #c98b1f;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: bold;
-  text-align: center;
-  font-size: 12px;
-}
-
-/* BODY */
-.card-body {
+.detail-row {
   display: flex;
-  align-items: center;
-  margin: 20px 0;
-}
-
-.left,
-.middle,
-.right {
-  flex: 1;
-}
-
-.profile-img {
-  width: 90px;
-  height: 90px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-.middle h2 {
-  margin: 0 0 8px;
-  font-size: 18px;
-}
-
-.valid {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #ccc;
-  font-size: 14px;
-}
-
-.qr-img {
-  width: 90px;
-  height: 90px;
-}
-
-/* FOOTER */
-.card-footer {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.info {
-  display: flex;
-  gap: 8px;
+  gap: 11px;
   align-items: flex-start;
 }
 
-.info mat-icon {
-  font-size: 20px;
-  color: #c98b1f;
-}
-
-.info label {
-  font-size: 11px;
-  color: #aaa;
-}
-
-.info span {
-  font-size: 13px;
-}
-
-.membership-scale-wrapper {
+.detail-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+  background: #111111;
+  color: #ffffff;
   display: flex;
-  justify-content: center;
   align-items: center;
-}
+  justify-content: center;
+  flex: 0 0 36px;
 
-@media (max-width: 768px) {
-  .membership-scale-wrapper {
-    transform: scale(0.85);
-    transform-origin: top center;
+  ion-icon {
+    font-size: 18px;
   }
 }
 
-@media (max-width: 480px) {
-  .membership-scale-wrapper {
-    transform: scale(0.75);
-    transform-origin: top center;
+.muted-icon {
+  background: #d9dce2;
+  color: #111111;
+}
+
+.detail-row div:last-child {
+  flex: 1;
+  min-width: 0;
+
+  span {
+    display: block;
+    font-size: 10px;
+    font-weight: 950;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.48);
+    margin-bottom: 4px;
+  }
+
+  strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 850;
+    color: #111111;
+    line-height: 1.4;
   }
 }
 
-@media (max-width: 360px) {
-  .membership-scale-wrapper {
-    transform: scale(0.68);
-    transform-origin: top center;
+/* ACTIONS */
+.action-stack {
+  margin-top: 15px;
+  display: grid;
+  gap: 10px;
+}
+
+.black-btn {
+  --background: #000000;
+  --background-hover: #111111;
+  --background-activated: #222222;
+  --background-focused: #111111;
+  --color: #ffffff;
+  --border-radius: 16px;
+  height: 50px;
+  font-weight: 950;
+  letter-spacing: 0.3px;
+  text-transform: none;
+
+  &[disabled] {
+    --background: #333333;
+    --color: #aaaaaa;
   }
 }
 
-.booking-card{
-margin:14px;
-border-radius:16px;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
+.chat-btn {
+  --border-radius: 16px;
+  --border-color: rgba(0, 0, 0, 0.16);
+  --color: #111111;
+  height: 48px;
+  font-weight: 950;
+  letter-spacing: 0.3px;
+  text-transform: none;
 }
 
-.booking-row{
-display:flex;
-align-items:center;
-gap:10px;
-margin:8px 0;
-font-size:14px;
+.bottom-spacer {
+  height: 40px;
 }
 
-.booking-row ion-icon{
-font-size:18px;
-color:#666;
-}
+@media (max-width: 420px) {
+  .premium-hero {
+    padding: 22px;
 
-.booking-row.total{
-margin-top:10px;
-font-size:16px;
-justify-content:space-between;
-}
+    h1 {
+      font-size: 27px;
+    }
+  }
 
-.status-badges{
-display:flex;
-gap:6px;
-margin-top:6px;
+  .page-wrap {
+    padding: 0 12px;
+  }
+
+  .trip-card {
+    border-radius: 22px;
+  }
+
+  .trip-title h2 {
+    font-size: 16px;
+  }
 }

@@ -1,199 +1,396 @@
-<ion-content>
-  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
-      <ion-button
-    fill="clear"
-    class="white-menu-btn floating-back"
-    (click)="goBack()"
-  >
+<ion-content class="exchange-content">
+  <ion-menu-button class="white-menu-btn floating-menu">
+    <ion-icon name="apps"></ion-icon>
+  </ion-menu-button>
+
+  <ion-button fill="clear" class="white-menu-btn floating-back" (click)="goBack()">
     BACK
   </ion-button>
-  <div id="bg">
 
-
-  </div>
-  <h5 style="text-align: center; font-weight: bold;">EXCHANGE</h5>
-<br>
+  <section id="bg">
+    <div class="hero-overlay">
+      <div class="hero-copy">
+        <p>Vehicle handover</p>
+        <h1>Exchange</h1>
+      </div>
+    </div>
+  </section>
 
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-<!-- 🚀 NO EXCHANGE YET -->
-<div *ngIf="!exchange">
+  <main class="page-wrap">
+    <section class="status-card">
+      <div>
+        <p class="eyebrow">Current status</p>
+        <h2>{{ getStatusLabel() }}</h2>
+      </div>
 
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Start Exchange</ion-card-title>
-    </ion-card-header>
+      <span class="status-pill" [ngClass]="getStatusClass()">
+        {{ exchange?.status || 'NEW' }}
+      </span>
+    </section>
 
-    <ion-card-content>
+    <section class="timeline-card">
+      <div class="timeline-step done">
+        <span>1</span>
+        <p>Propose</p>
+      </div>
 
-      <ion-item>
+      <div class="timeline-line" [class.active]="exchange?.status"></div>
+
+      <div
+        class="timeline-step"
+        [class.done]="exchange?.status === 'CONFIRMED' || exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'"
+      >
+        <span>2</span>
+        <p>Confirm</p>
+      </div>
+
+      <div
+        class="timeline-line"
+        [class.active]="exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'"
+      ></div>
+
+      <div
+        class="timeline-step"
+        [class.done]="exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'"
+      >
+        <span>3</span>
+        <p>Pickup</p>
+      </div>
+
+      <div
+        class="timeline-line"
+        [class.active]="exchange?.status === 'COMPLETED'"
+      ></div>
+
+      <div
+        class="timeline-step"
+        [class.done]="exchange?.status === 'COMPLETED'"
+      >
+        <span>4</span>
+        <p>Return</p>
+      </div>
+    </section>
+
+    <div *ngIf="loading" class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading exchange details...</p>
+    </div>
+
+    <!-- NO EXCHANGE YET -->
+    <section *ngIf="!loading && !exchange" class="premium-card">
+      <div class="card-icon">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+      </div>
+
+      <h2>Start vehicle exchange</h2>
+      <p class="muted">
+        Propose a safe pickup meeting point, date and time for this booking.
+      </p>
+
+      <ion-item class="premium-input">
         <ion-label position="stacked">Meeting Date</ion-label>
         <ion-input type="date" [(ngModel)]="meetingDate"></ion-input>
       </ion-item>
 
-      <ion-item>
+      <ion-item class="premium-input">
         <ion-label position="stacked">Meeting Time</ion-label>
         <ion-input type="time" [(ngModel)]="meetingTime"></ion-input>
       </ion-item>
 
-      <ion-item>
-        <ion-label position="stacked">Location</ion-label>
-        <ion-input [(ngModel)]="location"></ion-input>
+      <ion-item class="premium-input location-input">
+        <ion-label position="stacked">Pickup Location</ion-label>
+        <ion-input
+          placeholder="Search Google Places"
+          [(ngModel)]="location"
+          (ionInput)="onLocationInput()"
+        ></ion-input>
       </ion-item>
 
-      <ion-button expand="block" (click)="startExchange()">
-        Propose Meeting
-      </ion-button>
+      <div class="places-box" *ngIf="searchingPlaces || placePredictions.length > 0">
+        <div class="place-loading" *ngIf="searchingPlaces">
+          <ion-spinner name="crescent"></ion-spinner>
+          <span>Searching places...</span>
+        </div>
 
-    </ion-card-content>
-  </ion-card>
+        <button
+          type="button"
+          class="place-row"
+          *ngFor="let place of placePredictions"
+          (click)="selectPlace(place)"
+        >
+          <ion-icon name="location-outline"></ion-icon>
 
-</div>
-
-<!-- ⏳ PENDING -->
-<!-- Only other person can respond -->
-<div *ngIf="exchange?.status === 'PENDING'">
-
-  <ion-button
-    *ngIf="isHost() && exchange.proposedBy === 'driver'"
-    (click)="accept()"
-  >
-    Accept
-  </ion-button>
-
-  <ion-button
-    *ngIf="isHost() && exchange.proposedBy === 'driver'"
-    color="danger"
-    (click)="reject()"
-  >
-    Reject
-  </ion-button>
-
-</div>
-
-<!-- 📍 CONFIRMED -->
-<div *ngIf="exchange?.status === 'CONFIRMED'">
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Meeting Confirmed</ion-card-title>
-    </ion-card-header>
-
-    <ion-card-content>
-      <p>{{exchange.locationName}}</p>
-      <p>{{exchange.meetingDateTime | date:'medium'}}</p>
-
-      <ion-button expand="block" (click)="takePhoto()">
-        Take Photo
-      </ion-button>
-
-      <div *ngFor="let img of images">
-        <img [src]="img" style="width:100%;margin-top:10px;">
+          <div>
+            <strong>
+              {{ place.structured_formatting?.main_text || place.description }}
+            </strong>
+            <span>
+              {{ place.structured_formatting?.secondary_text || place.description }}
+            </span>
+          </div>
+        </button>
       </div>
 
-      <ion-item>
-        <ion-label position="stacked">Notes</ion-label>
-        <ion-textarea [(ngModel)]="notes"></ion-textarea>
+      <div class="selected-place" *ngIf="selectedPlaceId">
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+        <span>Google place selected</span>
+      </div>
+
+      <ion-button
+        expand="block"
+        class="black-btn"
+        [disabled]="!canStartExchange()"
+        (click)="startExchange()"
+      >
+        <ion-spinner *ngIf="submitting" name="crescent"></ion-spinner>
+        <span *ngIf="!submitting">Propose Meeting</span>
+      </ion-button>
+    </section>
+
+    <!-- PENDING -->
+    <section *ngIf="!loading && exchange?.status === 'PENDING'" class="premium-card">
+      <div class="card-icon amber">
+        <ion-icon name="time-outline"></ion-icon>
+      </div>
+
+      <h2>Meeting proposal sent</h2>
+
+      <div class="detail-box">
+        <div>
+          <span>Location</span>
+          <strong>{{ exchange.locationName || 'Not provided' }}</strong>
+        </div>
+
+        <div>
+          <span>Date & Time</span>
+          <strong>{{ exchange.meetingDateTime | date:'medium' }}</strong>
+        </div>
+      </div>
+
+      <p class="muted" *ngIf="isDriver()">
+        Waiting for the host to confirm the proposed exchange details.
+      </p>
+
+      <div *ngIf="isHost() && exchange.proposedBy === 'driver'" class="action-grid">
+        <ion-button
+          expand="block"
+          class="black-btn"
+          [disabled]="submitting"
+          (click)="accept()"
+        >
+          Accept
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="outline"
+          color="danger"
+          [disabled]="submitting"
+          (click)="reject()"
+        >
+          Reject
+        </ion-button>
+      </div>
+    </section>
+
+    <!-- CONFIRMED -->
+    <section *ngIf="!loading && exchange?.status === 'CONFIRMED'" class="premium-card">
+      <div class="card-icon success">
+        <ion-icon name="location-outline"></ion-icon>
+      </div>
+
+      <h2>Meeting confirmed</h2>
+
+      <div class="detail-box">
+        <div>
+          <span>Location</span>
+          <strong>{{ exchange.locationName }}</strong>
+        </div>
+
+        <div>
+          <span>Date & Time</span>
+          <strong>{{ exchange.meetingDateTime | date:'medium' }}</strong>
+        </div>
+      </div>
+
+      <div class="photo-section">
+        <div class="section-head">
+          <div>
+            <h3>Pickup evidence</h3>
+            <p>{{ images.length }}/4 minimum photos uploaded</p>
+          </div>
+
+          <ion-button
+            fill="clear"
+            class="mini-action"
+            [disabled]="uploading"
+            (click)="takePhoto()"
+          >
+            <ion-icon name="camera-outline"></ion-icon>
+            Photo
+          </ion-button>
+        </div>
+
+        <div class="photo-grid" *ngIf="images.length > 0">
+          <div class="photo-tile" *ngFor="let img of images; let i = index">
+            <img [src]="img" />
+            <button type="button" (click)="removeImage(i)">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-photos" *ngIf="images.length === 0">
+          <ion-icon name="images-outline"></ion-icon>
+          <p>Add clear photos of the vehicle before pickup.</p>
+        </div>
+      </div>
+
+      <ion-item class="premium-input">
+        <ion-label position="stacked">Pickup Notes</ion-label>
+        <ion-textarea
+          rows="4"
+          placeholder="Fuel level, scratches, mileage, condition..."
+          [(ngModel)]="notes"
+        ></ion-textarea>
       </ion-item>
 
-      <ion-button expand="block" color="primary" (click)="checkout()">
-        Complete Pickup (Driver)
+      <ion-button
+        expand="block"
+        class="black-btn"
+        [disabled]="submitting || !isDriver()"
+        (click)="checkout()"
+      >
+        <ion-spinner *ngIf="submitting" name="crescent"></ion-spinner>
+        <span *ngIf="!submitting">Complete Pickup</span>
       </ion-button>
 
-    </ion-card-content>
-  </ion-card>
+      <p class="hint" *ngIf="!isDriver()">Only the driver can complete pickup.</p>
+    </section>
 
-</div>
-
-<!-- 🚗 CHECKOUT DONE -->
-<div *ngIf="exchange?.status === 'CHECKOUT_DONE'">
-
-  <div *ngIf="checkoutImages.length > 0">
-
-  <h6>Pickup Photos</h6>
-
-  <div *ngFor="let img of checkoutImages">
-    <img [src]="img" style="width:100%; margin-top:10px;" />
-  </div>
-
-</div>
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Trip Active</ion-card-title>
-    </ion-card-header>
-
-    <ion-card-content>
-
-      <ion-button expand="block" (click)="takePhoto()">
-        Take Return Photos
-      </ion-button>
-
-      <div *ngFor="let img of images">
-        <img [src]="img" style="width:100%;margin-top:10px;">
+    <!-- CHECKOUT DONE -->
+    <section *ngIf="!loading && exchange?.status === 'CHECKOUT_DONE'" class="premium-card">
+      <div class="card-icon dark">
+        <ion-icon name="car-sport-outline"></ion-icon>
       </div>
 
-      <ion-item>
+      <h2>Trip active</h2>
+      <p class="muted">
+        Pickup has been completed. The host must complete return check-in.
+      </p>
+
+      <div class="history-section" *ngIf="checkoutImages.length > 0">
+        <h3>Pickup photos</h3>
+
+        <div class="photo-grid">
+          <div class="photo-tile readonly" *ngFor="let img of checkoutImages">
+            <img [src]="img" />
+          </div>
+        </div>
+      </div>
+
+      <div class="photo-section">
+        <div class="section-head">
+          <div>
+            <h3>Return evidence</h3>
+            <p>{{ images.length }}/4 minimum photos uploaded</p>
+          </div>
+
+          <ion-button
+            fill="clear"
+            class="mini-action"
+            [disabled]="uploading"
+            (click)="takePhoto()"
+          >
+            <ion-icon name="camera-outline"></ion-icon>
+            Photo
+          </ion-button>
+        </div>
+
+        <div class="photo-grid" *ngIf="images.length > 0">
+          <div class="photo-tile" *ngFor="let img of images; let i = index">
+            <img [src]="img" />
+            <button type="button" (click)="removeImage(i)">
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-photos" *ngIf="images.length === 0">
+          <ion-icon name="images-outline"></ion-icon>
+          <p>Add return photos before closing the exchange.</p>
+        </div>
+      </div>
+
+      <ion-item class="premium-input">
         <ion-label position="stacked">Return Notes</ion-label>
-        <ion-textarea [(ngModel)]="notes"></ion-textarea>
+        <ion-textarea
+          rows="4"
+          placeholder="Returned condition, fuel level, mileage..."
+          [(ngModel)]="notes"
+        ></ion-textarea>
       </ion-item>
 
-      <ion-button expand="block" color="success" (click)="checkin()">
-        Complete Return (Host)
+      <ion-button
+        expand="block"
+        color="success"
+        class="success-btn"
+        [disabled]="submitting || !isHost()"
+        (click)="checkin()"
+      >
+        <ion-spinner *ngIf="submitting" name="crescent"></ion-spinner>
+        <span *ngIf="!submitting">Complete Return</span>
       </ion-button>
 
-    </ion-card-content>
-  </ion-card>
+      <p class="hint" *ngIf="!isHost()">Only the host can complete return.</p>
+    </section>
 
-</div>
-
-<!-- ✅ COMPLETED -->
-<div *ngIf="exchange?.status === 'COMPLETED'">
-
-  <ion-card>
-
-    <ion-card-header>
-      <ion-card-title>Trip Completed</ion-card-title>
-    </ion-card-header>
-
-    <ion-card-content>
-
-      <!-- 🧾 DRIVER NOTES -->
-      <div *ngIf="exchange?.checkOutNotes">
-        <h6>Driver Notes (Pickup)</h6>
-        <p>{{exchange.checkOutNotes}}</p>
+    <!-- COMPLETED -->
+    <section *ngIf="!loading && exchange?.status === 'COMPLETED'" class="premium-card">
+      <div class="card-icon success">
+        <ion-icon name="checkmark-done-outline"></ion-icon>
       </div>
 
-      <!-- 📸 PICKUP IMAGES -->
-      <div *ngIf="checkoutImages.length > 0">
-        <h6>Pickup Photos</h6>
-        <div *ngFor="let img of checkoutImages">
-          <img [src]="img" style="width:100%; margin-top:10px;" />
+      <h2>Trip completed</h2>
+      <p class="muted">The full exchange record is saved below.</p>
+
+      <div class="notes-block" *ngIf="exchange?.checkOutNotes">
+        <span>Driver Notes — Pickup</span>
+        <p>{{ exchange.checkOutNotes }}</p>
+      </div>
+
+      <div class="history-section" *ngIf="checkoutImages.length > 0">
+        <h3>Pickup photos</h3>
+
+        <div class="photo-grid">
+          <div class="photo-tile readonly" *ngFor="let img of checkoutImages">
+            <img [src]="img" />
+          </div>
         </div>
       </div>
 
-      <hr />
+      <div class="divider"></div>
 
-      <!-- 🧾 HOST NOTES -->
-      <div *ngIf="exchange?.checkInNotes">
-        <h6>Host Notes (Return)</h6>
-        <p>{{exchange.checkInNotes}}</p>
+      <div class="notes-block" *ngIf="exchange?.checkInNotes">
+        <span>Host Notes — Return</span>
+        <p>{{ exchange.checkInNotes }}</p>
       </div>
 
-      <!-- 📸 RETURN IMAGES -->
-      <div *ngIf="checkinImages.length > 0">
-        <h6>Return Photos</h6>
-        <div *ngFor="let img of checkinImages">
-          <img [src]="img" style="width:100%; margin-top:10px;" />
+      <div class="history-section" *ngIf="checkinImages.length > 0">
+        <h3>Return photos</h3>
+
+        <div class="photo-grid">
+          <div class="photo-tile readonly" *ngFor="let img of checkinImages">
+            <img [src]="img" />
+          </div>
         </div>
       </div>
+    </section>
 
-    </ion-card-content>
-
-  </ion-card>
-
-</div>
-
+    <div class="bottom-spacer"></div>
+  </main>
 </ion-content>

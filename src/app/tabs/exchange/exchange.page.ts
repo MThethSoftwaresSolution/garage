@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MainService } from 'src/app/services/main.service';
 import { IonicModule, NavController } from '@ionic/angular';
-import { Camera, CameraResultType } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -10,172 +10,349 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-exchange',
   templateUrl: './exchange.page.html',
   styleUrls: ['./exchange.page.scss'],
-      standalone: true,
-    imports: [IonicModule, CommonModule, FormsModule]
+  standalone: true,
+  imports: [IonicModule, CommonModule, FormsModule]
 })
 export class ExchangePage implements OnInit {
-
   bookingId = '';
-  exchange:any = null;
+  exchange: any = null;
 
   meetingDate = '';
   meetingTime = '';
+
   location = '';
+  selectedPlaceId = '';
+  selectedLat = 0;
+  selectedLng = 0;
+  placePredictions: any[] = [];
+  searchingPlaces = false;
+  private placeSearchTimer: any;
 
-  images:string[] = [];
+  images: string[] = [];
   checkoutImages: string[] = [];
-checkinImages: string[] = [];
-  notes = '';
+  checkinImages: string[] = [];
 
+  notes = '';
   loading = false;
+  submitting = false;
+  uploading = false;
+
   currentUserId = '';
 
   constructor(
     private route: ActivatedRoute,
-    private service: MainService, 
+    private service: MainService,
     private nav: NavController
   ) {}
 
   ngOnInit() {
-    this.bookingId = this.route.snapshot.paramMap.get('id')!;
-    this.loadExchange();
+    this.bookingId = this.route.snapshot.paramMap.get('id') || '';
 
-    const user = JSON.parse(localStorage.getItem('currentUser')!);
-    this.currentUserId = user.id;
+    const userRaw = localStorage.getItem('currentUser');
+    if (userRaw) {
+      try {
+        const user = JSON.parse(userRaw);
+        this.currentUserId = user?.id || '';
+      } catch {
+        this.currentUserId = '';
+      }
+    }
+
+    this.loadExchange();
   }
 
   handleRefresh(event: any) {
-  setTimeout(() => {
-    this.loadExchange();
-    event.target.complete(); // stops the spinner
-  }, 2000);
-}
+    this.loadExchange(() => event.target.complete());
+  }
 
-            goBack() {
-        this.nav.back();
-      }
+  goBack() {
+    this.nav.back();
+  }
 
-  loadExchange(){
+  loadExchange(done?: () => void) {
+    this.loading = true;
+
     this.service.getExchange(this.bookingId).subscribe({
-      next:(res:any)=>{
-         this.exchange = res;
-
-      // ✅ parse checkout images
-      if(res.checkOutImagesJson){
-        this.checkoutImages = JSON.parse(res.checkOutImagesJson);
-      }
-
-      // ✅ parse checkin images
-      if(res.checkInImagesJson){
-        this.checkinImages = JSON.parse(res.checkInImagesJson);
-      }
+      next: (res: any) => {
+        this.exchange = res;
+        this.checkoutImages = this.safeParseImages(res?.checkOutImagesJson);
+        this.checkinImages = this.safeParseImages(res?.checkInImagesJson);
+        this.loading = false;
+        done?.();
       },
-      error:()=>{
+      error: () => {
         this.exchange = null;
+        this.checkoutImages = [];
+        this.checkinImages = [];
+        this.loading = false;
+        done?.();
+      }
+    });
+  }
+
+  safeParseImages(value: any): string[] {
+    if (!value) return [];
+
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  onLocationInput() {
+    this.selectedPlaceId = '';
+    this.selectedLat = 0;
+    this.selectedLng = 0;
+
+    clearTimeout(this.placeSearchTimer);
+
+    if (!this.location || this.location.trim().length < 3) {
+      this.placePredictions = [];
+      return;
+    }
+
+    this.placeSearchTimer = setTimeout(() => {
+      this.searchingPlaces = true;
+
+      this.service.searchPlaces(this.location).subscribe({
+        next: (res: any) => {
+          this.placePredictions = res?.predictions || res || [];
+          this.searchingPlaces = false;
+        },
+        error: () => {
+          this.placePredictions = [];
+          this.searchingPlaces = false;
+        }
+      });
+    }, 400);
+  }
+
+  selectPlace(place: any) {
+    const description = place.description || place.name || '';
+    const placeId = place.place_id || place.placeId || '';
+
+    this.location = description;
+    this.selectedPlaceId = placeId;
+    this.placePredictions = [];
+
+    if (!placeId) return;
+
+    this.service.getPlaceDetails(placeId).subscribe({
+      next: (res: any) => {
+        const details = res?.result || res;
+        const loc = details?.geometry?.location;
+
+        this.selectedLat = loc?.lat || details?.lat || 0;
+        this.selectedLng = loc?.lng || details?.lng || 0;
+      },
+      error: () => {
+        this.selectedLat = 0;
+        this.selectedLng = 0;
       }
     });
   }
 
   isDriver(): boolean {
-  return this.exchange?.driverId === this.currentUserId;
-}
+    return this.exchange?.driverId === this.currentUserId;
+  }
 
-isHost(): boolean {
-  return this.exchange?.hostId === this.currentUserId;
-}
+  isHost(): boolean {
+    return this.exchange?.hostId === this.currentUserId;
+  }
 
-  // 🚀 START EXCHANGE
-  startExchange(){
+  getStatusLabel(): string {
+    switch (this.exchange?.status) {
+      case 'PENDING': return 'Awaiting confirmation';
+      case 'CONFIRMED': return 'Meeting confirmed';
+      case 'CHECKOUT_DONE': return 'Trip active';
+      case 'COMPLETED': return 'Completed';
+      default: return 'Not started';
+    }
+  }
+
+  getStatusClass(): string {
+    switch (this.exchange?.status) {
+      case 'PENDING': return 'pending';
+      case 'CONFIRMED': return 'confirmed';
+      case 'CHECKOUT_DONE': return 'active';
+      case 'COMPLETED': return 'completed';
+      default: return 'new';
+    }
+  }
+
+  canStartExchange(): boolean {
+    return !!this.meetingDate &&
+      !!this.meetingTime &&
+      !!this.location &&
+      !!this.selectedPlaceId &&
+      !this.submitting;
+  }
+
+  startExchange() {
+    if (!this.canStartExchange()) {
+      alert('Please select meeting date, time and a Google place.');
+      return;
+    }
+
     const dateTime = new Date(`${this.meetingDate}T${this.meetingTime}`);
 
     const payload = {
       bookingId: this.bookingId,
-      proposedBy: "driver",
+      proposedBy: 'driver',
       meetingDateTime: dateTime,
       locationName: this.location,
-      placeId: "",
-      lat: 0,
-      lng: 0
+      placeId: this.selectedPlaceId,
+      lat: this.selectedLat,
+      lng: this.selectedLng
     };
 
-    this.service.startExchange(payload).subscribe(()=>{
-      this.loadExchange();
+    this.submitting = true;
+
+    this.service.startExchange(payload).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.images = [];
+        this.notes = '';
+        this.loadExchange();
+      },
+      error: (err: any) => {
+        this.submitting = false;
+        alert(err?.error || 'Failed to start exchange.');
+      }
     });
   }
 
-  // ✅ ACCEPT
-  accept(){
+  accept() {
+    this.submitting = true;
+
     this.service.respondExchange({
       bookingId: this.bookingId,
       accept: true
-    }).subscribe(()=>{
-      this.loadExchange();
+    }).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.loadExchange();
+      },
+      error: (err: any) => {
+        this.submitting = false;
+        alert(err?.error || 'Failed to accept exchange.');
+      }
     });
   }
 
-  // ❌ REJECT
-  reject(){
+  reject() {
+    this.submitting = true;
+
     this.service.respondExchange({
       bookingId: this.bookingId,
       accept: false
-    }).subscribe(()=>{
-      this.loadExchange();
+    }).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.loadExchange();
+      },
+      error: (err: any) => {
+        this.submitting = false;
+        alert(err?.error || 'Failed to reject exchange.');
+      }
     });
   }
 
-  // 🚗 DRIVER CHECKOUT
-checkout(){
+  checkout() {
+    if (!this.isDriver()) {
+      alert('Only the driver can complete pickup.');
+      return;
+    }
 
-  if(this.images.length < 4){
-    alert("Please upload at least 4 images");
-    return;
+    if (this.images.length < 4) {
+      alert('Please upload at least 4 pickup photos.');
+      return;
+    }
+
+    this.submitting = true;
+
+    this.service.driverCheckout({
+      bookingId: this.bookingId,
+      images: this.images,
+      notes: this.notes
+    }).subscribe({
+      next: () => {
+        this.submitting = false;
+        alert('Pickup completed.');
+        this.images = [];
+        this.notes = '';
+        this.loadExchange();
+      },
+      error: (error: any) => {
+        this.submitting = false;
+        alert(error?.error || 'Pickup failed.');
+      }
+    });
   }
 
-  this.service.driverCheckout({
-    bookingId: this.bookingId,
-    images: this.images, // ✅ now URLs
-    notes: this.notes
-  }).subscribe(()=>{
-    alert("Pickup completed");
-    this.loadExchange();
-  }, (error:any)=>{
-    alert(error.error);
-  });
-}
+  checkin() {
+    if (!this.isHost()) {
+      alert('Only the host can complete return.');
+      return;
+    }
 
-  // 🏁 HOST CHECKIN
-  checkin(){
+    if (this.images.length < 4) {
+      alert('Please upload at least 4 return photos.');
+      return;
+    }
+
+    this.submitting = true;
+
     this.service.hostCheckin({
       bookingId: this.bookingId,
       images: this.images,
       notes: this.notes
-    }).subscribe(()=>{
-      this.loadExchange();
-      this.images = [];
-      this.notes = '';
+    }).subscribe({
+      next: () => {
+        this.submitting = false;
+        alert('Return completed.');
+        this.images = [];
+        this.notes = '';
+        this.loadExchange();
+      },
+      error: (error: any) => {
+        this.submitting = false;
+        alert(error?.error || 'Return failed.');
+      }
     });
   }
 
-  async takePhoto(){
+  async takePhoto() {
+    try {
+      this.uploading = true;
 
-  const image = await Camera.getPhoto({
-    quality: 60,
-    resultType: CameraResultType.Uri
-  });
+      const image = await Camera.getPhoto({
+        quality: 70,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Prompt
+      });
 
-  const response = await fetch(image.webPath!);
-  const blob = await response.blob();
+      const response = await fetch(image.webPath!);
+      const blob = await response.blob();
 
-  this.service.uploadImage(blob).subscribe({
-    next:(res:any)=>{
-      this.images.push(res.url); // ✅ now storing URL
-    },
-    error:(err)=>{
-      console.error(err);
-      alert("Image upload failed");
+      this.service.uploadImage(blob).subscribe({
+        next: (res: any) => {
+          this.images.push(res.url);
+          this.uploading = false;
+        },
+        error: () => {
+          this.uploading = false;
+          alert('Image upload failed.');
+        }
+      });
+    } catch {
+      this.uploading = false;
     }
-  });
+  }
 
-}
-
+  removeImage(index: number) {
+    this.images.splice(index, 1);
+  }
 }

@@ -1,98 +1,154 @@
-<ion-content>
-  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
-      <ion-button
-    fill="clear"
-    class="white-menu-btn floating-back"
-    (click)="goBack()"
-  >
-    BACK
-  </ion-button>
-  <div id="bg">
+<ion-header class="premium-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button>
+        <ion-icon name="apps-outline"></ion-icon>
+      </ion-menu-button>
+    </ion-buttons>
 
+    <ion-title>Trips</ion-title>
 
-  </div>
-<h5 style="text-align:center;font-weight:bold;">TRIPS</h5>
-<br>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
+<ion-content class="exchanges-content">
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-<!-- Loading -->
-<div *ngIf="loading" style="text-align:center;margin-top:40px;">
-  <ion-spinner></ion-spinner>
-</div>
+  <section class="premium-hero">
+    <p class="eyebrow">Garage mobility</p>
+    <h1>Trips</h1>
+    <span>
+      Manage vehicle exchanges, pickups, returns and trip communication.
+    </span>
+  </section>
 
-<!-- Empty -->
-<ion-card *ngIf="!loading && exchanges.length === 0">
-  <ion-card-content>
-    No Trips at the moment.
-  </ion-card-content>
-</ion-card>
-
-<!-- List -->
-<ion-list *ngIf="!loading && exchanges.length > 0">
-
-  <ion-card *ngFor="let e of exchanges">
-
-    <ion-card-header>
-      <ion-card-title>{{e.vehicleName}}</ion-card-title>
-
-      <div style="margin-top:5px; display:flex; gap:5px; flex-wrap:wrap;">
-
-      <ion-badge color="primary" *ngIf="e.role === 'driver'">
-        Driver
-      </ion-badge>
-
-      <ion-badge color="medium" *ngIf="e.role === 'host'">
-        Host
-      </ion-badge>
-
-      <ion-badge [color]="getStatusColor(e.status)">
-        {{e.status}}
-      </ion-badge>
+  <main class="page-wrap">
+    <section class="summary-card">
+      <div>
+        <p class="eyebrow dark">Current trips</p>
+        <h2>
+          {{ exchanges.length || 0 }}
+          {{ exchanges.length === 1 ? 'Trip' : 'Trips' }}
+        </h2>
       </div>
 
-    </ion-card-header>
+      <div class="summary-icon">
+        <ion-icon name="car-sport-outline"></ion-icon>
+      </div>
+    </section>
 
-    <ion-card-content>
+    <section *ngIf="loading" class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading your trips...</p>
+    </section>
 
-      <p>{{e.fromDate | date:'mediumDate'}} → {{e.untilDate | date:'mediumDate'}}</p>
+    <section *ngIf="!loading && exchanges.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="map-outline"></ion-icon>
+      </div>
 
-      <p *ngIf="e.locationName">
-        📍 {{e.locationName}}
-      </p>
+      <h2>No trips yet</h2>
+      <p>Accepted bookings and vehicle exchanges will appear here.</p>
+    </section>
 
-      <p *ngIf="e.meetingDateTime">
-        🕒 {{e.meetingDateTime | date:'medium'}}
-      </p>
+    <section *ngIf="!loading && exchanges.length > 0" class="trip-list">
+      <article class="trip-card" *ngFor="let e of exchanges">
+        <div class="trip-top">
+          <div class="vehicle-mark">
+            <ion-icon name="car-outline"></ion-icon>
+          </div>
 
-<ion-button 
-  expand="block" 
-  [disabled]="!canOpenExchange(e)"
-  (click)="openExchange(e)"
->
-  Open Exchange
-</ion-button>
+          <div class="trip-title">
+            <h2>{{ e.vehicleName }}</h2>
+            <p>
+              {{ e.fromDate | date:'mediumDate' }}
+              →
+              {{ e.untilDate | date:'mediumDate' }}
+            </p>
+          </div>
+        </div>
 
-<!-- spacing -->
-<div style="height:8px;"></div>
+        <div class="badge-row">
+          <span class="role-pill driver" *ngIf="e.role === 'driver'">
+            Driver
+          </span>
 
-<!-- 💬 CHAT -->
-<ion-button 
-  expand="block"
-  fill="outline"
-  color="tertiary"
-  *ngIf="canChat(e)"
-  (click)="openChat(e)"
->
-  Chat
-</ion-button>
+          <span class="role-pill host" *ngIf="e.role === 'host'">
+            Host
+          </span>
 
-    </ion-card-content>
+          <ion-badge class="status-badge" [color]="getStatusColor(e.status)">
+            {{ e.status }}
+          </ion-badge>
+        </div>
 
-  </ion-card>
+        <div class="trip-details">
+          <div class="detail-row" *ngIf="e.locationName">
+            <div class="detail-icon">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
 
-</ion-list>
+            <div>
+              <span>Meeting Location</span>
+              <strong>{{ e.locationName }}</strong>
+            </div>
+          </div>
 
+          <div class="detail-row" *ngIf="e.meetingDateTime">
+            <div class="detail-icon">
+              <ion-icon name="time-outline"></ion-icon>
+            </div>
+
+            <div>
+              <span>Meeting Time</span>
+              <strong>{{ e.meetingDateTime | date:'medium' }}</strong>
+            </div>
+          </div>
+
+          <div class="detail-row" *ngIf="!e.locationName && !e.meetingDateTime">
+            <div class="detail-icon muted-icon">
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </div>
+
+            <div>
+              <span>Status</span>
+              <strong>Exchange details not available yet</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-stack">
+          <ion-button
+            expand="block"
+            class="black-btn"
+            [disabled]="!canOpenExchange(e)"
+            (click)="openExchange(e)"
+          >
+            <ion-icon name="swap-horizontal-outline" slot="start"></ion-icon>
+            Open Exchange
+          </ion-button>
+
+          <ion-button
+            expand="block"
+            fill="outline"
+            class="chat-btn"
+            *ngIf="canChat(e)"
+            (click)="openChat(e)"
+          >
+            <ion-icon name="chatbubble-ellipses-outline" slot="start"></ion-icon>
+            Chat
+          </ion-button>
+        </div>
+      </article>
+    </section>
+
+    <div class="bottom-spacer"></div>
+  </main>
 </ion-content>

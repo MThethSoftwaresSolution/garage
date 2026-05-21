@@ -1,144 +1,191 @@
-<ion-content>
-  <ion-menu-button class="white-menu-btn floating-menu"><ion-icon name="apps"></ion-icon></ion-menu-button>
-      
-  <div id="bg">
+<ion-header class="premium-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button>
+        <ion-icon name="apps-outline"></ion-icon>
+      </ion-menu-button>
+    </ion-buttons>
 
+    <ion-title>Vehicles</ion-title>
 
-  </div>
-  <h5 style="text-align: center; font-weight: bold;">VEHICLES</h5>
-<br>
-<!-- Search bar (simple + production-ready). Replace inputs with your MDB pickers if needed -->
- <div class="container">
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFilters()">
+        <ion-icon [name]="showFilters ? 'close-outline' : 'options-outline'"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-  <button class="btn btn-outline" (click)="toggleFilters()">
-  <ion-icon [name]="showFilters ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-  {{ showFilters ? 'Hide Filters' : 'Show Filters' }}
-</button>
-<br>
-  <div class="search-card" *ngIf="showFilters">
+<ion-content class="vehicles-page">
+
+  <section class="vehicles-hero">
+    <p class="eyebrow">Garage Marketplace</p>
+    <h1>Find a car near you.</h1>
+    <p>
+      Browse trusted vehicles, compare daily rates and book the right car for your trip.
+    </p>
+
+    <ion-button expand="block" class="hero-btn" (click)="toggleFilters()">
+      <ion-icon name="search-outline" slot="start"></ion-icon>
+      {{ showFilters ? 'Hide Search' : 'Search Availability' }}
+    </ion-button>
+  </section>
+
+  <section class="filter-card" *ngIf="showFilters">
     <form [formGroup]="form" (ngSubmit)="searchByAvailability()">
-      <div class="row">
-        <div class="col">
-          <label>Where</label>
-          <div class="input-with-icon">
-            <ion-icon name="location-outline"></ion-icon>
-            <input class="form-control" type="text" formControlName="Location" placeholder="e.g. Sandton" />
-          </div>
+
+      <div class="filter-title">
+        <div>
+          <p class="eyebrow dark">Search</p>
+          <h2>Availability</h2>
         </div>
 
-        <div class="col">
-          <label>From</label>
-          <div class="input-with-icon">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <input class="form-control" type="date" formControlName="From" />
-          </div>
+        <ion-badge color="dark">
+          {{ filteredVehicles.length }} cars
+        </ion-badge>
+      </div>
+
+      <div class="field-group">
+        <ion-input
+          formControlName="Location"
+          fill="outline"
+          label="Where"
+          labelPlacement="floating"
+          placeholder="Example: Sandton">
+          <ion-icon name="location-outline" slot="start"></ion-icon>
+        </ion-input>
+
+        <div class="two-col">
+          <ion-input
+            type="date"
+            formControlName="From"
+            fill="outline"
+            label="From"
+            labelPlacement="floating">
+          </ion-input>
+
+          <ion-input
+            type="date"
+            formControlName="Until"
+            fill="outline"
+            label="Until"
+            labelPlacement="floating">
+          </ion-input>
         </div>
 
-        <div class="col">
-          <label>Until</label>
-          <div class="input-with-icon">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <input class="form-control" type="date" formControlName="Until" />
-          </div>
-        </div>
+        <div class="filter-actions">
+          <ion-button expand="block" type="submit" class="search-btn" [disabled]="loading || form.invalid">
+            <ion-spinner *ngIf="loading" name="crescent" slot="start"></ion-spinner>
+            <ion-icon *ngIf="!loading" name="search-outline" slot="start"></ion-icon>
+            Search
+          </ion-button>
 
-        <div class="col actions">
-          <button class="btn btn-primary" type="submit" [disabled]="loading || form.invalid">
-            <ion-icon name="search-outline"></ion-icon>
-            Search availability
-          </button>
-
-          <button class="btn btn-outline" type="button" (click)="refresh()" [disabled]="loading">
-            <ion-icon name="refresh-outline"></ion-icon>
+          <ion-button expand="block" fill="outline" color="dark" type="button" (click)="refresh()" [disabled]="loading">
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
             Reset
-          </button>
+          </ion-button>
         </div>
       </div>
+
     </form>
-  </div>
+  </section>
 
-  <div *ngIf="loading" class="center">
-    <div class="spinner"></div>
-    <div class="muted">Loading…</div>
-  </div>
+  <section class="summary-bar" *ngIf="!loading">
+    <div>
+      <strong>{{ filteredVehicles.length }}</strong>
+      <span>vehicles available</span>
+    </div>
 
-  <!--<div class="row" *ngIf="isAddressEntered && !loading">
-    <h4 *ngIf="isProvince">Vehicles in the province: <span class="bold">{{ address }}</span></h4>
-    <h4 *ngIf="!isProvince">Vehicles near <span class="bold">{{ address }}</span></h4>
-  </div>
+    <ion-chip color="dark" outline="true">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <ion-label>Trusted hosts</ion-label>
+    </ion-chip>
+  </section>
 
-  <div *ngIf="!loading && filteredVehicles.length === 0" class="empty">
+  <section *ngIf="loading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading vehicles...</p>
+  </section>
+
+  <section *ngIf="!loading && filteredVehicles.length === 0" class="empty-state">
     <ion-icon name="car-outline"></ion-icon>
-    <div>No vehicles found for the selected dates.</div>
-  </div>-->
-<br>
-  <!-- Vehicle cards -->
-  <div class="grid" *ngIf="!loading && filteredVehicles.length > 0">
-    <div class="vehicle-card" *ngFor="let v of filteredVehicles" (click)="viewVehicle(v.vehicleId)">
+    <h2>No vehicles found</h2>
+    <p>Try changing your dates or resetting the search.</p>
 
-      <div class="media">
-        <img [src]="v.vehicleFirstImage || './assets/default.jpg'" [alt]="v.vehicleFullName" loading="lazy" />
+    <ion-button color="dark" (click)="refresh()">
+      Reset Search
+    </ion-button>
+  </section>
+
+  <section class="vehicle-grid" *ngIf="!loading && filteredVehicles.length > 0">
+    <article class="vehicle-card" *ngFor="let v of filteredVehicles" (click)="viewVehicle(v.vehicleId)">
+
+      <div class="vehicle-image">
+        <img
+          [src]="v.vehicleFirstImage || './assets/default.jpg'"
+          [alt]="v.vehicleFullName"
+          loading="lazy">
+
+        <ion-badge class="availability-badge" [ngClass]="availabilityBadgeClass(v)">
+          <ion-icon [name]="availabilityIcon(v)"></ion-icon>
+          {{ availabilityText(v) }}
+        </ion-badge>
       </div>
 
-      <div class="body">
-        <div class="title-row">
-          <h5 class="title">{{ v.vehicleFullName }}</h5>
-
-          <!-- Availability badge based on selected date range -->
-          <span class="badge" [ngClass]="availabilityBadgeClass(v)">
-            <ion-icon [name]="availabilityIcon(v)"></ion-icon>
-            {{ availabilityText(v) }}
-          </span>
-        </div>
-
-        <!-- Rating + status + vetted -->
-        <div class="meta-row">
-          <div class="rating">
-            <ng-container *ngIf="v.rating != null; else noRating">
-              <span class="rating-value">{{ v.rating }}</span>
-              <ion-icon name="star"></ion-icon>
-              <span class="pill">{{ v.ratingStatus || 'Rated' }}</span>
-            </ng-container>
-            <ng-template #noRating>
-              <span class="pill pill-muted">No rating yet</span>
-              <span class="pill">{{ v.ratingStatus || 'New' }}</span>
-            </ng-template>
+      <div class="vehicle-body">
+        <div class="vehicle-title-row">
+          <div>
+            <h2>{{ v.vehicleFullName }}</h2>
+            <p>{{ v.year }} • {{ v.colorName }}</p>
           </div>
 
-          <span *ngIf="v.isVettedHost" class="pill pill-success">
+          <div class="price">
+            R{{ v.rate }}
+            <span>/day</span>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <span class="rating-pill" *ngIf="v.rating != null; else noRating">
+            <strong>{{ v.rating }}</strong>
+            <ion-icon name="star"></ion-icon>
+            {{ v.ratingStatus || 'Rated' }}
+          </span>
+
+          <ng-template #noRating>
+            <span class="rating-pill muted-pill">
+              <ion-icon name="sparkles-outline"></ion-icon>
+              {{ v.ratingStatus || 'New' }}
+            </span>
+          </ng-template>
+
+          <span *ngIf="v.isVettedHost" class="vetted-pill">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
             Vetted
           </span>
         </div>
 
-        <!-- Color -->
-        <div class="color-row">
-          <span class="color-dot" [style.background]="v.colorHex"></span>
-          <span class="muted">Color: <b>{{ v.colorName }}</b></span>
-        </div>
-
-        <!-- Province + City -->
         <div class="location-row">
           <ion-icon name="navigate-outline"></ion-icon>
-          <span><b>{{ v.province }}</b>, {{ v.city }}</span>
+          <span>
+            <strong>{{ v.province }}</strong>
+            <ng-container *ngIf="v.city">, {{ v.city }}</ng-container>
+          </span>
         </div>
 
-        <div class="address muted">{{ v.address }}</div>
-      </div>
+        <p class="address" *ngIf="v.address">
+          {{ v.address }}
+        </p>
 
-      <div class="footer">
-        <button class="btn btn-sm" (click)="viewVehicle(v.vehicleId); $event.stopPropagation()">
-          <ion-icon name="eye-outline"></ion-icon>
-          View
-        </button>
-
-        <div class="price">
-          R {{ v.rate }}<span class="muted">/day</span>
+        <div class="card-actions">
+          <ion-button fill="outline" color="dark" size="small" (click)="viewVehicle(v.vehicleId); $event.stopPropagation()">
+            <ion-icon name="eye-outline" slot="start"></ion-icon>
+            View Details
+          </ion-button>
         </div>
       </div>
 
-    </div>
-  </div>
-  </div>
+    </article>
+  </section>
 
 </ion-content>

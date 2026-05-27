@@ -102,6 +102,7 @@ export class VehiclesPage implements OnInit {
     this.service.getAcceptedVehicles().subscribe({
       next: (resp: any[]) => {
         this.vehicles = (resp || []).map((v: any) => this.normalizeVehicle(v));
+        console.log('Loaded vehicles:', this.vehicles);
         this.filteredVehicles = [...this.vehicles];
 
         this.loading = false;

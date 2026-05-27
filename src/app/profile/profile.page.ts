@@ -9,8 +9,8 @@ import {
   Validators
 } from '@angular/forms';
 import { IonicModule, NavController } from '@ionic/angular';
-import { MainService } from 'src/app/services/main.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MainService } from 'src/app/services/main.service';
 
 @Component({
   selector: 'app-profile',
@@ -29,6 +29,9 @@ export class ProfilePage implements OnInit {
   userId = '';
   profile: any = null;
 
+  banks: any[] = [];
+  provinces: any[] = [];
+
   profileUpdateFormGroup: FormGroup = new FormGroup({});
 
   documentUploading: any = {
@@ -42,78 +45,75 @@ export class ProfilePage implements OnInit {
   constructor(
     private service: MainService,
     private navCtrl: NavController,
-      private route: ActivatedRoute,
-  private router: Router
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
-ngOnInit() {
-  const userRaw = localStorage.getItem('currentUser');
+  ngOnInit() {
+    const userRaw = localStorage.getItem('currentUser');
 
-  if (userRaw) {
-    try {
-      const user = JSON.parse(userRaw);
-      this.userId = user?.id || user?.userId || '';
-    } catch {
-      this.userId = '';
+    if (userRaw) {
+      try {
+        const user = JSON.parse(userRaw);
+        this.userId = user?.id || user?.userId || '';
+      } catch {
+        this.userId = '';
+      }
     }
+
+    this.buildForm();
+    this.loadBanks();
+    this.loadProvinces();
+
+    this.route.queryParams.subscribe(params => {
+      if (params['completeProfile'] === 'true') {
+        this.selectedSection = 'personal';
+      }
+    });
+
+    this.loadProfile();
   }
 
-  this.buildForm();
-
-  this.route.queryParams.subscribe(params => {
-    if (params['completeProfile'] === 'true') {
-      this.selectedSection = 'personal';
+  private clean(value: any): any {
+    if (
+      value === null ||
+      value === undefined ||
+      value === 'null' ||
+      value === 'undefined'
+    ) {
+      return '';
     }
-  });
 
-  this.loadProfile();
-}
-
-goToProfileCompletion() {
-  if (!this.profileUpdateFormGroup.get('firstName')?.value ||
-      !this.profileUpdateFormGroup.get('lastName')?.value ||
-      !this.profileUpdateFormGroup.get('phoneNumber')?.value ||
-      !this.profileUpdateFormGroup.get('idNumber')?.value ||
-      !this.profileUpdateFormGroup.get('gender')?.value) {
-    this.selectedSection = 'personal';
-    return;
+    return value;
   }
 
-  if (!this.profileUpdateFormGroup.get('streetAddress')?.value ||
-      !this.profileUpdateFormGroup.get('city')?.value ||
-      !this.profileUpdateFormGroup.get('postalCode')?.value) {
-    this.selectedSection = 'address';
-    return;
+  loadBanks() {
+    this.service.getBanks().subscribe({
+      next: (res: any) => {
+        this.banks = Array.isArray(res) ? res : [];
+      },
+      error: () => {
+        this.banks = [];
+      }
+    });
   }
 
-  if (!this.hasFile(this.profile?.idCopy) || !this.hasFile(this.profile?.poaCopy)) {
-    this.selectedSection = 'documents';
-    return;
+  loadProvinces() {
+    this.service.getProvinces().subscribe({
+      next: (res: any) => {
+        this.provinces = Array.isArray(res) ? res : [];
+      },
+      error: () => {
+        this.provinces = [];
+      }
+    });
   }
-
-  if (!this.profileUpdateFormGroup.get('accountHolderName')?.value ||
-      !this.profileUpdateFormGroup.get('bankBranch')?.value ||
-      !this.profileUpdateFormGroup.get('accountNumber')?.value ||
-      !this.profileUpdateFormGroup.get('accountType')?.value ||
-      !this.hasFile(this.profile?.bankLetter)) {
-    this.selectedSection = 'bank';
-    return;
-  }
-
-  if (!this.profileUpdateFormGroup.get('licenceNumber')?.value ||
-      !this.profileUpdateFormGroup.get('code')?.value ||
-      !this.profileUpdateFormGroup.get('licExpirationDate')?.value ||
-      !this.hasFile(this.profile?.licenseCopy)) {
-    this.selectedSection = 'licence';
-    return;
-  }
-}
 
   buildForm() {
-    const name = localStorage.getItem('name') ?? '';
-    const surname = localStorage.getItem('surname') ?? '';
-    const email = localStorage.getItem('username') ?? '';
-    const phone = localStorage.getItem('phone') ?? '';
+    const name = this.clean(localStorage.getItem('name'));
+    const surname = this.clean(localStorage.getItem('surname'));
+    const email = this.clean(localStorage.getItem('username'));
+    const phone = this.clean(localStorage.getItem('phone'));
 
     this.profileUpdateFormGroup = new FormGroup(
       {
@@ -126,12 +126,14 @@ goToProfileCompletion() {
         gender: new FormControl(''),
 
         location: new FormControl(''),
+        provinceId: new FormControl('', [Validators.required]),
         streetAddress: new FormControl(''),
         city: new FormControl(''),
         postalCode: new FormControl(''),
         unitStand: new FormControl(''),
 
         accountHolderName: new FormControl(''),
+        bankId: new FormControl('', [Validators.required]),
         bankBranch: new FormControl(''),
         accountNumber: new FormControl(''),
         accountType: new FormControl(''),
@@ -157,27 +159,29 @@ goToProfileCompletion() {
         this.profile = res;
 
         this.profileUpdateFormGroup.patchValue({
-          firstName: res.firstName || '',
-          lastName: res.lastName || '',
-          email: res.email || '',
-          phoneNumber: res.phoneNumber || '',
+          firstName: this.clean(res.firstName),
+          lastName: this.clean(res.lastName),
+          email: this.clean(res.email),
+          phoneNumber: this.clean(res.phoneNumber),
 
-          idNumber: res.idNumber || '',
-          gender: res.gender || '',
+          idNumber: this.clean(res.idNumber),
+          gender: this.clean(res.gender),
 
-          location: res.location || '',
-          streetAddress: res.streetAddress || '',
-          city: res.city || '',
-          postalCode: res.postalCode || '',
-          unitStand: res.unitStand || '',
+          location: this.clean(res.location),
+          provinceId: res.provinceId || '',
+          streetAddress: this.clean(res.streetAddress),
+          city: this.clean(res.city),
+          postalCode: this.clean(res.postalCode),
+          unitStand: this.clean(res.unitStand),
 
-          accountHolderName: res.accountHolderName || '',
-          bankBranch: res.bankBranch || '',
-          accountNumber: res.accountNumber || '',
-          accountType: res.accountType || '',
+          accountHolderName: this.clean(res.accountHolderName),
+          bankId: res.bankId || '',
+          bankBranch: this.clean(res.bankBranch),
+          accountNumber: this.clean(res.accountNumber),
+          accountType: this.clean(res.accountType),
 
-          licenceNumber: res.licenceNumber || '',
-          code: res.code || '',
+          licenceNumber: this.clean(res.licenceNumber),
+          code: this.clean(res.code),
           licExpirationDate: res.licExpirationDate
             ? String(res.licExpirationDate).substring(0, 10)
             : ''
@@ -197,8 +201,149 @@ goToProfileCompletion() {
     });
   }
 
-  goBack() {
-    this.navCtrl.back();
+  goToProfileCompletion() {
+    if (
+      !this.profileUpdateFormGroup.get('firstName')?.value ||
+      !this.profileUpdateFormGroup.get('lastName')?.value ||
+      !this.profileUpdateFormGroup.get('phoneNumber')?.value ||
+      !this.profileUpdateFormGroup.get('idNumber')?.value ||
+      !this.profileUpdateFormGroup.get('gender')?.value
+    ) {
+      this.selectedSection = 'personal';
+      return;
+    }
+
+    if (
+      !this.profileUpdateFormGroup.get('provinceId')?.value ||
+      !this.profileUpdateFormGroup.get('streetAddress')?.value ||
+      !this.profileUpdateFormGroup.get('city')?.value ||
+      !this.profileUpdateFormGroup.get('postalCode')?.value
+    ) {
+      this.selectedSection = 'address';
+      return;
+    }
+
+    if (!this.hasFile(this.profile?.idCopy) || !this.hasFile(this.profile?.poaCopy)) {
+      this.selectedSection = 'documents';
+      return;
+    }
+
+    if (
+      !this.profileUpdateFormGroup.get('accountHolderName')?.value ||
+      !this.profileUpdateFormGroup.get('bankId')?.value ||
+      !this.profileUpdateFormGroup.get('bankBranch')?.value ||
+      !this.profileUpdateFormGroup.get('accountNumber')?.value ||
+      !this.profileUpdateFormGroup.get('accountType')?.value ||
+      !this.hasFile(this.profile?.bankLetter)
+    ) {
+      this.selectedSection = 'bank';
+      return;
+    }
+
+    if (
+      !this.profileUpdateFormGroup.get('licenceNumber')?.value ||
+      !this.profileUpdateFormGroup.get('code')?.value ||
+      !this.profileUpdateFormGroup.get('licExpirationDate')?.value ||
+      !this.hasFile(this.profile?.licenseCopy)
+    ) {
+      this.selectedSection = 'licence';
+    }
+  }
+
+  update() {
+    if (this.profileUpdateFormGroup.invalid) {
+      this.profileUpdateFormGroup.markAllAsTouched();
+      return;
+    }
+
+    const form = this.profileUpdateFormGroup.value;
+
+    const payload = {
+      userId: this.userId,
+
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      phoneNumber: form.phoneNumber,
+
+      idNumber: form.idNumber,
+      gender: form.gender,
+
+      location: form.location,
+      provinceId: form.provinceId ? Number(form.provinceId) : null,
+      streetAddress: form.streetAddress,
+      city: form.city,
+      postalCode: form.postalCode,
+      unitStand: form.unitStand,
+
+      accountHolderName: form.accountHolderName,
+      bankId: form.bankId ? Number(form.bankId) : null,
+      bankBranch: form.bankBranch,
+      accountNumber: form.accountNumber,
+      accountType: form.accountType,
+
+      licenceNumber: form.licenceNumber,
+      code: form.code,
+      licExpirationDate: form.licExpirationDate || null,
+
+      password: this.isPasswordUpdate ? form.password : null
+    };
+
+    this.registerLoading = true;
+
+    this.service.updateProfile(payload).subscribe({
+      next: () => {
+        this.registerLoading = false;
+        alert('Profile updated successfully.');
+        this.loadProfile();
+      },
+      error: (err: any) => {
+        this.registerLoading = false;
+        alert(err?.error || 'Failed to update profile.');
+      }
+    });
+  }
+
+  async handleRefresh(event: any) {
+  this.loadProfile();
+  this.loadBanks();
+  this.loadProvinces();
+
+  setTimeout(() => {
+    event?.target?.complete?.();
+  }, 1000);
+}
+
+  uploadDocument(event: any, documentType: string) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const currentFormValues = this.profileUpdateFormGroup.getRawValue();
+    const currentSection = this.selectedSection;
+
+    this.documentUploading[documentType] = true;
+
+    this.service.uploadProfileDocument(this.userId, documentType, file).subscribe({
+      next: (res: any) => {
+        this.documentUploading[documentType] = false;
+
+        this.profile = {
+          ...this.profile,
+          [documentType]: res?.filePath || res?.path || res?.url || this.profile?.[documentType]
+        };
+
+        this.profileUpdateFormGroup.patchValue(currentFormValues);
+        this.selectedSection = currentSection;
+
+        event.target.value = '';
+      },
+      error: (err: any) => {
+        this.documentUploading[documentType] = false;
+        event.target.value = '';
+        alert(err?.error || 'Document upload failed.');
+      }
+    });
   }
 
   changePassword() {
@@ -233,75 +378,8 @@ goToProfileCompletion() {
     this.selectedSection = section;
   }
 
-  update() {
-    if (this.profileUpdateFormGroup.invalid) {
-      this.profileUpdateFormGroup.markAllAsTouched();
-      return;
-    }
-
-    const form = this.profileUpdateFormGroup.value;
-
-    const payload = {
-      userId: this.userId,
-
-      firstName: form.firstName,
-      lastName: form.lastName,
-      email: form.email,
-      phoneNumber: form.phoneNumber,
-
-      idNumber: form.idNumber,
-      gender: form.gender,
-
-      location: form.location,
-      streetAddress: form.streetAddress,
-      city: form.city,
-      postalCode: form.postalCode,
-      unitStand: form.unitStand,
-
-      accountHolderName: form.accountHolderName,
-      bankBranch: form.bankBranch,
-      accountNumber: form.accountNumber,
-      accountType: form.accountType,
-
-      licenceNumber: form.licenceNumber,
-      code: form.code,
-      licExpirationDate: form.licExpirationDate || null,
-
-      password: this.isPasswordUpdate ? form.password : null
-    };
-
-    this.registerLoading = true;
-
-    this.service.updateProfile(payload).subscribe({
-      next: () => {
-        this.registerLoading = false;
-        alert('Profile updated successfully.');
-        this.loadProfile();
-      },
-      error: (err: any) => {
-        this.registerLoading = false;
-        alert(err?.error || 'Failed to update profile.');
-      }
-    });
-  }
-
-  uploadDocument(event: any, documentType: string) {
-    const file = event.target.files?.[0];
-
-    if (!file) return;
-
-    this.documentUploading[documentType] = true;
-
-    this.service.uploadProfileDocument(this.userId, documentType, file).subscribe({
-      next: () => {
-        this.documentUploading[documentType] = false;
-        this.loadProfile();
-      },
-      error: (err: any) => {
-        this.documentUploading[documentType] = false;
-        alert(err?.error || 'Document upload failed.');
-      }
-    });
+  goBack() {
+    this.navCtrl.back();
   }
 
   hasFile(path: string | null | undefined): boolean {

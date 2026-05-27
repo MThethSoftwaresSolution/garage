@@ -17,6 +17,16 @@
 </ion-header>
 
 <ion-content class="profile-content">
+
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+  <ion-refresher-content
+    pullingIcon="chevron-down-circle-outline"
+    pullingText="Pull to refresh"
+    refreshingSpinner="crescent"
+    refreshingText="Refreshing profile...">
+  </ion-refresher-content>
+</ion-refresher>
+
   <main class="page-wrap">
 
     <section class="profile-summary-card">
@@ -195,43 +205,52 @@
       </section>
 
       <!-- ADDRESS -->
-      <section class="premium-form-card" *ngIf="selectedSection === 'address'">
-        <div class="section-heading">
-          <div class="section-icon">
-            <ion-icon name="location-outline"></ion-icon>
-          </div>
+<section class="premium-form-card" *ngIf="selectedSection === 'address'">
+  <div class="section-heading">
+    <div class="section-icon">
+      <ion-icon name="location-outline"></ion-icon>
+    </div>
 
-          <div>
-            <h2>Address details</h2>
-            <p>Used for verification and account trust.</p>
-          </div>
-        </div>
+    <div>
+      <h2>Address details</h2>
+      <p>Used for verification and account trust.</p>
+    </div>
+  </div>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">Location</ion-label>
-          <ion-input formControlName="location"></ion-input>
-        </ion-item>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Location</ion-label>
+    <ion-input formControlName="location"></ion-input>
+  </ion-item>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">Street Address</ion-label>
-          <ion-input formControlName="streetAddress"></ion-input>
-        </ion-item>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Province</ion-label>
+    <ion-select formControlName="provinceId" placeholder="Select province">
+      <ion-select-option *ngFor="let province of provinces" [value]="province.id">
+        {{ province.name }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">Unit / Stand</ion-label>
-          <ion-input formControlName="unitStand"></ion-input>
-        </ion-item>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Street Address</ion-label>
+    <ion-input formControlName="streetAddress"></ion-input>
+  </ion-item>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">City</ion-label>
-          <ion-input formControlName="city"></ion-input>
-        </ion-item>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Unit / Stand</ion-label>
+    <ion-input formControlName="unitStand"></ion-input>
+  </ion-item>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">Postal Code</ion-label>
-          <ion-input formControlName="postalCode"></ion-input>
-        </ion-item>
-      </section>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">City</ion-label>
+    <ion-input formControlName="city"></ion-input>
+  </ion-item>
+
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Postal Code</ion-label>
+    <ion-input formControlName="postalCode"></ion-input>
+  </ion-item>
+</section>
 
       <!-- DOCUMENTS -->
       <section class="premium-form-card" *ngIf="selectedSection === 'documents'">
@@ -278,56 +297,65 @@
       </section>
 
       <!-- BANK -->
-      <section class="premium-form-card" *ngIf="selectedSection === 'bank'">
-        <div class="section-heading">
-          <div class="section-icon">
-            <ion-icon name="business-outline"></ion-icon>
-          </div>
+<section class="premium-form-card" *ngIf="selectedSection === 'bank'">
+  <div class="section-heading">
+    <div class="section-icon">
+      <ion-icon name="business-outline"></ion-icon>
+    </div>
 
-          <div>
-            <h2>Banking details</h2>
-            <p>Used for secure payments and payouts.</p>
-          </div>
-        </div>
+    <div>
+      <h2>Banking details</h2>
+      <p>Used for secure payments and payouts.</p>
+    </div>
+  </div>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">Account Holder Name</ion-label>
-          <ion-input formControlName="accountHolderName"></ion-input>
-        </ion-item>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Account Holder Name</ion-label>
+    <ion-input formControlName="accountHolderName"></ion-input>
+  </ion-item>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">Bank Branch</ion-label>
-          <ion-input formControlName="bankBranch"></ion-input>
-        </ion-item>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Bank Name</ion-label>
+    <ion-select formControlName="bankId" placeholder="Select bank">
+      <ion-select-option *ngFor="let bank of banks" [value]="bank.id">
+        {{ bank.name }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">Account Number</ion-label>
-          <ion-input formControlName="accountNumber"></ion-input>
-        </ion-item>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Branch Code</ion-label>
+    <ion-input formControlName="bankBranch"></ion-input>
+  </ion-item>
 
-        <ion-item class="premium-input">
-          <ion-label position="stacked">Account Type</ion-label>
-          <ion-select formControlName="accountType" placeholder="Select account type">
-            <ion-select-option value="Cheque">Cheque</ion-select-option>
-            <ion-select-option value="Savings">Savings</ion-select-option>
-            <ion-select-option value="Current">Current</ion-select-option>
-          </ion-select>
-        </ion-item>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Account Number</ion-label>
+    <ion-input formControlName="accountNumber"></ion-input>
+  </ion-item>
 
-        <label class="upload-card single">
-          <div>
-            <ion-icon name="document-text-outline"></ion-icon>
-            <strong>Bank Confirmation Letter</strong>
-            <span>{{ hasFile(profile?.bankLetter) ? 'Uploaded' : 'Upload document' }}</span>
-          </div>
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Account Type</ion-label>
+    <ion-select formControlName="accountType" placeholder="Select account type">
+      <ion-select-option value="Cheque">Cheque</ion-select-option>
+      <ion-select-option value="Savings">Savings</ion-select-option>
+      <ion-select-option value="Current">Current</ion-select-option>
+    </ion-select>
+  </ion-item>
 
-          <ion-spinner *ngIf="documentUploading.bankLetter" name="crescent"></ion-spinner>
-          <ion-icon *ngIf="!documentUploading.bankLetter && hasFile(profile?.bankLetter)" name="checkmark-circle"></ion-icon>
-          <ion-icon *ngIf="!documentUploading.bankLetter && !hasFile(profile?.bankLetter)" name="cloud-upload-outline"></ion-icon>
+  <label class="upload-card single">
+    <div>
+      <ion-icon name="document-text-outline"></ion-icon>
+      <strong>Bank Confirmation Letter</strong>
+      <span>{{ hasFile(profile?.bankLetter) ? 'Uploaded' : 'Upload document' }}</span>
+    </div>
 
-          <input type="file" accept="image/*,.pdf" hidden (change)="uploadDocument($event, 'bankLetter')" />
-        </label>
-      </section>
+    <ion-spinner *ngIf="documentUploading.bankLetter" name="crescent"></ion-spinner>
+    <ion-icon *ngIf="!documentUploading.bankLetter && hasFile(profile?.bankLetter)" name="checkmark-circle"></ion-icon>
+    <ion-icon *ngIf="!documentUploading.bankLetter && !hasFile(profile?.bankLetter)" name="cloud-upload-outline"></ion-icon>
+
+    <input type="file" accept="image/*,.pdf" hidden (change)="uploadDocument($event, 'bankLetter')" />
+  </label>
+</section>
 
       <!-- LICENCE -->
       <section class="premium-form-card" *ngIf="selectedSection === 'licence'">

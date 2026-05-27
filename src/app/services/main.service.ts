@@ -104,6 +104,10 @@ updateProfile(data: any) {
   return this.http.post(`${environment.baseUrl}account/profile/update`, data);
 }
 
+getBanks() {
+  return this.http.get<any[]>(`${environment.baseUrl}api/lookups/banks`);
+}
+
 uploadProfileDocument(userId: string, documentType: string, file: File) {
   const formData = new FormData();
 
@@ -222,9 +226,12 @@ reorderVehicleImages(images: any[]) {
   return this.http.post(`${this.baseUrl}/images/reorder`, images);
 }
 
-  /*getVehicleHost(userId: string): Observable<any[]> {
-  return this.http.get<any[]>(`${this.baseUrl}/host/${userId}`);
-}*/
+  uploadVehicleDocument(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return this.http.post(`${this.baseUrl}/documents/upload`, formData);
+}
 
 getVehicleHost(userId: string) {
   return this.http.get<any[]>(`${this.baseUrl}/host/${userId}`)
@@ -242,23 +249,39 @@ getVehicleHost(userId: string) {
 
 getAcceptedVehicles() {
   return this.http.get<any[]>(environment.baseUrl + 'api/vehiclehost/public')
-  .pipe(
-    map((vs:any) =>
-      vs.map((v:any)=>({
+    .pipe(
+      map((vs: any[]) =>
+        vs.map((v: any) => ({
+          ...v,
 
-        ...v,
+          vehicleFirstImage: this.buildImageUrl(v.vehicleFirstImage)
+        }))
+      )
+    );
+}
 
-        vehicleFirstImage: v.vehicleFirstImage
-          ? environment.baseUrl + v.vehicleFirstImage
-          : 'assets/default.jpg'
+private buildImageUrl(path: string | null | undefined): string {
+  if (!path) {
+    return 'assets/default.jpg';
+  }
 
-      }))
-    )
-  );
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+
+  const cleanPath = path.startsWith('/')
+    ? path.substring(1)
+    : path;
+
+  return environment.baseUrl + cleanPath;
 }
 
 getVehicleBookings(vehicleId: string){
   return this.http.get<any[]>(environment.baseUrl + "api/vehiclehost/vehicleBookings/" + vehicleId);
+}
+
+updateVehicle(vehicleId: string, payload: any) {
+  return this.http.put(`${this.baseUrl}/${vehicleId}`, payload);
 }
 
 getVehicleDetails(id: string) {

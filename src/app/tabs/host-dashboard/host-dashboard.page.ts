@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, Component, OnInit } from '@angular/core';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators
 } from '@angular/forms';
 
@@ -36,6 +39,23 @@ import { environment } from 'src/environments/environment';
 register();
 
 declare const google: any;
+export const vinValidator: ValidatorFn = (
+  control: AbstractControl
+): ValidationErrors | null => {
+  const value = String(control.value || '').toUpperCase().trim();
+
+  if (!value) return null;
+
+  const validVinRegex = /^[A-HJ-NPR-Z0-9]{17}$/;
+
+  if (!validVinRegex.test(value)) {
+    return {
+      invalidVin: true
+    };
+  }
+
+  return null;
+};
 
 @Component({
   selector: 'app-host-dashboard',
@@ -63,8 +83,11 @@ export class HostDashboardPage implements OnInit {
   odometers: any[] = [];
   colors: any[] = [];
   transmissions: any[] = [];
+  isEditMode = false;
+editingVehicleId: string | null = null;
 
   userId = '';
+  showVinExample = false;
 
   tLongitude: number | null = null;
   tLatitude: number | null = null;
@@ -75,6 +98,12 @@ export class HostDashboardPage implements OnInit {
   isOwner = false;
 
   autocomplete: any;
+  vehicleDocsUploading: any = {
+  licenceDiscFile: false,
+  numPlateFile: false,
+  insurancePolicyDocument: false,
+  trackerCertificateDocument: false
+};
 
   form = new FormGroup({
     CountryId: new FormControl(1, [Validators.required]),
@@ -83,7 +112,10 @@ export class HostDashboardPage implements OnInit {
     City: new FormControl(''),
     PostalCode: new FormControl(''),
 
-    VN: new FormControl(''),
+    VN: new FormControl('WVWZZZ1JZXW000001', [
+  Validators.required,
+  vinValidator
+]),
 
     Year: new FormControl('', [Validators.required]),
     Make: new FormControl('', [Validators.required]),
@@ -101,6 +133,20 @@ export class HostDashboardPage implements OnInit {
     OwnerSurname: new FormControl('', [Validators.required]),
     OwnerEmail: new FormControl('', [Validators.required, Validators.email]),
     OwnerCellNumber: new FormControl('', [Validators.required]),
+
+    LicenceDiscFile: new FormControl('', [Validators.required]),
+NumPlateFile: new FormControl(''),
+
+IsInsured: new FormControl(false),
+InsurancePolicyDocument: new FormControl(''),
+
+IsTracker: new FormControl(false),
+IsTrackerFitted: new FormControl(false),
+TrackerCompany: new FormControl(''),
+TrackerCertificateDocument: new FormControl(''),
+
+DiscDescription: new FormControl('')
+
   });
 
   constructor(
@@ -144,6 +190,20 @@ export class HostDashboardPage implements OnInit {
     }
   }
 
+  formatVin() {
+  const value = String(this.form.get('VN')?.value || '')
+    .toUpperCase()
+    .replace(/\s/g, '')
+    .trim();
+
+  this.form.patchValue(
+    {
+      VN: value
+    },
+    { emitEvent: false }
+  );
+}
+
   private buildYears(min: number, max: number) {
     const arr: Array<{ label: string; value: number }> = [];
 
@@ -156,6 +216,107 @@ export class HostDashboardPage implements OnInit {
 
     return arr;
   }
+
+ uploadVehicleDocument(event: any, controlName: string, uploadKey: string) {
+  const file = event.target.files?.[0];
+
+  if (!file) return;
+
+  this.vehicleDocsUploading[uploadKey] = true;
+
+  this.service.uploadVehicleDocument(file).subscribe({
+    next: async (res: any) => {
+      this.vehicleDocsUploading[uploadKey] = false;
+
+      const path =
+        res?.filePath ||
+        res?.path ||
+        res?.url ||
+        '';
+
+      this.form.patchValue({
+        [controlName]: path
+      });
+
+      event.target.value = '';
+
+      await this.presentToast('Document uploaded successfully.', 'success');
+    },
+    error: async (e: any) => {
+      this.vehicleDocsUploading[uploadKey] = false;
+      event.target.value = '';
+
+      await this.presentToast(
+        e?.error || 'Document upload failed.',
+        'danger'
+      );
+    }
+  });
+}
+
+editVehicle(vehicle: any) {
+  this.isEditMode = true;
+  this.editingVehicleId = vehicle.id;
+  this.showForm = true;
+
+  this.tLatitude = vehicle.latitude || null;
+  this.tLongitude = vehicle.longitude || null;
+  this.address = vehicle.address || vehicle.streetAddress || '';
+  this.selectedProvinceName = '';
+
+  this.form.patchValue({
+    CountryId: 1,
+
+    Location: vehicle.address || vehicle.streetAddress || '',
+    City: vehicle.city || '',
+    PostalCode: vehicle.postalCode || '',
+
+    VN: vehicle.vn || vehicle.vN || '',
+    Year: vehicle.year || '',
+    Make: vehicle.makeId || vehicle.vehicleMakeId || '',
+    Model: vehicle.modelId || vehicle.vehicleModelId || '',
+    Odometer: vehicle.odometerId || vehicle.vehicleOdometerId || '',
+    NumberPlate: vehicle.numberPlate || '',
+    Color: vehicle.colorId || '',
+    Transmission: vehicle.transmission || '',
+
+    MarketValue: vehicle.rate || vehicle.marketValue || 0,
+    VehicleValueAmount: vehicle.vehicleValueAmount || 0,
+
+    OwnerIdNumber: vehicle.ownerIdNumber || '',
+    OwnerName: vehicle.ownerFirstName || vehicle.ownerName || '',
+    OwnerSurname: vehicle.ownerSurname || '',
+    OwnerEmail: vehicle.ownerEmail || '',
+    OwnerCellNumber: vehicle.ownerCellNumber || '',
+
+    LicenceDiscFile: vehicle.licenceDiscFile || '',
+    NumPlateFile: vehicle.numPlateFile || '',
+    InsurancePolicyDocument: vehicle.insurancePolicyDocument || '',
+
+    IsInsured: vehicle.isInsured === true,
+    IsTracker: vehicle.isTracker === true,
+    IsTrackerFitted: vehicle.isTrackerFitted === true,
+
+    DiscDescription: vehicle.discDescription || '',
+
+    TrackerCompany: vehicle.trackerCompany || '',
+    TrackerCertificateDocument: vehicle.trackerCertificateDocument || ''
+  });
+
+  if (this.form.value.Make) {
+    this.searchModel(this.form.value.Make);
+
+    setTimeout(() => {
+      this.form.patchValue({
+        Model: vehicle.modelId || vehicle.vehicleModelId || ''
+      });
+    }, 500);
+  }
+
+  setTimeout(() => {
+    this.initGooglePlaces();
+  }, 500);
+}
 
   private loadDropdowns() {
     this.service.getColors().subscribe({
@@ -206,6 +367,28 @@ export class HostDashboardPage implements OnInit {
       }
     });
   }
+
+  cancelEdit() {
+  this.isEditMode = false;
+  this.editingVehicleId = null;
+  this.showVinExample = false;
+  this.isOwner = false;
+
+  this.form.reset({
+    CountryId: 1,
+    VN: '',
+    MarketValue: 0,
+    VehicleValueAmount: 0,
+    IsInsured: false,
+    IsTracker: false,
+    IsTrackerFitted: false
+  });
+
+  this.address = '';
+  this.selectedProvinceName = '';
+  this.tLatitude = null;
+  this.tLongitude = null;
+}
 
   loadHostedCars(event?: any) {
     if (!this.userId) {
@@ -468,17 +651,38 @@ export class HostDashboardPage implements OnInit {
 
       Address: this.address || this.form.value.Location,
       Latitude: this.tLatitude,
-      Longitude: this.tLongitude
+      Longitude: this.tLongitude,
+
+      LicenceDiscFile: this.form.value.LicenceDiscFile,
+      NumPlateFile: this.form.value.NumPlateFile,
+      InsurancePolicyDocument: this.form.value.InsurancePolicyDocument,
+
+      IsInsured: this.form.value.IsInsured === true,
+      IsTracker: this.form.value.IsTracker === true,
+      IsTrackerFitted: this.form.value.IsTrackerFitted === true,
+
+      DiscDescription: this.form.value.DiscDescription,
+
+      TrackerCompany: this.form.value.TrackerCompany,
+      TrackerCertificateDocument: this.form.value.TrackerCertificateDocument,
+
     };
 
-    this.service.saveVehicle(payload).subscribe({
+    const request$ = this.isEditMode && this.editingVehicleId
+  ? this.service.updateVehicle(this.editingVehicleId, payload)
+  : this.service.saveVehicle(payload);
+
+request$.subscribe({
       next: async () => {
         this.loading = false;
 
         await this.presentToast(
-          'Vehicle submitted successfully!',
-          'success'
-        );
+  this.isEditMode ? 'Vehicle updated successfully!' : 'Vehicle submitted successfully!',
+  'success'
+);
+
+this.isEditMode = false;
+this.editingVehicleId = null;
 
         this.form.reset({
           CountryId: 1,

@@ -18,6 +18,14 @@
 
 <ion-content class="vehicles-page">
 
+  <ion-refresher slot="fixed" (ionRefresh)="loadVehicles($event)">
+  <ion-refresher-content
+    pullingText="Pull to refresh"
+    refreshingSpinner="crescent"
+    refreshingText="Refreshing vehicles...">
+  </ion-refresher-content>
+</ion-refresher>
+
   <section class="vehicles-hero">
     <p class="eyebrow">Garage Marketplace</p>
     <h1>Find a car near you.</h1>

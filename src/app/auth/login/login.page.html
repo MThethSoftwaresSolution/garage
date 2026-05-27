@@ -181,6 +181,27 @@
             ></ion-input-password-toggle>
           </ion-input>
 
+          <div
+  class="password-strength"
+  *ngIf="registerFormGroup.get('password')?.dirty"
+>
+  <p [class.valid]="!registerPasswordStrength?.hasMinLength">
+    Minimum 8 characters
+  </p>
+  <p [class.valid]="!registerPasswordStrength?.hasUppercase">
+    One uppercase letter
+  </p>
+  <p [class.valid]="!registerPasswordStrength?.hasLowercase">
+    One lowercase letter
+  </p>
+  <p [class.valid]="!registerPasswordStrength?.hasNumber">
+    One number
+  </p>
+  <p [class.valid]="!registerPasswordStrength?.hasSpecial">
+    One special character
+  </p>
+</div>
+
           <ion-input
             class="premium-input"
             autocomplete="off"
@@ -288,6 +309,37 @@
               *ngIf="passwordControlRegistration?.value"
             ></ion-input-password-toggle>
           </ion-input>
+
+          <div
+  class="password-strength"
+  *ngIf="passwordResetFormGroup.get('password')?.dirty"
+>
+  <p [class.valid]="!resetPasswordStrength?.hasMinLength">
+    Minimum 8 characters
+  </p>
+  <p [class.valid]="!resetPasswordStrength?.hasUppercase">
+    One uppercase letter
+  </p>
+  <p [class.valid]="!resetPasswordStrength?.hasLowercase">
+    One lowercase letter
+  </p>
+  <p [class.valid]="!resetPasswordStrength?.hasNumber">
+    One number
+  </p>
+  <p [class.valid]="!resetPasswordStrength?.hasSpecial">
+    One special character
+  </p>
+</div>
+
+<p
+  class="error-text"
+  *ngIf="
+    passwordResetFormGroup.hasError('passwordMismatch') &&
+    passwordResetFormGroup.get('confirmPassword')?.dirty
+  "
+>
+  Passwords do not match
+</p>
 
           <ion-input
             class="premium-input"

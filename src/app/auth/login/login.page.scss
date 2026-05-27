@@ -230,3 +230,30 @@ ion-content {
     height: 128px;
   }
 }
+
+.password-strength {
+  margin: -6px 2px 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f7f7f5;
+  border: 1px solid #e2e2df;
+
+  p {
+    margin: 4px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #b03a2e;
+
+    &::before {
+      content: '✕ ';
+    }
+
+    &.valid {
+      color: #168a4a;
+
+      &::before {
+        content: '✓ ';
+      }
+    }
+  }
+}

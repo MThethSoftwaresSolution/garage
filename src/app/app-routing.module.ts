@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { approvalGuard } from './guards/approval.guard';
 
 const routes: Routes = [
   {
@@ -9,7 +10,7 @@ const routes: Routes = [
   },
   {
     path: 'tabs',
-    loadComponent: () => import('./tabs/tabs.page').then(m => m.TabsPage)
+    loadComponent: () => import('./tabs/tabs.page').then(m => m.TabsPage),canActivateChild: [approvalGuard]
     , children: [
       {
         path: 'dashboard',
@@ -118,11 +119,11 @@ const routes: Routes = [
   },
   {
     path: 'my-exchanges',
-    loadChildren: () => import('./pages/my-exchanges/my-exchanges.module').then( m => m.MyExchangesPageModule)
+    loadChildren: () => import('./pages/my-exchanges/my-exchanges.module').then( m => m.MyExchangesPageModule), canActivate: [approvalGuard]
   },
   {
     path: 'chat',
-    loadChildren: () => import('./pages/chat/chat.module').then( m => m.ChatPageModule)
+    loadChildren: () => import('./pages/chat/chat.module').then( m => m.ChatPageModule), canActivate: [approvalGuard]
   }
 
 

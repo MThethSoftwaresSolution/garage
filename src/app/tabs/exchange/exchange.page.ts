@@ -5,7 +5,7 @@ import { IonicModule, NavController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+declare const google: any;
 @Component({
   selector: 'app-exchange',
   templateUrl: './exchange.page.html',
@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 export class ExchangePage implements OnInit {
   bookingId = '';
   exchange: any = null;
-
+autocompleteService: any;
   meetingDate = '';
   meetingTime = '';
 
@@ -26,7 +26,6 @@ export class ExchangePage implements OnInit {
   selectedLng = 0;
   placePredictions: any[] = [];
   searchingPlaces = false;
-  private placeSearchTimer: any;
 
   images: string[] = [];
   checkoutImages: string[] = [];
@@ -45,6 +44,17 @@ export class ExchangePage implements OnInit {
     private nav: NavController
   ) {}
 
+  initGooglePlaces() {
+
+  if (typeof google === 'undefined') {
+    return;
+  }
+
+  this.autocompleteService =
+    new google.maps.places.AutocompleteService();
+
+}
+
   ngOnInit() {
     this.bookingId = this.route.snapshot.paramMap.get('id') || '';
 
@@ -53,6 +63,7 @@ export class ExchangePage implements OnInit {
       try {
         const user = JSON.parse(userRaw);
         this.currentUserId = user?.id || '';
+        this.initGooglePlaces();
       } catch {
         this.currentUserId = '';
       }
@@ -69,26 +80,29 @@ export class ExchangePage implements OnInit {
     this.nav.back();
   }
 
-  loadExchange(done?: () => void) {
-    this.loading = true;
+loadExchange(done?: () => void) {
+  this.loading = true;
 
-    this.service.getExchange(this.bookingId).subscribe({
-      next: (res: any) => {
-        this.exchange = res;
-        this.checkoutImages = this.safeParseImages(res?.checkOutImagesJson);
-        this.checkinImages = this.safeParseImages(res?.checkInImagesJson);
-        this.loading = false;
-        done?.();
-      },
-      error: () => {
+  this.service.getExchange(this.bookingId).subscribe({
+    next: (res: any) => {
+      this.exchange = res;
+      this.checkoutImages = this.safeParseImages(res?.checkOutImagesJson);
+      this.checkinImages = this.safeParseImages(res?.checkInImagesJson);
+      this.loading = false;
+      done?.();
+    },
+    error: (err: any) => {
+      if (err?.status === 404) {
         this.exchange = null;
-        this.checkoutImages = [];
-        this.checkinImages = [];
-        this.loading = false;
-        done?.();
       }
-    });
-  }
+
+      this.checkoutImages = [];
+      this.checkinImages = [];
+      this.loading = false;
+      done?.();
+    }
+  });
+}
 
   safeParseImages(value: any): string[] {
     if (!value) return [];
@@ -102,57 +116,52 @@ export class ExchangePage implements OnInit {
   }
 
   onLocationInput() {
-    this.selectedPlaceId = '';
-    this.selectedLat = 0;
-    this.selectedLng = 0;
 
-    clearTimeout(this.placeSearchTimer);
+  this.selectedPlaceId = '';
+  this.selectedLat = 0;
+  this.selectedLng = 0;
 
-    if (!this.location || this.location.trim().length < 3) {
-      this.placePredictions = [];
-      return;
-    }
+  if (
+    !this.location ||
+    this.location.length < 2
+  ) {
 
-    this.placeSearchTimer = setTimeout(() => {
-      this.searchingPlaces = true;
-
-      this.service.searchPlaces(this.location).subscribe({
-        next: (res: any) => {
-          this.placePredictions = res?.predictions || res || [];
-          this.searchingPlaces = false;
-        },
-        error: () => {
-          this.placePredictions = [];
-          this.searchingPlaces = false;
-        }
-      });
-    }, 400);
-  }
-
-  selectPlace(place: any) {
-    const description = place.description || place.name || '';
-    const placeId = place.place_id || place.placeId || '';
-
-    this.location = description;
-    this.selectedPlaceId = placeId;
     this.placePredictions = [];
-
-    if (!placeId) return;
-
-    this.service.getPlaceDetails(placeId).subscribe({
-      next: (res: any) => {
-        const details = res?.result || res;
-        const loc = details?.geometry?.location;
-
-        this.selectedLat = loc?.lat || details?.lat || 0;
-        this.selectedLng = loc?.lng || details?.lng || 0;
-      },
-      error: () => {
-        this.selectedLat = 0;
-        this.selectedLng = 0;
-      }
-    });
+    return;
   }
+
+  this.searchingPlaces = true;
+
+  this.autocompleteService.getPlacePredictions(
+    {
+      input: this.location,
+      componentRestrictions: {
+        country: 'za'
+      }
+    },
+    (predictions: any[]) => {
+
+      this.placePredictions =
+        predictions || [];
+
+      this.searchingPlaces = false;
+
+    }
+  );
+
+}
+
+selectPlace(place: any) {
+
+  this.location =
+    place.description;
+
+  this.selectedPlaceId =
+    place.place_id;
+
+  this.placePredictions = [];
+
+}
 
   isDriver(): boolean {
     return this.exchange?.driverId === this.currentUserId;

@@ -119,6 +119,7 @@ uploadProfileDocument(userId: string, documentType: string, file: File) {
 }
 
 getPlaceDetails(placeId: string) {
+  console.log('Fetching place details for:', placeId);
   return this.http.get(`${this.mainUrl}/places/details`, {
     params: { placeId }
   });
@@ -209,7 +210,6 @@ uploadImage(file: Blob){
 }
 
 getVehicleImages(vehicleId: string) {
-  debugger;
   const url = `${this.baseUrl}/${vehicleId}/images`;
   return this.http.get<VehicleImage[]>(url);
 }

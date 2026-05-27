@@ -60,7 +60,7 @@ console.log('Booking request page received booking:', this.booking);
       estimatedDays: this.booking.estimatedDays,
       estimatedTotal: this.booking.vehicleTotal
     };
-debugger;
+
     this.service.createBooking(booking)
     .subscribe({
 
@@ -76,9 +76,13 @@ debugger;
 
       await toast.present();
 
+      const bookingId =
+        resp.bookingId ||
+        resp.BookingId;
+
       setTimeout(() => {
-        window.location.href = 'tabs/my-bookings';
-      }, 3000);
+        this.router.navigate(['/tabs/exchange', bookingId]);
+      }, 1000);
 
       },
 

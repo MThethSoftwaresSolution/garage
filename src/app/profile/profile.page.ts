@@ -11,6 +11,8 @@ import {
 import { IonicModule, NavController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MainService } from 'src/app/services/main.service';
+import { AuthService } from '../services/auth';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -46,7 +48,7 @@ export class ProfilePage implements OnInit {
     private service: MainService,
     private navCtrl: NavController,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router, private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -156,14 +158,22 @@ export class ProfilePage implements OnInit {
 
     this.service.getProfile(this.userId).subscribe({
       next: (res: any) => {
-        this.profile = res;
+        console.log('Profile data loaded:', (environment.baseUrl + res.imagePath).replace(/([^:]\/)\/+/g, '$1'));
+        this.profile = {
+        ...res,
+        imagePath: this.toFileUrl(res.imagePath),
+        idCopy: this.toFileUrl(res.idCopy),
+        poaCopy: this.toFileUrl(res.poaCopy),
+        bankLetter: this.toFileUrl(res.bankLetter),
+        licenseCopy: this.toFileUrl(res.licenseCopy)
+      };
 
         this.profileUpdateFormGroup.patchValue({
           firstName: this.clean(res.firstName),
           lastName: this.clean(res.lastName),
           email: this.clean(res.email),
           phoneNumber: this.clean(res.phoneNumber),
-
+           //imagePath: this.toFileUrl(res.imagePath),
           idNumber: this.clean(res.idNumber),
           gender: this.clean(res.gender),
 
@@ -200,6 +210,22 @@ export class ProfilePage implements OnInit {
       }
     });
   }
+
+  toFileUrl(path: string | null | undefined): string {
+  if (!path) return '';
+
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+
+  const apiRoot = environment.baseUrl
+    .replace(/\/api\/?$/i, '')
+    .replace(/\/$/, '');
+
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
+  return `${apiRoot}${cleanPath}`;
+}
 
   goToProfileCompletion() {
     if (
@@ -304,47 +330,107 @@ export class ProfilePage implements OnInit {
     });
   }
 
-  async handleRefresh(event: any) {
-  this.loadProfile();
-  this.loadBanks();
-  this.loadProvinces();
+async handleRefresh(event: any) {
+  const userRaw = localStorage.getItem('currentUser');
 
-  setTimeout(() => {
+  if (!userRaw) {
     event?.target?.complete?.();
-  }, 1000);
+    return;
+  }
+
+  let currentUser: any;
+
+  try {
+    currentUser = JSON.parse(userRaw);
+  } catch {
+    event?.target?.complete?.();
+    return;
+  }
+
+  const email =
+    currentUser?.email ||
+    localStorage.getItem('username');
+
+  if (!email) {
+    event?.target?.complete?.();
+    return;
+  }
+
+  this.authService.relogin({ email, Password: 'Password123!' }).subscribe({
+    next: (resp: any) => {
+
+      // UPDATE LOCAL STORAGE
+      localStorage.setItem('currentUser', JSON.stringify(resp.user));
+      localStorage.setItem('token', resp.token);
+      localStorage.setItem('id', resp.id);
+      localStorage.setItem('name', resp.name);
+      localStorage.setItem('phone', resp.phone ?? '');
+      localStorage.setItem('surname', resp.surname);
+      localStorage.setItem('isVetted', JSON.stringify(resp.isVetted));
+      localStorage.setItem('isVerAppStarted', JSON.stringify(resp.isVerAppStarted));
+      localStorage.setItem('username', resp.username);
+      localStorage.setItem('roles', resp.role);
+      localStorage.setItem('isAdmin', JSON.stringify(resp.isAdmin));
+      localStorage.setItem('isActiveMember', JSON.stringify(resp.isActiveMember));
+
+      // UPDATE SCREEN
+      this.userId = resp.id;
+
+      this.loadProfile();
+      this.loadBanks();
+      this.loadProvinces();
+
+      event?.target?.complete?.();
+
+      // OPTIONAL SUCCESS MESSAGE
+      if (resp.isVetted === true) {
+      console.log('Your account has already been approved.');
+      }
+    },
+    error: () => {
+      this.loadProfile();
+      event?.target?.complete?.();
+    }
+  });
 }
 
-  uploadDocument(event: any, documentType: string) {
-    const file = event.target.files?.[0];
+uploadDocument(event: any, documentType: string) {
+  const file = event.target.files?.[0];
 
-    if (!file) return;
+  if (!file) return;
 
-    const currentFormValues = this.profileUpdateFormGroup.getRawValue();
-    const currentSection = this.selectedSection;
+  const currentFormValues = this.profileUpdateFormGroup.getRawValue();
+  const currentSection = this.selectedSection;
 
-    this.documentUploading[documentType] = true;
+  this.documentUploading[documentType] = true;
 
-    this.service.uploadProfileDocument(this.userId, documentType, file).subscribe({
-      next: (res: any) => {
-        this.documentUploading[documentType] = false;
+  this.service.uploadProfileDocument(this.userId, documentType, file).subscribe({
+    next: (res: any) => {
+      this.documentUploading[documentType] = false;
 
-        this.profile = {
-          ...this.profile,
-          [documentType]: res?.filePath || res?.path || res?.url || this.profile?.[documentType]
-        };
+      const uploadedPath =
+        res?.filePath ||
+        res?.path ||
+        res?.url ||
+        this.profile?.[documentType];
 
-        this.profileUpdateFormGroup.patchValue(currentFormValues);
-        this.selectedSection = currentSection;
+      this.profile = {
+        ...this.profile,
+        [documentType]: this.toFileUrl(uploadedPath)
+      };
 
-        event.target.value = '';
-      },
-      error: (err: any) => {
-        this.documentUploading[documentType] = false;
-        event.target.value = '';
-        alert(err?.error || 'Document upload failed.');
-      }
-    });
-  }
+      this.profileUpdateFormGroup.patchValue(currentFormValues);
+      this.selectedSection = currentSection;
+
+      event.target.value = '';
+    },
+    error: (err: any) => {
+      this.documentUploading[documentType] = false;
+      event.target.value = '';
+      alert(err?.error || 'Document upload failed.');
+    }
+  });
+}
 
   changePassword() {
     this.isPasswordUpdate = !this.isPasswordUpdate;

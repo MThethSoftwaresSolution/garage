@@ -7,7 +7,17 @@ export const approvalGuard: CanActivateFn = (route, state) => {
   const isAdmin = JSON.parse(localStorage.getItem('isAdmin') || 'false');
   const isVetted = JSON.parse(localStorage.getItem('isVetted') || 'false');
 
-  if (state.url.includes('/tabs/profile')) {
+  const publicRoutes = [
+    '/tabs/profile',
+    '/tabs/vehicles',
+    '/tabs/vehicle/'
+  ];
+
+  const isPublicRoute = publicRoutes.some(route =>
+    state.url.startsWith(route)
+  );
+
+  if (isPublicRoute) {
     return true;
   }
 

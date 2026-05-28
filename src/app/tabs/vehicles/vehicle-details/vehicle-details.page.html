@@ -212,13 +212,17 @@
           </div>
         </div>
 
-        <ion-button
-          expand="block"
-          type="submit"
-          class="continue-btn"
-          [disabled]="form.invalid || !isCurrentlyAvailable">
-          Continue Booking
-        </ion-button>
+<ion-button
+  expand="block"
+  type="submit"
+  class="continue-btn"
+  [disabled]="!canContinueBooking()">
+  {{ isVetted || isAdmin ? 'Continue Booking' : 'Approval Required' }}
+</ion-button>
+
+<p class="hint" *ngIf="!isVetted && !isAdmin">
+  Complete your profile and wait for approval before booking.
+</p>
 
         <p class="hint" *ngIf="!isCurrentlyAvailable && selectedFrom && selectedUntil">
           The selected date range is already booked. Please choose different dates.

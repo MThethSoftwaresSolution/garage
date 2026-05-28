@@ -5,7 +5,9 @@ import { IonicModule, NavController } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 declare const google: any;
+
 @Component({
   selector: 'app-exchange',
   templateUrl: './exchange.page.html',
@@ -16,7 +18,9 @@ declare const google: any;
 export class ExchangePage implements OnInit {
   bookingId = '';
   exchange: any = null;
-autocompleteService: any;
+
+  autocompleteService: any;
+
   meetingDate = '';
   meetingTime = '';
 
@@ -24,6 +28,7 @@ autocompleteService: any;
   selectedPlaceId = '';
   selectedLat = 0;
   selectedLng = 0;
+
   placePredictions: any[] = [];
   searchingPlaces = false;
 
@@ -38,38 +43,74 @@ autocompleteService: any;
 
   currentUserId = '';
 
+  pickupMileage = '';
+pickupFuelLevel = '';
+pickupExterior = 'Good';
+pickupInterior = 'Good';
+pickupHasScratches = false;
+pickupHasWarningLights = false;
+pickupSpareWheelPresent = true;
+pickupJackToolsPresent = true;
+pickupKeysGiven = 1;
+
+returnMileage = '';
+returnFuelLevel = '';
+returnExterior = 'Good';
+returnInterior = 'Good';
+returnNewDamageDetected = false;
+returnMissingItems = false;
+returnEstimatedDamageAmount = '';
+returnKeysReturned = 1;
+
+fuelLevels = [
+  'Empty',
+  '1/4',
+  'Half',
+  '3/4',
+  'Full'
+];
+
+conditionOptions = [
+  'Excellent',
+  'Good',
+  'Fair',
+  'Damaged'
+];
+
   constructor(
     private route: ActivatedRoute,
     private service: MainService,
     private nav: NavController
   ) {}
 
-  initGooglePlaces() {
-
-  if (typeof google === 'undefined') {
-    return;
-  }
-
-  this.autocompleteService =
-    new google.maps.places.AutocompleteService();
-
-}
-
   ngOnInit() {
     this.bookingId = this.route.snapshot.paramMap.get('id') || '';
 
     const userRaw = localStorage.getItem('currentUser');
+
     if (userRaw) {
       try {
         const user = JSON.parse(userRaw);
         this.currentUserId = user?.id || '';
-        this.initGooglePlaces();
       } catch {
         this.currentUserId = '';
       }
     }
 
+    setTimeout(() => {
+      this.initGooglePlaces();
+    }, 600);
+
     this.loadExchange();
+  }
+
+  initGooglePlaces() {
+    if (typeof google === 'undefined' || !google?.maps?.places) {
+      console.warn('Google Places script not loaded yet.');
+      return;
+    }
+
+    this.autocompleteService = new google.maps.places.AutocompleteService();
   }
 
   handleRefresh(event: any) {
@@ -80,29 +121,29 @@ autocompleteService: any;
     this.nav.back();
   }
 
-loadExchange(done?: () => void) {
-  this.loading = true;
+  loadExchange(done?: () => void) {
+    this.loading = true;
 
-  this.service.getExchange(this.bookingId).subscribe({
-    next: (res: any) => {
-      this.exchange = res;
-      this.checkoutImages = this.safeParseImages(res?.checkOutImagesJson);
-      this.checkinImages = this.safeParseImages(res?.checkInImagesJson);
-      this.loading = false;
-      done?.();
-    },
-    error: (err: any) => {
-      if (err?.status === 404) {
-        this.exchange = null;
+    this.service.getExchange(this.bookingId).subscribe({
+      next: (res: any) => {
+        this.exchange = res;
+        this.checkoutImages = this.safeParseImages(res?.checkOutImagesJson);
+        this.checkinImages = this.safeParseImages(res?.checkInImagesJson);
+        this.loading = false;
+        done?.();
+      },
+      error: (err: any) => {
+        if (err?.status === 404) {
+          this.exchange = null;
+        }
+
+        this.checkoutImages = [];
+        this.checkinImages = [];
+        this.loading = false;
+        done?.();
       }
-
-      this.checkoutImages = [];
-      this.checkinImages = [];
-      this.loading = false;
-      done?.();
-    }
-  });
-}
+    });
+  }
 
   safeParseImages(value: any): string[] {
     if (!value) return [];
@@ -115,18 +156,31 @@ loadExchange(done?: () => void) {
     }
   }
 
-  onLocationInput() {
+ onLocationInput(event: any) {
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    this.location ||
+    '';
 
+  this.location = value;
   this.selectedPlaceId = '';
   this.selectedLat = 0;
   this.selectedLng = 0;
 
-  if (
-    !this.location ||
-    this.location.length < 2
-  ) {
-
+  if (!value || value.trim().length < 2) {
     this.placePredictions = [];
+    this.searchingPlaces = false;
+    return;
+  }
+
+  if (!this.autocompleteService) {
+    this.initGooglePlaces();
+  }
+
+  if (!this.autocompleteService) {
+    this.placePredictions = [];
+    this.searchingPlaces = false;
     return;
   }
 
@@ -134,34 +188,23 @@ loadExchange(done?: () => void) {
 
   this.autocompleteService.getPlacePredictions(
     {
-      input: this.location,
+      input: value,
       componentRestrictions: {
         country: 'za'
       }
     },
-    (predictions: any[]) => {
-
-      this.placePredictions =
-        predictions || [];
-
+    (predictions: any[] | null) => {
+      this.placePredictions = predictions || [];
       this.searchingPlaces = false;
-
     }
   );
-
 }
 
-selectPlace(place: any) {
-
-  this.location =
-    place.description;
-
-  this.selectedPlaceId =
-    place.place_id;
-
-  this.placePredictions = [];
-
-}
+  selectPlace(place: any) {
+    this.location = place.description;
+    this.selectedPlaceId = place.place_id;
+    this.placePredictions = [];
+  }
 
   isDriver(): boolean {
     return this.exchange?.driverId === this.currentUserId;
@@ -282,23 +325,53 @@ selectPlace(place: any) {
 
     this.submitting = true;
 
-    this.service.driverCheckout({
-      bookingId: this.bookingId,
-      images: this.images,
-      notes: this.notes
-    }).subscribe({
-      next: () => {
-        this.submitting = false;
-        alert('Pickup completed.');
-        this.images = [];
-        this.notes = '';
-        this.loadExchange();
-      },
-      error: (error: any) => {
-        this.submitting = false;
-        alert(error?.error || 'Pickup failed.');
-      }
-    });
+this.service.driverCheckout({
+  bookingId: this.bookingId,
+  images: this.images,
+  notes: this.notes,
+
+  pickupMileage: this.pickupMileage
+    ? Number(this.pickupMileage)
+    : null,
+
+  pickupFuelLevel: this.pickupFuelLevel,
+
+  pickupExteriorCondition: this.pickupExterior,
+
+  pickupInteriorCondition: this.pickupInterior,
+
+  hasScratches: this.pickupHasScratches,
+
+  hasWarningLights: this.pickupHasWarningLights,
+
+  spareWheelPresent: this.pickupSpareWheelPresent,
+
+  jackToolsPresent: this.pickupJackToolsPresent,
+
+  keysGiven: this.pickupKeysGiven
+    ? Number(this.pickupKeysGiven)
+    : null,
+
+  pickupLat: this.selectedLat || null,
+
+  pickupLng: this.selectedLng || null
+
+}).subscribe({
+  next: () => {
+    this.submitting = false;
+    alert('Pickup completed.');
+
+    this.images = [];
+    this.notes = '';
+
+    this.loadExchange();
+  },
+  error: (error: any) => {
+    this.submitting = false;
+
+    alert(error?.error || 'Pickup failed.');
+  }
+});
   }
 
   checkin() {
@@ -314,23 +387,38 @@ selectPlace(place: any) {
 
     this.submitting = true;
 
-    this.service.hostCheckin({
-      bookingId: this.bookingId,
-      images: this.images,
-      notes: this.notes
-    }).subscribe({
-      next: () => {
-        this.submitting = false;
-        alert('Return completed.');
-        this.images = [];
-        this.notes = '';
-        this.loadExchange();
-      },
-      error: (error: any) => {
-        this.submitting = false;
-        alert(error?.error || 'Return failed.');
-      }
-    });
+this.service.hostCheckin({
+  bookingId: this.bookingId,
+  images: this.images,
+  notes: this.notes,
+
+  returnMileage: this.returnMileage ? Number(this.returnMileage) : null,
+  returnFuelLevel: this.returnFuelLevel,
+  returnExteriorCondition: this.returnExterior,
+  returnInteriorCondition: this.returnInterior,
+
+  newDamageDetected: this.returnNewDamageDetected,
+  missingItems: this.returnMissingItems,
+  estimatedDamageAmount: this.returnEstimatedDamageAmount
+    ? Number(this.returnEstimatedDamageAmount)
+    : null,
+  keysReturned: this.returnKeysReturned ? Number(this.returnKeysReturned) : null,
+
+  returnLat: this.selectedLat || null,
+  returnLng: this.selectedLng || null
+}).subscribe({
+  next: () => {
+    this.submitting = false;
+    alert('Return completed.');
+    this.images = [];
+    this.notes = '';
+    this.loadExchange();
+  },
+  error: (error: any) => {
+    this.submitting = false;
+    alert(error?.error || 'Return failed.');
+  }
+});
   }
 
   async takePhoto() {

@@ -72,6 +72,8 @@ export class VehicleDetailsPage implements OnInit {
   isCurrentlyAvailable = true;
 
   highlightedDates: any[] = [];
+  isAdmin = false;
+  isVetted = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -87,6 +89,9 @@ export class VehicleDetailsPage implements OnInit {
     this.vehicleId =
       this.route.snapshot.paramMap.get('id');
 
+      this.isAdmin = JSON.parse(localStorage.getItem('isAdmin') || 'false');
+      this.isVetted = JSON.parse(localStorage.getItem('isVetted') || 'false');
+
     this.form = this.fb.group({
 
       PickupLocation: ['', Validators.required],
@@ -100,6 +105,26 @@ export class VehicleDetailsPage implements OnInit {
     this.loadVehicle();
 
   }
+  
+
+canContinueBooking(){
+
+    if (!this.isAdmin && !this.isVetted) {
+    this.presentToast(
+      'Your profile must be approved before you can continue with booking.',
+      'warning'
+    );
+
+    this.router.navigateByUrl('/tabs/profile?completeProfile=true');
+
+    return;
+  }
+
+  return (this.isAdmin || this.isVetted) &&
+    this.form.valid &&
+    this.isCurrentlyAvailable;
+
+}
 
   goBack() {
     this.navCtrl.back();
@@ -341,13 +366,13 @@ clearDates() {
       until.getTime() -
       from.getTime();
 
-    const days =
-      Math.max(
-        1,
-        Math.ceil(
-          diffMs / (1000 * 60 * 60 * 24)
-        ) + 1
-      );
+const days =
+  Math.max(
+    1,
+    Math.ceil(
+      diffMs / (1000 * 60 * 60 * 24)
+    )
+  );
 
     this.estimateDays = days;
 

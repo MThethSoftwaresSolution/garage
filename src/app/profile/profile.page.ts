@@ -357,9 +357,9 @@ async handleRefresh(event: any) {
   }
 
   this.authService.relogin({ email, Password: 'Password123!' }).subscribe({
-    next: (resp: any) => {
+   
+      next: (resp: any) => {
 
-      // UPDATE LOCAL STORAGE
       localStorage.setItem('currentUser', JSON.stringify(resp.user));
       localStorage.setItem('token', resp.token);
       localStorage.setItem('id', resp.id);
@@ -373,7 +373,6 @@ async handleRefresh(event: any) {
       localStorage.setItem('isAdmin', JSON.stringify(resp.isAdmin));
       localStorage.setItem('isActiveMember', JSON.stringify(resp.isActiveMember));
 
-      // UPDATE SCREEN
       this.userId = resp.id;
 
       this.loadProfile();
@@ -382,10 +381,11 @@ async handleRefresh(event: any) {
 
       event?.target?.complete?.();
 
-      // OPTIONAL SUCCESS MESSAGE
-      if (resp.isVetted === true) {
-      console.log('Your account has already been approved.');
-      }
+      // FORCE FULL REFRESH
+      setTimeout(() => {
+        window.location.reload();
+      }, 700);
+
     },
     error: () => {
       this.loadProfile();

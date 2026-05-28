@@ -69,7 +69,7 @@ console.log('Booking request page received booking:', this.booking);
         console.log("Booking created", resp);
         const toast = await this.toastCtrl.create({
         message: "Booking created successfully",
-        duration: 3000,
+        duration: 2000,
         position: "top",
         color: "success"
       });
@@ -90,7 +90,7 @@ console.log('Booking request page received booking:', this.booking);
         console.log(err.error);
         const toast = await this.toastCtrl.create({
         message: err.error,
-        duration: 3000,
+        duration: 2000,
         position: "top",
         color: "danger"
       });

@@ -19,8 +19,6 @@ import {
   ToastController
 } from '@ionic/angular';
 
-import { Router } from '@angular/router';
-
 import {
   Camera,
   CameraResultType,
@@ -39,6 +37,7 @@ import { environment } from 'src/environments/environment';
 register();
 
 declare const google: any;
+
 export const vinValidator: ValidatorFn = (
   control: AbstractControl
 ): ValidationErrors | null => {
@@ -47,14 +46,14 @@ export const vinValidator: ValidatorFn = (
   if (!value) return null;
 
   const validVinRegex = /^[A-HJ-NPR-Z0-9]{17}$/;
+  return validVinRegex.test(value) ? null : { invalidVin: true };
+};
 
-  if (!validVinRegex.test(value)) {
-    return {
-      invalidVin: true
-    };
-  }
-
-  return null;
+type FormVehicleImage = {
+  blob: Blob;
+  filename: string;
+  previewUrl: string;
+  uploaded?: boolean;
 };
 
 @Component({
@@ -65,11 +64,11 @@ export const vinValidator: ValidatorFn = (
   imports: [
     IonicModule,
     CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    FormsModule
   ]
 })
 export class HostDashboardPage implements OnInit {
-
   loading = false;
   loadingList = false;
   showForm = false;
@@ -83,8 +82,9 @@ export class HostDashboardPage implements OnInit {
   odometers: any[] = [];
   colors: any[] = [];
   transmissions: any[] = [];
+
   isEditMode = false;
-editingVehicleId: string | null = null;
+  editingVehicleId: string | null = null;
 
   userId = '';
   showVinExample = false;
@@ -94,16 +94,24 @@ editingVehicleId: string | null = null;
 
   address = '';
   selectedProvinceName = '';
-
   isOwner = false;
 
   autocomplete: any;
+
+  pickerOpen = false;
+  pickerTitle = '';
+  pickerControl = '';
+  pickerItems: any[] = [];
+  pickerSearch = '';
+
+  formVehicleImages: FormVehicleImage[] = [];
+
   vehicleDocsUploading: any = {
-  licenceDiscFile: false,
-  numPlateFile: false,
-  insurancePolicyDocument: false,
-  trackerCertificateDocument: false
-};
+    licenceDiscFile: false,
+    numPlateFile: false,
+    insurancePolicyDocument: false,
+    trackerCertificateDocument: false
+  };
 
   form = new FormGroup({
     CountryId: new FormControl(1, [Validators.required]),
@@ -112,10 +120,7 @@ editingVehicleId: string | null = null;
     City: new FormControl(''),
     PostalCode: new FormControl(''),
 
-    VN: new FormControl('WVWZZZ1JZXW000001', [
-  Validators.required,
-  vinValidator
-]),
+    VN: new FormControl('', [Validators.required, vinValidator]),
 
     Year: new FormControl('', [Validators.required]),
     Make: new FormControl('', [Validators.required]),
@@ -135,26 +140,25 @@ editingVehicleId: string | null = null;
     OwnerCellNumber: new FormControl('', [Validators.required]),
 
     LicenceDiscFile: new FormControl('', [Validators.required]),
-NumPlateFile: new FormControl(''),
+    NumPlateFile: new FormControl(''),
 
-IsInsured: new FormControl(false),
-InsurancePolicyDocument: new FormControl(''),
+    IsInsured: new FormControl(false),
+    InsurancePolicyDocument: new FormControl(''),
 
-IsTracker: new FormControl(false),
-IsTrackerFitted: new FormControl(false),
-TrackerCompany: new FormControl(''),
-TrackerCertificateDocument: new FormControl(''),
+    IsTracker: new FormControl(false),
+    IsTrackerFitted: new FormControl(false),
+    TrackerCompany: new FormControl(''),
+    TrackerCertificateDocument: new FormControl(''),
 
-DiscDescription: new FormControl('')
-
+    DiscDescription: new FormControl('')
   });
 
   constructor(
-    private router: Router,
     private toastCtrl: ToastController,
     private navCtrl: NavController,
     private modalCtrl: ModalController,
-    private service: MainService
+    private service: MainService,
+    private actionSheetCtrl: ActionSheetController
   ) {}
 
   ngOnInit() {
@@ -181,28 +185,119 @@ DiscDescription: new FormControl('')
   }
 
   toggleForm() {
-    this.showForm = !this.showForm;
-
-    if (this.showForm) {
-      setTimeout(() => {
-        this.initGooglePlaces();
-      }, 500);
+    if (!this.showForm) {
+      this.startNewVehicle();
+      return;
     }
+
+    this.showForm = false;
+  }
+
+  startNewVehicle() {
+    this.resetVehicleForm();
+    this.showForm = true;
+
+    setTimeout(() => {
+      this.initGooglePlaces();
+    }, 500);
+  }
+
+  resetVehicleForm() {
+    this.isEditMode = false;
+    this.editingVehicleId = null;
+    this.showVinExample = false;
+    this.isOwner = false;
+    this.clearFormVehicleImages();
+
+    this.form.reset({
+      CountryId: 1,
+      VN: '',
+      Location: '',
+      City: '',
+      PostalCode: '',
+      Year: '',
+      Make: '',
+      Model: '',
+      Odometer: '',
+      NumberPlate: '',
+      Color: '',
+      Transmission: '',
+      MarketValue: 0,
+      VehicleValueAmount: 0,
+      OwnerIdNumber: '',
+      OwnerName: '',
+      OwnerSurname: '',
+      OwnerEmail: '',
+      OwnerCellNumber: '',
+      LicenceDiscFile: '',
+      NumPlateFile: '',
+      IsInsured: false,
+      InsurancePolicyDocument: '',
+      IsTracker: false,
+      IsTrackerFitted: false,
+      TrackerCompany: '',
+      TrackerCertificateDocument: '',
+      DiscDescription: ''
+    });
+
+    this.models = [];
+    this.address = '';
+    this.selectedProvinceName = '';
+    this.tLatitude = null;
+    this.tLongitude = null;
+  }
+
+  cancelEdit() {
+    this.resetVehicleForm();
+  }
+
+  openPicker(title: string, controlName: string, items: any[]) {
+    this.pickerTitle = title;
+    this.pickerControl = controlName;
+    this.pickerItems = items || [];
+    this.pickerSearch = '';
+    this.pickerOpen = true;
+  }
+
+  filteredPickerItems() {
+    const term = this.pickerSearch.toLowerCase().trim();
+
+    if (!term) return this.pickerItems;
+
+    return this.pickerItems.filter((x: any) =>
+      String(x.label).toLowerCase().includes(term) ||
+      String(x.value).toLowerCase().includes(term)
+    );
+  }
+
+  selectPickerItem(item: any) {
+    this.form.patchValue({
+      [this.pickerControl]: item.value
+    });
+
+    if (this.pickerControl === 'Make') {
+      this.form.patchValue({ Model: '' });
+      this.searchModel(item.value);
+    }
+
+    this.pickerOpen = false;
+  }
+
+  getPickerLabel(controlName: string, items: any[]) {
+    const value = this.form.get(controlName)?.value;
+    const found = items?.find((x: any) => String(x.value) === String(value));
+
+    return found?.label || `Select ${controlName}`;
   }
 
   formatVin() {
-  const value = String(this.form.get('VN')?.value || '')
-    .toUpperCase()
-    .replace(/\s/g, '')
-    .trim();
+    const value = String(this.form.get('VN')?.value || '')
+      .toUpperCase()
+      .replace(/\s/g, '')
+      .trim();
 
-  this.form.patchValue(
-    {
-      VN: value
-    },
-    { emitEvent: false }
-  );
-}
+    this.form.patchValue({ VN: value }, { emitEvent: false });
+  }
 
   private buildYears(min: number, max: number) {
     const arr: Array<{ label: string; value: number }> = [];
@@ -217,106 +312,251 @@ DiscDescription: new FormControl('')
     return arr;
   }
 
- uploadVehicleDocument(event: any, controlName: string, uploadKey: string) {
-  const file = event.target.files?.[0];
+  async addVehicleFormImage() {
+    const action = await this.actionSheetCtrl.create({
+      header: 'Add Vehicle Photos',
+      buttons: [
+        {
+          text: 'Take Photo',
+          icon: 'camera',
+          handler: () => this.captureSingleVehicleImage()
+        },
+        {
+          text: 'Choose Multiple From Gallery',
+          icon: 'images',
+          handler: () => this.pickMultipleVehicleImages()
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
 
-  if (!file) return;
-
-  this.vehicleDocsUploading[uploadKey] = true;
-
-  this.service.uploadVehicleDocument(file).subscribe({
-    next: async (res: any) => {
-      this.vehicleDocsUploading[uploadKey] = false;
-
-      const path =
-        res?.filePath ||
-        res?.path ||
-        res?.url ||
-        '';
-
-      this.form.patchValue({
-        [controlName]: path
-      });
-
-      event.target.value = '';
-
-      await this.presentToast('Document uploaded successfully.', 'success');
-    },
-    error: async (e: any) => {
-      this.vehicleDocsUploading[uploadKey] = false;
-      event.target.value = '';
-
-      await this.presentToast(
-        e?.error || 'Document upload failed.',
-        'danger'
-      );
-    }
-  });
-}
-
-editVehicle(vehicle: any) {
-  this.isEditMode = true;
-  this.editingVehicleId = vehicle.id;
-  this.showForm = true;
-
-  this.tLatitude = vehicle.latitude || null;
-  this.tLongitude = vehicle.longitude || null;
-  this.address = vehicle.address || vehicle.streetAddress || '';
-  this.selectedProvinceName = '';
-
-  this.form.patchValue({
-    CountryId: 1,
-
-    Location: vehicle.address || vehicle.streetAddress || '',
-    City: vehicle.city || '',
-    PostalCode: vehicle.postalCode || '',
-
-    VN: vehicle.vn || vehicle.vN || '',
-    Year: vehicle.year || '',
-    Make: vehicle.makeId || vehicle.vehicleMakeId || '',
-    Model: vehicle.modelId || vehicle.vehicleModelId || '',
-    Odometer: vehicle.odometerId || vehicle.vehicleOdometerId || '',
-    NumberPlate: vehicle.numberPlate || '',
-    Color: vehicle.colorId || '',
-    Transmission: vehicle.transmission || '',
-
-    MarketValue: vehicle.rate || vehicle.marketValue || 0,
-    VehicleValueAmount: vehicle.vehicleValueAmount || 0,
-
-    OwnerIdNumber: vehicle.ownerIdNumber || '',
-    OwnerName: vehicle.ownerFirstName || vehicle.ownerName || '',
-    OwnerSurname: vehicle.ownerSurname || '',
-    OwnerEmail: vehicle.ownerEmail || '',
-    OwnerCellNumber: vehicle.ownerCellNumber || '',
-
-    LicenceDiscFile: vehicle.licenceDiscFile || '',
-    NumPlateFile: vehicle.numPlateFile || '',
-    InsurancePolicyDocument: vehicle.insurancePolicyDocument || '',
-
-    IsInsured: vehicle.isInsured === true,
-    IsTracker: vehicle.isTracker === true,
-    IsTrackerFitted: vehicle.isTrackerFitted === true,
-
-    DiscDescription: vehicle.discDescription || '',
-
-    TrackerCompany: vehicle.trackerCompany || '',
-    TrackerCertificateDocument: vehicle.trackerCertificateDocument || ''
-  });
-
-  if (this.form.value.Make) {
-    this.searchModel(this.form.value.Make);
-
-    setTimeout(() => {
-      this.form.patchValue({
-        Model: vehicle.modelId || vehicle.vehicleModelId || ''
-      });
-    }, 500);
+    await action.present();
   }
 
-  setTimeout(() => {
-    this.initGooglePlaces();
-  }, 500);
-}
+  async captureSingleVehicleImage() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 85,
+        allowEditing: false,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Camera
+      });
+
+      if (!image.base64String) return;
+
+      const blob = this.base64ToBlob(
+        image.base64String,
+        `image/${image.format}`
+      );
+
+      await this.addBlobToFormImages(blob, `vehicle-${Date.now()}.${image.format}`);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async pickMultipleVehicleImages() {
+    try {
+      const result = await Camera.pickImages({
+        quality: 85,
+        limit: 10
+      });
+
+      if (!result.photos || result.photos.length === 0) return;
+
+      for (const photo of result.photos) {
+        const webPath = photo.webPath;
+
+        if (!webPath) continue;
+
+        const response = await fetch(webPath);
+        const blob = await response.blob();
+
+        const format = photo.format || this.getImageExtension(blob.type);
+        await this.addBlobToFormImages(blob, `vehicle-${Date.now()}-${Math.floor(Math.random() * 9999)}.${format}`);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private getImageExtension(mimeType: string) {
+    if (mimeType.includes('png')) return 'png';
+    if (mimeType.includes('webp')) return 'webp';
+    return 'jpg';
+  }
+
+  private async addBlobToFormImages(blob: Blob, filename: string) {
+    const previewUrl = URL.createObjectURL(blob);
+
+    const selectedImage: FormVehicleImage = {
+      blob,
+      filename,
+      previewUrl,
+      uploaded: false
+    };
+
+    this.formVehicleImages.push(selectedImage);
+
+    if (this.isEditMode && this.editingVehicleId) {
+      try {
+        await this.uploadSingleVehicleImage(this.editingVehicleId, selectedImage);
+        selectedImage.uploaded = true;
+      } catch {
+        selectedImage.uploaded = false;
+      }
+    }
+  }
+
+  removeVehicleFormImage(index: number) {
+    const img = this.formVehicleImages[index];
+
+    if (img?.previewUrl) {
+      URL.revokeObjectURL(img.previewUrl);
+    }
+
+    this.formVehicleImages.splice(index, 1);
+  }
+
+  private async uploadSingleVehicleImage(vehicleId: string, image: FormVehicleImage): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('vehicleId', vehicleId);
+      formData.append('file', image.blob, image.filename);
+
+      this.service.uploadVehicleImage(formData).subscribe({
+        next: async () => {
+          resolve();
+        },
+        error: async () => {
+          await this.presentToast('Vehicle photo upload failed.', 'danger');
+          reject();
+        }
+      });
+    });
+  }
+
+  private async uploadPendingVehicleImages(vehicleId: string) {
+    const pendingImages = this.formVehicleImages.filter(x => !x.uploaded);
+
+    for (const image of pendingImages) {
+      try {
+        await this.uploadSingleVehicleImage(vehicleId, image);
+        image.uploaded = true;
+      } catch {
+        image.uploaded = false;
+      }
+    }
+  }
+
+  private clearFormVehicleImages() {
+    for (const img of this.formVehicleImages) {
+      if (img.previewUrl) {
+        URL.revokeObjectURL(img.previewUrl);
+      }
+    }
+
+    this.formVehicleImages = [];
+  }
+
+  uploadVehicleDocument(event: any, controlName: string, uploadKey: string) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    this.vehicleDocsUploading[uploadKey] = true;
+
+    this.service.uploadVehicleDocument(file).subscribe({
+      next: async (res: any) => {
+        this.vehicleDocsUploading[uploadKey] = false;
+
+        const path =
+          res?.filePath ||
+          res?.path ||
+          res?.url ||
+          '';
+
+        this.form.patchValue({
+          [controlName]: path
+        });
+
+        event.target.value = '';
+
+        await this.presentToast('Document uploaded successfully.', 'success');
+      },
+      error: async (e: any) => {
+        this.vehicleDocsUploading[uploadKey] = false;
+        event.target.value = '';
+
+        await this.presentToast(
+          e?.error || 'Document upload failed.',
+          'danger'
+        );
+      }
+    });
+  }
+
+  editVehicle(vehicle: any) {
+    this.resetVehicleForm();
+
+    this.isEditMode = true;
+    this.editingVehicleId = vehicle.id;
+    this.showForm = true;
+
+    this.tLatitude = vehicle.latitude || null;
+    this.tLongitude = vehicle.longitude || null;
+    this.address = vehicle.address || vehicle.streetAddress || '';
+    this.selectedProvinceName = '';
+
+    this.form.patchValue({
+      CountryId: 1,
+      Location: vehicle.address || vehicle.streetAddress || '',
+      City: vehicle.city || '',
+      PostalCode: vehicle.postalCode || '',
+
+      VN: vehicle.vn || vehicle.vN || '',
+      Year: vehicle.year || '',
+      Make: vehicle.makeId || vehicle.vehicleMakeId || '',
+      Model: vehicle.modelId || vehicle.vehicleModelId || '',
+      Odometer: vehicle.odometerId || vehicle.vehicleOdometerId || '',
+      NumberPlate: vehicle.numberPlate || '',
+      Color: vehicle.colorId || vehicle.vehicleColorId || '',
+      Transmission: vehicle.transmission || '',
+
+      MarketValue: vehicle.rate || vehicle.marketValue || 0,
+      VehicleValueAmount: vehicle.vehicleValueAmount || 0,
+
+      OwnerIdNumber: vehicle.ownerIdNumber || '',
+      OwnerName: vehicle.ownerFirstName || vehicle.ownerName || '',
+      OwnerSurname: vehicle.ownerSurname || '',
+      OwnerEmail: vehicle.ownerEmail || '',
+      OwnerCellNumber: vehicle.ownerCellNumber || '',
+
+      LicenceDiscFile: vehicle.licenceDiscFile || '',
+      NumPlateFile: vehicle.numPlateFile || '',
+      InsurancePolicyDocument: vehicle.insurancePolicyDocument || '',
+
+      IsInsured: vehicle.isInsured === true,
+      IsTracker: vehicle.isTracker === true,
+      IsTrackerFitted: vehicle.isTrackerFitted === true,
+
+      DiscDescription: vehicle.discDescription || '',
+
+      TrackerCompany: vehicle.trackerCompany || '',
+      TrackerCertificateDocument: vehicle.trackerCertificateDocument || ''
+    });
+
+    if (this.form.value.Make) {
+      const modelValue = vehicle.modelId || vehicle.vehicleModelId || '';
+
+      this.searchModel(this.form.value.Make, modelValue);
+    }
+
+    setTimeout(() => this.initGooglePlaces(), 500);
+  }
 
   private loadDropdowns() {
     this.service.getColors().subscribe({
@@ -368,28 +608,6 @@ editVehicle(vehicle: any) {
     });
   }
 
-  cancelEdit() {
-  this.isEditMode = false;
-  this.editingVehicleId = null;
-  this.showVinExample = false;
-  this.isOwner = false;
-
-  this.form.reset({
-    CountryId: 1,
-    VN: '',
-    MarketValue: 0,
-    VehicleValueAmount: 0,
-    IsInsured: false,
-    IsTracker: false,
-    IsTrackerFitted: false
-  });
-
-  this.address = '';
-  this.selectedProvinceName = '';
-  this.tLatitude = null;
-  this.tLongitude = null;
-}
-
   loadHostedCars(event?: any) {
     if (!this.userId) {
       event?.target?.complete?.();
@@ -412,16 +630,16 @@ editVehicle(vehicle: any) {
     });
   }
 
-  searchModel(makeId: any) {
+  searchModel(makeId: any, selectedModelId?: any) {
     this.models = [];
 
-    this.form.patchValue({
-      Model: ''
-    });
-
-    if (!makeId) {
-      return;
+    if (!selectedModelId) {
+      this.form.patchValue({
+        Model: ''
+      });
     }
+
+    if (!makeId) return;
 
     this.service.getVehicleModelsByMake(makeId).subscribe({
       next: (resp: any) => {
@@ -429,6 +647,12 @@ editVehicle(vehicle: any) {
           label: t.modelName,
           value: t.vehicleModelId
         }));
+
+        if (selectedModelId) {
+          this.form.patchValue({
+            Model: selectedModelId
+          });
+        }
       },
       error: async (e: any) => {
         await this.presentToast(e?.error || 'Failed to load models', 'danger');
@@ -470,15 +694,11 @@ editVehicle(vehicle: any) {
 
     const ionInput = document.getElementById('garage-location-search') as any;
 
-    if (!ionInput) {
-      return;
-    }
+    if (!ionInput) return;
 
     const inputElement = await ionInput.getInputElement();
 
-    if (!inputElement) {
-      return;
-    }
+    if (!inputElement) return;
 
     this.autocomplete = new google.maps.places.Autocomplete(inputElement, {
       componentRestrictions: {
@@ -494,9 +714,7 @@ editVehicle(vehicle: any) {
     this.autocomplete.addListener('place_changed', () => {
       const place = this.autocomplete.getPlace();
 
-      if (!place.geometry || !place.geometry.location) {
-        return;
-      }
+      if (!place.geometry || !place.geometry.location) return;
 
       const lat = place.geometry.location.lat();
       const lng = place.geometry.location.lng();
@@ -566,18 +784,12 @@ editVehicle(vehicle: any) {
   }
 
   statusText(v: any): string {
-    if (v.isRejected || v.rejected) {
-      return 'Rejected';
-    }
-
+    if (v.isRejected || v.rejected) return 'Rejected';
     return v.accepted ? 'Approved' : 'Pending';
   }
 
   statusColor(v: any): string {
-    if (v.isRejected || v.rejected) {
-      return 'danger';
-    }
-
+    if (v.isRejected || v.rejected) return 'danger';
     return v.accepted ? 'success' : 'warning';
   }
 
@@ -593,6 +805,12 @@ editVehicle(vehicle: any) {
     });
 
     await modal.present();
+
+    const result = await modal.onDidDismiss();
+
+    if (result) {
+      this.loadHostedCars();
+    }
   }
 
   async listCar() {
@@ -664,36 +882,35 @@ editVehicle(vehicle: any) {
       DiscDescription: this.form.value.DiscDescription,
 
       TrackerCompany: this.form.value.TrackerCompany,
-      TrackerCertificateDocument: this.form.value.TrackerCertificateDocument,
-
+      TrackerCertificateDocument: this.form.value.TrackerCertificateDocument
     };
 
     const request$ = this.isEditMode && this.editingVehicleId
-  ? this.service.updateVehicle(this.editingVehicleId, payload)
-  : this.service.saveVehicle(payload);
+      ? this.service.updateVehicle(this.editingVehicleId, payload)
+      : this.service.saveVehicle(payload);
 
-request$.subscribe({
-      next: async () => {
+    request$.subscribe({
+      next: async (res: any) => {
+        const savedVehicleId =
+          this.editingVehicleId ||
+          res?.id ||
+          res?.vehicleId ||
+          res?.vehicleHostId ||
+          res?.data?.id ||
+          res?.data?.vehicleId;
+
+        if (savedVehicleId && this.formVehicleImages.length > 0) {
+          await this.uploadPendingVehicleImages(savedVehicleId);
+        }
+
         this.loading = false;
 
         await this.presentToast(
-  this.isEditMode ? 'Vehicle updated successfully!' : 'Vehicle submitted successfully!',
-  'success'
-);
+          this.isEditMode ? 'Vehicle updated successfully!' : 'Vehicle submitted successfully!',
+          'success'
+        );
 
-this.isEditMode = false;
-this.editingVehicleId = null;
-
-        this.form.reset({
-          CountryId: 1,
-          MarketValue: 0,
-          VehicleValueAmount: 0
-        });
-
-        this.address = '';
-        this.selectedProvinceName = '';
-        this.tLatitude = null;
-        this.tLongitude = null;
+        this.resetVehicleForm();
         this.showForm = false;
 
         this.loadHostedCars();
@@ -707,6 +924,24 @@ this.editingVehicleId = null;
         );
       }
     });
+  }
+
+  base64ToBlob(base64: string, contentType: string) {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      byteArrays.push(new Uint8Array(byteNumbers));
+    }
+
+    return new Blob(byteArrays, { type: contentType });
   }
 
   private async presentToast(
@@ -747,6 +982,11 @@ this.editingVehicleId = null;
       </ion-refresher>
 
       <div class="ion-padding">
+        <ion-button expand="block" color="dark" (click)="addImage()">
+          <ion-icon name="images-outline" slot="start"></ion-icon>
+          Add More Photos
+        </ion-button>
+
         <ion-text *ngIf="images.length === 0">
           <p>No images uploaded yet.</p>
         </ion-text>
@@ -798,6 +1038,7 @@ this.editingVehicleId = null;
     swiper-container {
       width: 100%;
       height: auto;
+      margin-top: 14px;
     }
 
     ion-img {
@@ -815,7 +1056,6 @@ this.editingVehicleId = null;
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HostImagesModalComponent implements OnInit {
-
   vehicleId!: string;
   title = 'Vehicle Images';
 
@@ -833,22 +1073,22 @@ export class HostImagesModalComponent implements OnInit {
   }
 
   close() {
-    this.modalCtrl.dismiss();
+    this.modalCtrl.dismiss(true);
   }
 
   async addImage() {
     const action = await this.actionSheetCtrl.create({
-      header: 'Add Vehicle Image',
+      header: 'Add Vehicle Images',
       buttons: [
         {
           text: 'Take Photo',
           icon: 'camera',
-          handler: () => this.captureImage(CameraSource.Camera)
+          handler: () => this.captureSingleImage()
         },
         {
-          text: 'Choose From Gallery',
+          text: 'Choose Multiple From Gallery',
           icon: 'images',
-          handler: () => this.captureImage(CameraSource.Photos)
+          handler: () => this.pickMultipleImages()
         },
         {
           text: 'Cancel',
@@ -860,41 +1100,79 @@ export class HostImagesModalComponent implements OnInit {
     await action.present();
   }
 
-  async captureImage(source: CameraSource) {
+  async captureSingleImage() {
     try {
       const image = await Camera.getPhoto({
         quality: 85,
         allowEditing: false,
         resultType: CameraResultType.Base64,
-        source
+        source: CameraSource.Camera
       });
 
-      if (!image.base64String) {
-        return;
-      }
+      if (!image.base64String) return;
 
       const blob = this.base64ToBlob(
         image.base64String,
         `image/${image.format}`
       );
 
+      await this.uploadImageBlob(blob, `vehicle-${Date.now()}.${image.format}`);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async pickMultipleImages() {
+    try {
+      const result = await Camera.pickImages({
+        quality: 85,
+        limit: 10
+      });
+
+      if (!result.photos || result.photos.length === 0) return;
+
+      for (const photo of result.photos) {
+        if (!photo.webPath) continue;
+
+        const response = await fetch(photo.webPath);
+        const blob = await response.blob();
+        const format = photo.format || this.getImageExtension(blob.type);
+
+        await this.uploadImageBlob(
+          blob,
+          `vehicle-${Date.now()}-${Math.floor(Math.random() * 9999)}.${format}`
+        );
+      }
+
+      this.load();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private getImageExtension(mimeType: string) {
+    if (mimeType.includes('png')) return 'png';
+    if (mimeType.includes('webp')) return 'webp';
+    return 'jpg';
+  }
+
+  private async uploadImageBlob(blob: Blob, filename: string): Promise<void> {
+    return new Promise((resolve, reject) => {
       const formData = new FormData();
       formData.append('vehicleId', this.vehicleId);
-      formData.append('file', blob, `vehicle-${Date.now()}.${image.format}`);
+      formData.append('file', blob, filename);
 
       this.service.uploadVehicleImage(formData).subscribe({
         next: async () => {
           await this.presentToast('Image uploaded successfully', 'success');
-          this.load();
+          resolve();
         },
         error: async () => {
           await this.presentToast('Upload failed', 'danger');
+          reject();
         }
       });
-
-    } catch (e) {
-      console.error(e);
-    }
+    });
   }
 
   deleteImage(img: VehicleImage) {

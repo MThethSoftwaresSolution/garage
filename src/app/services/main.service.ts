@@ -239,8 +239,8 @@ getVehicleHost(userId: string) {
       map((vs:any) =>
         vs.map((v: any) => ({
           ...v,
-          coverImage: environment.baseUrl + v.coverImage
-            ? environment.baseUrl + v.coverImage
+          coverImage: v.coverImage
+            ? this.buildImageUrl(v.coverImage)
             : null
         }))
       )

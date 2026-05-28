@@ -40,36 +40,24 @@
 
       <div class="timeline-line" [class.active]="exchange?.status"></div>
 
-      <div
-        class="timeline-step"
-        [class.done]="exchange?.status === 'CONFIRMED' || exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'"
-      >
+      <div class="timeline-step"
+        [class.done]="exchange?.status === 'CONFIRMED' || exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'">
         <span>2</span>
         <p>Confirm</p>
       </div>
 
-      <div
-        class="timeline-line"
-        [class.active]="exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'"
-      ></div>
+      <div class="timeline-line"
+        [class.active]="exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'"></div>
 
-      <div
-        class="timeline-step"
-        [class.done]="exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'"
-      >
+      <div class="timeline-step"
+        [class.done]="exchange?.status === 'CHECKOUT_DONE' || exchange?.status === 'COMPLETED'">
         <span>3</span>
         <p>Pickup</p>
       </div>
 
-      <div
-        class="timeline-line"
-        [class.active]="exchange?.status === 'COMPLETED'"
-      ></div>
+      <div class="timeline-line" [class.active]="exchange?.status === 'COMPLETED'"></div>
 
-      <div
-        class="timeline-step"
-        [class.done]="exchange?.status === 'COMPLETED'"
-      >
+      <div class="timeline-step" [class.done]="exchange?.status === 'COMPLETED'">
         <span>4</span>
         <p>Return</p>
       </div>
@@ -103,11 +91,8 @@
 
       <ion-item class="premium-input location-input">
         <ion-label position="stacked">Pickup Location</ion-label>
-        <ion-input
-          placeholder="Search Google Places"
-          [(ngModel)]="location"
-          (ionInput)="onLocationInput()"
-        ></ion-input>
+        <ion-input placeholder="Search Google Places" [(ngModel)]="location"
+          (ionInput)="onLocationInput($event)"></ion-input>
       </ion-item>
 
       <div class="places-box" *ngIf="searchingPlaces || placePredictions.length > 0">
@@ -116,12 +101,7 @@
           <span>Searching places...</span>
         </div>
 
-        <button
-          type="button"
-          class="place-row"
-          *ngFor="let place of placePredictions"
-          (click)="selectPlace(place)"
-        >
+        <button type="button" class="place-row" *ngFor="let place of placePredictions" (click)="selectPlace(place)">
           <ion-icon name="location-outline"></ion-icon>
 
           <div>
@@ -140,12 +120,7 @@
         <span>Google place selected</span>
       </div>
 
-      <ion-button
-        expand="block"
-        class="black-btn"
-        [disabled]="!canStartExchange()"
-        (click)="startExchange()"
-      >
+      <ion-button expand="block" class="black-btn" [disabled]="!canStartExchange()" (click)="startExchange()">
         <ion-spinner *ngIf="submitting" name="crescent"></ion-spinner>
         <span *ngIf="!submitting">Propose Meeting</span>
       </ion-button>
@@ -176,22 +151,11 @@
       </p>
 
       <div *ngIf="isHost() && exchange.proposedBy === 'driver'" class="action-grid">
-        <ion-button
-          expand="block"
-          class="black-btn"
-          [disabled]="submitting"
-          (click)="accept()"
-        >
+        <ion-button expand="block" class="black-btn" [disabled]="submitting" (click)="accept()">
           Accept
         </ion-button>
 
-        <ion-button
-          expand="block"
-          fill="outline"
-          color="danger"
-          [disabled]="submitting"
-          (click)="reject()"
-        >
+        <ion-button expand="block" fill="outline" color="danger" [disabled]="submitting" (click)="reject()">
           Reject
         </ion-button>
       </div>
@@ -224,12 +188,7 @@
             <p>{{ images.length }}/4 minimum photos uploaded</p>
           </div>
 
-          <ion-button
-            fill="clear"
-            class="mini-action"
-            [disabled]="uploading"
-            (click)="takePhoto()"
-          >
+          <ion-button fill="clear" class="mini-action" [disabled]="uploading" (click)="takePhoto()">
             <ion-icon name="camera-outline"></ion-icon>
             Photo
           </ion-button>
@@ -250,21 +209,102 @@
         </div>
       </div>
 
+      <div class="reading-grid">
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Pickup Mileage (KM)</ion-label>
+
+          <ion-input type="number" [(ngModel)]="pickupMileage">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Fuel Level</ion-label>
+
+          <ion-select [(ngModel)]="pickupFuelLevel">
+            <ion-select-option *ngFor="let fuel of fuelLevels" [value]="fuel">
+              {{ fuel }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Exterior Condition</ion-label>
+
+          <ion-select [(ngModel)]="pickupExterior">
+            <ion-select-option *ngFor="let c of conditionOptions" [value]="c">
+              {{ c }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Interior Condition</ion-label>
+
+          <ion-select [(ngModel)]="pickupInterior">
+            <ion-select-option *ngFor="let c of conditionOptions" [value]="c">
+              {{ c }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+      </div>
+
+      <div class="checks-grid">
+
+  <ion-item class="premium-input">
+    <ion-checkbox
+      slot="start"
+      [(ngModel)]="pickupHasScratches">
+    </ion-checkbox>
+
+    <ion-label>Existing Scratches / Damage</ion-label>
+  </ion-item>
+
+  <ion-item class="premium-input">
+    <ion-checkbox
+      slot="start"
+      [(ngModel)]="pickupHasWarningLights">
+    </ion-checkbox>
+
+    <ion-label>Warning Lights Visible</ion-label>
+  </ion-item>
+
+  <ion-item class="premium-input">
+    <ion-checkbox
+      slot="start"
+      [(ngModel)]="pickupSpareWheelPresent">
+    </ion-checkbox>
+
+    <ion-label>Spare Wheel Present</ion-label>
+  </ion-item>
+
+  <ion-item class="premium-input">
+    <ion-checkbox
+      slot="start"
+      [(ngModel)]="pickupJackToolsPresent">
+    </ion-checkbox>
+
+    <ion-label>Jack / Tools Present</ion-label>
+  </ion-item>
+
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Keys Received</ion-label>
+
+    <ion-input
+      type="number"
+      [(ngModel)]="pickupKeysGiven">
+    </ion-input>
+  </ion-item>
+
+</div>
+
       <ion-item class="premium-input">
         <ion-label position="stacked">Pickup Notes</ion-label>
-        <ion-textarea
-          rows="4"
-          placeholder="Fuel level, scratches, mileage, condition..."
-          [(ngModel)]="notes"
-        ></ion-textarea>
+        <ion-textarea rows="4" placeholder="Pick up notes..." [(ngModel)]="notes"></ion-textarea>
       </ion-item>
 
-      <ion-button
-        expand="block"
-        class="black-btn"
-        [disabled]="submitting || !isDriver()"
-        (click)="checkout()"
-      >
+      <ion-button expand="block" class="black-btn" [disabled]="submitting || !isDriver()" (click)="checkout()">
         <ion-spinner *ngIf="submitting" name="crescent"></ion-spinner>
         <span *ngIf="!submitting">Complete Pickup</span>
       </ion-button>
@@ -300,12 +340,7 @@
             <p>{{ images.length }}/4 minimum photos uploaded</p>
           </div>
 
-          <ion-button
-            fill="clear"
-            class="mini-action"
-            [disabled]="uploading"
-            (click)="takePhoto()"
-          >
+          <ion-button fill="clear" class="mini-action" [disabled]="uploading" (click)="takePhoto()">
             <ion-icon name="camera-outline"></ion-icon>
             Photo
           </ion-button>
@@ -326,22 +361,94 @@
         </div>
       </div>
 
+      <div class="reading-grid">
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Return Mileage (KM)</ion-label>
+
+          <ion-input type="number" [(ngModel)]="returnMileage">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Fuel Level</ion-label>
+
+          <ion-select [(ngModel)]="returnFuelLevel">
+            <ion-select-option *ngFor="let fuel of fuelLevels" [value]="fuel">
+              {{ fuel }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Exterior Condition</ion-label>
+
+          <ion-select [(ngModel)]="returnExterior">
+            <ion-select-option *ngFor="let c of conditionOptions" [value]="c">
+              {{ c }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="premium-input">
+          <ion-label position="stacked">Interior Condition</ion-label>
+
+          <ion-select [(ngModel)]="returnInterior">
+            <ion-select-option *ngFor="let c of conditionOptions" [value]="c">
+              {{ c }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+      </div>
+
+      <div class="checks-grid">
+
+  <ion-item class="premium-input">
+    <ion-checkbox
+      slot="start"
+      [(ngModel)]="returnNewDamageDetected">
+    </ion-checkbox>
+
+    <ion-label>New Damage Detected</ion-label>
+  </ion-item>
+
+  <ion-item class="premium-input">
+    <ion-checkbox
+      slot="start"
+      [(ngModel)]="returnMissingItems">
+    </ion-checkbox>
+
+    <ion-label>Missing Items</ion-label>
+  </ion-item>
+
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Estimated Damage Amount</ion-label>
+
+    <ion-input
+      type="number"
+      [(ngModel)]="returnEstimatedDamageAmount">
+    </ion-input>
+  </ion-item>
+
+  <ion-item class="premium-input">
+    <ion-label position="stacked">Keys Returned</ion-label>
+
+    <ion-input
+      type="number"
+      [(ngModel)]="returnKeysReturned">
+    </ion-input>
+  </ion-item>
+
+</div>
+
       <ion-item class="premium-input">
         <ion-label position="stacked">Return Notes</ion-label>
-        <ion-textarea
-          rows="4"
-          placeholder="Returned condition, fuel level, mileage..."
-          [(ngModel)]="notes"
-        ></ion-textarea>
+        <ion-textarea rows="4" placeholder="Returned condition notes..." [(ngModel)]="notes"></ion-textarea>
       </ion-item>
 
-      <ion-button
-        expand="block"
-        color="success"
-        class="success-btn"
-        [disabled]="submitting || !isHost()"
-        (click)="checkin()"
-      >
+      <ion-button expand="block" color="success" class="success-btn" [disabled]="submitting || !isHost()"
+        (click)="checkin()">
         <ion-spinner *ngIf="submitting" name="crescent"></ion-spinner>
         <span *ngIf="!submitting">Complete Return</span>
       </ion-button>

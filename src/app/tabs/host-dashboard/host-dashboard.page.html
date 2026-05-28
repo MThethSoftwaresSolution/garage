@@ -9,7 +9,7 @@
     <ion-title>Fleet</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button class="header-action" (click)="toggleForm()">
+      <ion-button class="header-action" (click)="showForm ? toggleForm() : startNewVehicle()">
         <ion-icon [name]="showForm ? 'close-outline' : 'add-outline'"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -28,7 +28,7 @@
       Add your car, select its location, upload photos and submit for Garage approval.
     </p>
 
-    <ion-button expand="block" class="primary-cta" (click)="toggleForm()">
+    <ion-button expand="block" class="primary-cta" (click)="showForm ? toggleForm() : startNewVehicle()">
       <ion-icon [name]="showForm ? 'chevron-up-outline' : 'add-circle-outline'" slot="start"></ion-icon>
       {{ showForm ? 'Hide Form' : 'Host Vehicle' }}
     </ion-button>
@@ -48,20 +48,18 @@
   <section *ngIf="showForm" class="premium-form-card">
     <form [formGroup]="form">
       <div class="form-top">
-  <div>
-    <p class="eyebrow dark">
-      {{ isEditMode ? 'Vehicle resubmission' : 'Vehicle onboarding' }}
-    </p>
+        <div>
+          <p class="eyebrow dark">
+            {{ isEditMode ? 'Vehicle resubmission' : 'Vehicle onboarding' }}
+          </p>
 
-    <h2>
-      {{ isEditMode ? 'Edit Vehicle' : 'Host / Add Vehicle' }}
-    </h2>
-  </div>
+          <h2>{{ isEditMode ? 'Edit Vehicle' : 'Host / Add Vehicle' }}</h2>
+        </div>
 
-  <ion-badge color="dark">
-    {{ isEditMode ? 'Resubmission' : 'Review Required' }}
-  </ion-badge>
-</div>
+        <ion-badge color="dark">
+          {{ isEditMode ? 'Resubmission' : 'Review Required' }}
+        </ion-badge>
+      </div>
 
       <div class="section-block">
         <div class="section-title">
@@ -99,233 +97,180 @@
         </div>
 
         <div class="field-group">
-<ion-input
-  formControlName="VN"
-  fill="outline"
-  label="VIN / Chassis Number"
-  labelPlacement="floating"
-  maxlength="17"
-  autocapitalize="characters"
-  placeholder="AA9ZZZ12345678901"
-  helperText="17 characters • No spaces • No I, O or Q"
-  (ionBlur)="formatVin()">
-</ion-input>
+          <ion-input
+            formControlName="VN"
+            fill="outline"
+            label="VIN / Chassis Number"
+            labelPlacement="floating"
+            maxlength="17"
+            autocapitalize="characters"
+            placeholder="AA9ZZZ12345678901"
+            helperText="17 characters • No spaces • No I, O or Q"
+            (ionBlur)="formatVin()">
+          </ion-input>
 
-<button
-  type="button"
-  class="vin-toggle-btn"
-  (click)="showVinExample = !showVinExample">
+          <button type="button" class="vin-toggle-btn" (click)="showVinExample = !showVinExample">
+            <ion-icon [name]="showVinExample ? 'chevron-up-outline' : 'information-circle-outline'"></ion-icon>
+            {{ showVinExample ? 'Hide Example' : 'Show Example' }}
+          </button>
 
-  <ion-icon
-    [name]="showVinExample ? 'chevron-up-outline' : 'information-circle-outline'">
-  </ion-icon>
+          <div class="vin-example-card" *ngIf="showVinExample">
+            <div class="vin-example-icon">
+              <ion-icon name="car-sport-outline"></ion-icon>
+            </div>
 
-  {{ showVinExample ? 'Hide Example' : 'Show Example' }}
-</button>
-
-<div class="vin-example-card" *ngIf="showVinExample">
-  <div class="vin-example-icon">
-    <ion-icon name="car-sport-outline"></ion-icon>
-  </div>
-
-  <div class="vin-example-content">
-    <small>Example VIN / Chassis Number</small>
-
-    <strong>AA9ZZZ12345678901</strong>
-
-    <p>
-      Usually found on your licence disc, registration papers,
-      engine bay or dashboard near the windscreen.
-    </p>
-  </div>
-</div>
-
-<p
-  class="field-error"
-  *ngIf="form.get('VN')?.hasError('required') && form.get('VN')?.touched">
-  VIN / Chassis number is required.
-</p>
-
-<p
-  class="field-error"
-  *ngIf="form.get('VN')?.hasError('invalidVin') && form.get('VN')?.touched">
-  VIN must be exactly 17 characters and cannot contain I, O or Q.
-</p>
-
-          <div class="two-col">
-            <ion-select formControlName="Year" fill="outline" label="Year" labelPlacement="floating" interface="action-sheet">
-              <ion-select-option *ngFor="let y of years" [value]="y.value">
-                {{ y.label }}
-              </ion-select-option>
-            </ion-select>
-
-            <ion-select formControlName="Transmission" fill="outline" label="Transmission" labelPlacement="floating" interface="action-sheet">
-              <ion-select-option *ngFor="let tr of transmissions" [value]="tr.value">
-                {{ tr.label }}
-              </ion-select-option>
-            </ion-select>
+            <div class="vin-example-content">
+              <small>Example VIN / Chassis Number</small>
+              <strong>AA9ZZZ12345678901</strong>
+              <p>Usually found on your licence disc, registration papers, engine bay or dashboard near the windscreen.</p>
+            </div>
           </div>
 
-          <ion-select
-            formControlName="Make"
-            fill="outline"
-            label="Make"
-            labelPlacement="floating"
-            interface="action-sheet"
-            (ionChange)="searchModel($event.detail.value)">
-            <ion-select-option *ngFor="let m of makes" [value]="m.value">
-              {{ m.label }}
-            </ion-select-option>
-          </ion-select>
+          <p class="field-error" *ngIf="form.get('VN')?.hasError('required') && form.get('VN')?.touched">
+            VIN / Chassis number is required.
+          </p>
 
-          <ion-select formControlName="Model" fill="outline" label="Model" labelPlacement="floating" interface="action-sheet">
-            <ion-select-option *ngFor="let md of models" [value]="md.value">
-              {{ md.label }}
-            </ion-select-option>
-          </ion-select>
+          <p class="field-error" *ngIf="form.get('VN')?.hasError('invalidVin') && form.get('VN')?.touched">
+            VIN must be exactly 17 characters and cannot contain I, O or Q.
+          </p>
 
           <div class="two-col">
-            <ion-select formControlName="Odometer" fill="outline" label="Odometer" labelPlacement="floating" interface="action-sheet">
-              <ion-select-option *ngFor="let o of odometers" [value]="o.value">
-                {{ o.label }}
-              </ion-select-option>
-            </ion-select>
+            <div class="fake-select" (click)="openPicker('Select Year', 'Year', years)">
+              <label>Year</label>
+              <strong>{{ getPickerLabel('Year', years) }}</strong>
+              <ion-icon name="chevron-down-outline"></ion-icon>
+            </div>
 
-            <ion-select formControlName="Color" fill="outline" label="Color" labelPlacement="floating" interface="action-sheet">
-              <ion-select-option *ngFor="let c of colors" [value]="c.value">
-                {{ c.label }}
-              </ion-select-option>
-            </ion-select>
+            <div class="fake-select" (click)="openPicker('Select Transmission', 'Transmission', transmissions)">
+              <label>Transmission</label>
+              <strong>{{ getPickerLabel('Transmission', transmissions) }}</strong>
+              <ion-icon name="chevron-down-outline"></ion-icon>
+            </div>
+          </div>
+
+          <div class="fake-select" (click)="openPicker('Select Make', 'Make', makes)">
+            <label>Make</label>
+            <strong>{{ getPickerLabel('Make', makes) }}</strong>
+            <ion-icon name="chevron-down-outline"></ion-icon>
+          </div>
+
+          <div class="fake-select" (click)="openPicker('Select Model', 'Model', models)">
+            <label>Model</label>
+            <strong>{{ getPickerLabel('Model', models) }}</strong>
+            <ion-icon name="chevron-down-outline"></ion-icon>
+          </div>
+
+          <div class="two-col">
+            <div class="fake-select" (click)="openPicker('Select Odometer', 'Odometer', odometers)">
+              <label>Odometer</label>
+              <strong>{{ getPickerLabel('Odometer', odometers) }}</strong>
+              <ion-icon name="chevron-down-outline"></ion-icon>
+            </div>
+
+            <div class="fake-select" (click)="openPicker('Select Color', 'Color', colors)">
+              <label>Color</label>
+              <strong>{{ getPickerLabel('Color', colors) }}</strong>
+              <ion-icon name="chevron-down-outline"></ion-icon>
+            </div>
           </div>
 
           <ion-input formControlName="NumberPlate" fill="outline" label="Number Plate" labelPlacement="floating"></ion-input>
 
           <div class="two-col">
-            <ion-input
-              type="number"
-              formControlName="VehicleValueAmount"
-              fill="outline"
-              label="Vehicle Value (R)"
-              labelPlacement="floating">
-            </ion-input>
-
-            <ion-input
-              type="number"
-              formControlName="MarketValue"
-              fill="outline"
-              label="Rate / Day (R)"
-              labelPlacement="floating">
-            </ion-input>
+            <ion-input type="number" formControlName="VehicleValueAmount" fill="outline" label="Vehicle Value (R)" labelPlacement="floating"></ion-input>
+            <ion-input type="number" formControlName="MarketValue" fill="outline" label="Rate / Day (R)" labelPlacement="floating"></ion-input>
           </div>
         </div>
       </div>
 
       <div class="section-block">
-  <div class="section-title">
-    <ion-icon name="shield-checkmark-outline"></ion-icon>
-    <div>
-      <h3>Compliance & Insurance</h3>
-      <p>Upload vehicle licence disc, insurance and tracker documents.</p>
-    </div>
-  </div>
-
-  <div class="field-group">
-
-    <label class="doc-upload-card">
-      <div>
-        <ion-icon name="document-attach-outline"></ion-icon>
-        <strong>Licence Disc Picture</strong>
-        <span>{{ form.get('LicenceDiscFile')?.value ? 'Uploaded' : 'Required' }}</span>
-      </div>
-
-      <ion-spinner *ngIf="vehicleDocsUploading.licenceDiscFile" name="crescent"></ion-spinner>
-      <ion-icon *ngIf="!vehicleDocsUploading.licenceDiscFile && form.get('LicenceDiscFile')?.value" name="checkmark-circle"></ion-icon>
-      <ion-icon *ngIf="!vehicleDocsUploading.licenceDiscFile && !form.get('LicenceDiscFile')?.value" name="cloud-upload-outline"></ion-icon>
-
-      <input type="file" accept="image/*,.pdf" hidden
-        (change)="uploadVehicleDocument($event, 'LicenceDiscFile', 'licenceDiscFile')" />
-    </label>
-
-    <ion-textarea
-      formControlName="DiscDescription"
-      fill="outline"
-      label="Licence Disc Notes"
-      labelPlacement="floating"
-      placeholder="Optional notes about the disc or vehicle document">
-    </ion-textarea>
-
-    <ion-item lines="none" class="owner-check">
-      <ion-checkbox formControlName="IsInsured" slot="start"></ion-checkbox>
-      <ion-label>This vehicle is insured</ion-label>
-    </ion-item>
-
-    <label class="doc-upload-card" *ngIf="form.get('IsInsured')?.value">
-      <div>
-        <ion-icon name="shield-outline"></ion-icon>
-        <strong>Insurance Policy Document</strong>
-        <span>{{ form.get('InsurancePolicyDocument')?.value ? 'Uploaded' : 'Upload insurance document' }}</span>
-      </div>
-
-      <ion-spinner *ngIf="vehicleDocsUploading.insurancePolicyDocument" name="crescent"></ion-spinner>
-      <ion-icon *ngIf="!vehicleDocsUploading.insurancePolicyDocument && form.get('InsurancePolicyDocument')?.value" name="checkmark-circle"></ion-icon>
-      <ion-icon *ngIf="!vehicleDocsUploading.insurancePolicyDocument && !form.get('InsurancePolicyDocument')?.value" name="cloud-upload-outline"></ion-icon>
-
-      <input type="file" accept="image/*,.pdf" hidden
-        (change)="uploadVehicleDocument($event, 'InsurancePolicyDocument', 'insurancePolicyDocument')" />
-    </label>
-
-    <ion-item lines="none" class="owner-check">
-      <ion-checkbox formControlName="IsTracker" slot="start"></ion-checkbox>
-      <ion-label>Vehicle has a tracker</ion-label>
-    </ion-item>
-
-    <div class="tracker-box" *ngIf="form.get('IsTracker')?.value">
-      <ion-input
-        formControlName="TrackerCompany"
-        fill="outline"
-        label="Tracker Company"
-        labelPlacement="floating"
-        placeholder="Example: Tracker, Netstar, Cartrack">
-      </ion-input>
-
-      <ion-item lines="none" class="owner-check">
-        <ion-checkbox formControlName="IsTrackerFitted" slot="start"></ion-checkbox>
-        <ion-label>Tracker is fitted and active</ion-label>
-      </ion-item>
-
-      <label class="doc-upload-card">
-        <div>
-          <ion-icon name="radio-outline"></ion-icon>
-          <strong>Tracker Certificate</strong>
-          <span>{{ form.get('TrackerCertificateDocument')?.value ? 'Uploaded' : 'Upload tracker certificate' }}</span>
+        <div class="section-title">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <div>
+            <h3>Compliance & Insurance</h3>
+            <p>Upload vehicle licence disc, insurance and tracker documents.</p>
+          </div>
         </div>
 
-        <ion-spinner *ngIf="vehicleDocsUploading.trackerCertificateDocument" name="crescent"></ion-spinner>
-        <ion-icon *ngIf="!vehicleDocsUploading.trackerCertificateDocument && form.get('TrackerCertificateDocument')?.value" name="checkmark-circle"></ion-icon>
-        <ion-icon *ngIf="!vehicleDocsUploading.trackerCertificateDocument && !form.get('TrackerCertificateDocument')?.value" name="cloud-upload-outline"></ion-icon>
+        <div class="field-group">
+          <label class="doc-upload-card">
+            <div>
+              <ion-icon name="document-attach-outline"></ion-icon>
+              <strong>Licence Disc Picture</strong>
+              <span>{{ form.get('LicenceDiscFile')?.value ? 'Uploaded' : 'Required' }}</span>
+            </div>
 
-        <input type="file" accept="image/*,.pdf" hidden
-          (change)="uploadVehicleDocument($event, 'TrackerCertificateDocument', 'trackerCertificateDocument')" />
-      </label>
-    </div>
+            <ion-spinner *ngIf="vehicleDocsUploading.licenceDiscFile" name="crescent"></ion-spinner>
+            <ion-icon *ngIf="!vehicleDocsUploading.licenceDiscFile && form.get('LicenceDiscFile')?.value" name="checkmark-circle"></ion-icon>
+            <ion-icon *ngIf="!vehicleDocsUploading.licenceDiscFile && !form.get('LicenceDiscFile')?.value" name="cloud-upload-outline"></ion-icon>
 
-    <label class="doc-upload-card">
-      <div>
-        <ion-icon name="albums-outline"></ion-icon>
-        <strong>Number Plate Picture</strong>
-        <span>{{ form.get('NumPlateFile')?.value ? 'Uploaded' : 'Optional' }}</span>
+            <input type="file" accept="image/*,.pdf" hidden (change)="uploadVehicleDocument($event, 'LicenceDiscFile', 'licenceDiscFile')" />
+          </label>
+
+          <ion-textarea formControlName="DiscDescription" fill="outline" label="Licence Disc Notes" labelPlacement="floating"></ion-textarea>
+
+          <ion-item lines="none" class="owner-check">
+            <ion-checkbox formControlName="IsInsured" slot="start"></ion-checkbox>
+            <ion-label>This vehicle is insured</ion-label>
+          </ion-item>
+
+          <label class="doc-upload-card" *ngIf="form.get('IsInsured')?.value">
+            <div>
+              <ion-icon name="shield-outline"></ion-icon>
+              <strong>Insurance Policy Document</strong>
+              <span>{{ form.get('InsurancePolicyDocument')?.value ? 'Uploaded' : 'Upload insurance document' }}</span>
+            </div>
+
+            <ion-spinner *ngIf="vehicleDocsUploading.insurancePolicyDocument" name="crescent"></ion-spinner>
+            <ion-icon *ngIf="!vehicleDocsUploading.insurancePolicyDocument && form.get('InsurancePolicyDocument')?.value" name="checkmark-circle"></ion-icon>
+            <ion-icon *ngIf="!vehicleDocsUploading.insurancePolicyDocument && !form.get('InsurancePolicyDocument')?.value" name="cloud-upload-outline"></ion-icon>
+
+            <input type="file" accept="image/*,.pdf" hidden (change)="uploadVehicleDocument($event, 'InsurancePolicyDocument', 'insurancePolicyDocument')" />
+          </label>
+
+          <ion-item lines="none" class="owner-check">
+            <ion-checkbox formControlName="IsTracker" slot="start"></ion-checkbox>
+            <ion-label>Vehicle has a tracker</ion-label>
+          </ion-item>
+
+          <div class="tracker-box" *ngIf="form.get('IsTracker')?.value">
+            <ion-input formControlName="TrackerCompany" fill="outline" label="Tracker Company" labelPlacement="floating"></ion-input>
+
+            <ion-item lines="none" class="owner-check">
+              <ion-checkbox formControlName="IsTrackerFitted" slot="start"></ion-checkbox>
+              <ion-label>Tracker is fitted and active</ion-label>
+            </ion-item>
+
+            <label class="doc-upload-card">
+              <div>
+                <ion-icon name="radio-outline"></ion-icon>
+                <strong>Tracker Certificate</strong>
+                <span>{{ form.get('TrackerCertificateDocument')?.value ? 'Uploaded' : 'Upload tracker certificate' }}</span>
+              </div>
+
+              <ion-spinner *ngIf="vehicleDocsUploading.trackerCertificateDocument" name="crescent"></ion-spinner>
+              <ion-icon *ngIf="!vehicleDocsUploading.trackerCertificateDocument && form.get('TrackerCertificateDocument')?.value" name="checkmark-circle"></ion-icon>
+              <ion-icon *ngIf="!vehicleDocsUploading.trackerCertificateDocument && !form.get('TrackerCertificateDocument')?.value" name="cloud-upload-outline"></ion-icon>
+
+              <input type="file" accept="image/*,.pdf" hidden (change)="uploadVehicleDocument($event, 'TrackerCertificateDocument', 'trackerCertificateDocument')" />
+            </label>
+          </div>
+
+          <label class="doc-upload-card">
+            <div>
+              <ion-icon name="albums-outline"></ion-icon>
+              <strong>Number Plate Picture</strong>
+              <span>{{ form.get('NumPlateFile')?.value ? 'Uploaded' : 'Optional' }}</span>
+            </div>
+
+            <ion-spinner *ngIf="vehicleDocsUploading.numPlateFile" name="crescent"></ion-spinner>
+            <ion-icon *ngIf="!vehicleDocsUploading.numPlateFile && form.get('NumPlateFile')?.value" name="checkmark-circle"></ion-icon>
+            <ion-icon *ngIf="!vehicleDocsUploading.numPlateFile && !form.get('NumPlateFile')?.value" name="cloud-upload-outline"></ion-icon>
+
+            <input type="file" accept="image/*,.pdf" hidden (change)="uploadVehicleDocument($event, 'NumPlateFile', 'numPlateFile')" />
+          </label>
+        </div>
       </div>
-
-      <ion-spinner *ngIf="vehicleDocsUploading.numPlateFile" name="crescent"></ion-spinner>
-      <ion-icon *ngIf="!vehicleDocsUploading.numPlateFile && form.get('NumPlateFile')?.value" name="checkmark-circle"></ion-icon>
-      <ion-icon *ngIf="!vehicleDocsUploading.numPlateFile && !form.get('NumPlateFile')?.value" name="cloud-upload-outline"></ion-icon>
-
-      <input type="file" accept="image/*,.pdf" hidden
-        (change)="uploadVehicleDocument($event, 'NumPlateFile', 'numPlateFile')" />
-    </label>
-
-  </div>
-</div>
 
       <div class="section-block">
         <div class="section-title">
@@ -337,65 +282,61 @@
         </div>
 
         <ion-item lines="none" class="owner-check">
-          <ion-checkbox slot="start" (ionChange)="onOwnerCheckboxChange($event)"></ion-checkbox>
+          <ion-checkbox slot="start" [checked]="isOwner" (ionChange)="onOwnerCheckboxChange($event)"></ion-checkbox>
           <ion-label>I am the vehicle owner</ion-label>
         </ion-item>
 
         <div class="field-group">
-          <ion-input
-            formControlName="OwnerIdNumber"
-            [readonly]="isOwner"
-            fill="outline"
-            label="Owner ID Number"
-            labelPlacement="floating">
-          </ion-input>
+          <ion-input formControlName="OwnerIdNumber" [readonly]="isOwner" fill="outline" label="Owner ID Number" labelPlacement="floating"></ion-input>
 
           <div class="two-col">
-            <ion-input
-              formControlName="OwnerName"
-              [readonly]="isOwner"
-              fill="outline"
-              label="Owner Name"
-              labelPlacement="floating">
-            </ion-input>
-
-            <ion-input
-              formControlName="OwnerSurname"
-              [readonly]="isOwner"
-              fill="outline"
-              label="Owner Surname"
-              labelPlacement="floating">
-            </ion-input>
+            <ion-input formControlName="OwnerName" [readonly]="isOwner" fill="outline" label="Owner Name" labelPlacement="floating"></ion-input>
+            <ion-input formControlName="OwnerSurname" [readonly]="isOwner" fill="outline" label="Owner Surname" labelPlacement="floating"></ion-input>
           </div>
 
-          <ion-input
-            formControlName="OwnerCellNumber"
-            [readonly]="isOwner"
-            fill="outline"
-            label="Owner Cell Number"
-            labelPlacement="floating">
-          </ion-input>
-
-          <ion-input
-            type="email"
-            formControlName="OwnerEmail"
-            [readonly]="isOwner"
-            fill="outline"
-            label="Owner Email"
-            labelPlacement="floating">
-          </ion-input>
+          <ion-input formControlName="OwnerCellNumber" [readonly]="isOwner" fill="outline" label="Owner Cell Number" labelPlacement="floating"></ion-input>
+          <ion-input type="email" formControlName="OwnerEmail" [readonly]="isOwner" fill="outline" label="Owner Email" labelPlacement="floating"></ion-input>
         </div>
       </div>
 
-      <ion-button
-  *ngIf="isEditMode"
-  expand="block"
-  fill="outline"
-  color="medium"
-  class="cancel-edit-btn"
-  (click)="cancelEdit()">
-  Cancel Edit
-</ion-button>
+      <div class="section-block vehicle-photo-section">
+        <div class="section-title">
+          <ion-icon name="images-outline"></ion-icon>
+          <div>
+            <h3>Vehicle Photos</h3>
+            <p>Add multiple vehicle photos before submitting.</p>
+          </div>
+        </div>
+
+        <ion-button expand="block" fill="outline" color="dark" (click)="addVehicleFormImage()">
+          <ion-icon name="images-outline" slot="start"></ion-icon>
+          Add Vehicle Photos
+        </ion-button>
+
+        <p class="helper-copy" *ngIf="!isEditMode">
+          Photos will upload automatically after the vehicle is submitted.
+        </p>
+
+        <p class="helper-copy" *ngIf="isEditMode">
+          Photos upload immediately for this existing vehicle.
+        </p>
+
+        <div class="form-image-grid" *ngIf="formVehicleImages.length > 0">
+          <article class="form-image-card" *ngFor="let img of formVehicleImages; let i = index">
+            <img [src]="img.previewUrl" />
+
+            <ion-badge *ngIf="img.uploaded" color="success">Uploaded</ion-badge>
+
+            <ion-button size="small" color="danger" fill="solid" (click)="removeVehicleFormImage(i)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </article>
+        </div>
+      </div>
+
+      <ion-button *ngIf="isEditMode" expand="block" fill="outline" color="medium" class="cancel-edit-btn" (click)="cancelEdit()">
+        Cancel Edit
+      </ion-button>
 
       <ion-button expand="block" class="submit-btn" (click)="listCar()" [disabled]="loading">
         <ion-spinner *ngIf="loading" name="crescent" slot="start"></ion-spinner>
@@ -432,9 +373,7 @@
     <div *ngIf="!loadingList && vehicleHost.length > 0" class="vehicle-grid">
       <article class="vehicle-card" *ngFor="let t of vehicleHost">
         <div class="vehicle-image">
-          <img
-            [src]="t.coverImage || './../../../assets/place-holder.png'"
-            (error)="t.coverImage = null" />
+          <img [src]="t.coverImage || './../../../assets/place-holder.png'" (error)="t.coverImage = null" />
 
           <ion-badge [color]="statusColor(t)" class="status-badge">
             {{ statusText(t) }}
@@ -455,13 +394,46 @@
               <ion-icon name="images-outline" slot="start"></ion-icon>
               Photos
             </ion-button>
+
             <ion-button fill="outline" size="small" color="dark" (click)="editVehicle(t)">
-  <ion-icon name="create-outline" slot="start"></ion-icon>
-  Edit
-</ion-button>
+              <ion-icon name="create-outline" slot="start"></ion-icon>
+              Edit
+            </ion-button>
           </div>
         </div>
       </article>
     </div>
   </section>
+
+  <ion-modal [isOpen]="pickerOpen" (didDismiss)="pickerOpen = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ pickerTitle }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="pickerOpen = false">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <ion-searchbar
+          [(ngModel)]="pickerSearch"
+          [ngModelOptions]="{ standalone: true }"
+          placeholder="Search...">
+        </ion-searchbar>
+
+        <ion-list>
+          <ion-item button *ngFor="let item of filteredPickerItems()" (click)="selectPickerItem(item)">
+            <ion-label>{{ item.label }}</ion-label>
+            <ion-icon
+              *ngIf="form.get(pickerControl)?.value === item.value"
+              name="checkmark-circle"
+              slot="end">
+            </ion-icon>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>

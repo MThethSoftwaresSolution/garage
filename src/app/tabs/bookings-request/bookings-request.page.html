@@ -1,5 +1,5 @@
 <ion-content class="payment-content">
-  <!-- Header -->
+
   <div class="banner">
     <ion-button fill="clear" class="back-btn" (click)="goBack()">
       <ion-icon name="arrow-back-outline"></ion-icon>
@@ -12,7 +12,7 @@
   </div>
 
   <div class="container" *ngIf="booking">
-    <!-- Vehicle preview -->
+
     <ion-card class="vehicle-card">
       <div class="vehicle-hero">
         <img
@@ -24,16 +24,16 @@
       <ion-card-content>
         <div class="vehicle-title">
           <div class="name">
-            {{ booking?.vehicleName}}
+            {{ booking?.vehicleName }}
           </div>
+
           <div class="dates">
-            {{ booking.from }} → {{ booking.until }}
+            {{ booking.from | date:'dd MMM yyyy' }} → {{ booking.until | date:'dd MMM yyyy' }}
           </div>
         </div>
       </ion-card-content>
     </ion-card>
 
-    <!-- Route / locations -->
     <ion-card class="summary-card">
       <ion-card-header>
         <ion-card-title>Trip details</ion-card-title>
@@ -42,86 +42,98 @@
 
       <ion-card-content>
         <div class="route">
-          <!-- Pickup -->
+
           <div class="route-row">
             <div class="marker pickup"></div>
 
             <div class="route-content">
               <div class="label">Pickup</div>
               <div class="value">{{ booking.pickupLocation }}</div>
-              <div class="meta">{{ booking.pickupDate }}</div>
+              <div class="meta">{{ booking.from | date:'dd MMM yyyy' }}</div>
             </div>
           </div>
 
-          <!-- Dotted line -->
           <div class="route-line"></div>
 
-          <!-- Drop-off -->
           <div class="route-row">
             <div class="marker dropoff"></div>
 
             <div class="route-content">
               <div class="label">Drop-off</div>
               <div class="value">{{ booking.returnLocation }}</div>
-              <div class="meta">{{ booking.returnDate }}</div>
+              <div class="meta">{{ booking.until | date:'dd MMM yyyy' }}</div>
             </div>
           </div>
+
         </div>
       </ion-card-content>
     </ion-card>
 
-    <!-- Spacer so content doesn't hide behind sticky bar 
-    <div class="bottom-spacer"></div>-->
+    <ion-card class="summary-card">
+      <ion-card-header>
+        <ion-card-title>Price breakdown</ion-card-title>
+        <ion-card-subtitle>{{ booking.estimatedDays }} day(s)</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+
+        <div class="price-row">
+          <span>Booking Fee</span>
+          <span>R {{ booking.bookingFee | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="price-row">
+          <span>Insurance</span>
+          <span>R {{ booking.insuranceFee | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="price-row">
+          <span>Service Fee</span>
+          <span>R {{ booking.serviceFee | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="price-row">
+          <span>VAT 15%</span>
+          <span>R {{ booking.vatAmount | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="price-row">
+          <span>Deposit</span>
+          <span>R {{ booking.depositFee | number:'1.2-2' }}</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="price-row total">
+          <span>Grand Total Due</span>
+          <span>R {{ booking.grandTotal | number:'1.2-2' }}</span>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
   </div>
 
-<ion-card class="summary-card">
-  <ion-card-header>
-    <ion-card-title>Price breakdown</ion-card-title>
-  </ion-card-header>
+  <div class="bottom-spacer"></div>
 
-  <ion-card-content>
+  <div class="sticky-pay" *ngIf="booking">
 
-    <div class="price-row">
-      <span>Vehicle total</span>
-      <span>R {{ booking.vehicleTotal | number:'1.2-2' }}</span>
+    <div class="sticky-total">
+      <div class="small">Grand Total Due</div>
+      <div class="amount">R {{ booking.grandTotal | number:'1.2-2' }}</div>
     </div>
 
-    <div class="price-row">
-      <span>Garage service fee</span>
-      <span>R {{ booking.garageFee | number:'1.2-2' }}</span>
-    </div>
+    <ion-button
+      size="large"
+      class="sticky-btn black-btn"
+      (click)="pay()"
+      [disabled]="loading"
+    >
+      <ion-spinner *ngIf="loading" slot="start"></ion-spinner>
+      Confirm Booking
+      <ion-icon name="card-outline" slot="end"></ion-icon>
+    </ion-button>
 
-    <div class="divider"></div>
-
-    <div class="price-row total">
-      <span>Total payable</span>
-      <span>R {{ booking.grandTotal | number:'1.2-2' }}</span>
-    </div>
-
-  </ion-card-content>
-</ion-card>
-
-<div class="bottom-spacer"></div>
-
-<!-- Sticky bottom bar -->
-<div class="sticky-pay" *ngIf="booking">
-
-  <div class="sticky-total">
-    <div class="small">Total payable</div>
-    <div class="amount">R {{ booking.grandTotal | number:'1.2-2' }}</div>
   </div>
-
-  <ion-button
-    size="large"
-    class="sticky-btn black-btn"
-    (click)="pay()"
-    [disabled]="loading"
-  >
-    <ion-spinner *ngIf="loading" slot="start"></ion-spinner>
-    Confirm Booking
-    <ion-icon name="card-outline" slot="end"></ion-icon>
-  </ion-button>
-
-</div>
 
 </ion-content>

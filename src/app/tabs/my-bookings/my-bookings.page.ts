@@ -200,6 +200,7 @@ export class MyBookingsPage implements OnInit {
   }
 
   acceptBooking(id: string) {
+    this.loading = true;
     this.service.acceptBooking(id).subscribe({
       next: async () => {
         const booking = this.hostBookings.find(x => x.bookingId === id);
@@ -208,11 +209,13 @@ export class MyBookingsPage implements OnInit {
           booking.isConfirmed = true;
           booking.isRejected = false;
         }
-
+      this.loading = false;
         await this.presentToast('Booking accepted', 'success');
+        location.reload();
       },
       error: async (err: any) => {
         await this.presentToast(err?.error || 'Failed to accept booking', 'danger');
+        this.loading = false;
       }
     });
   }

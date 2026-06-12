@@ -191,7 +191,11 @@
       </div>
 
       <div class="host-actions" *ngIf="!b.isConfirmed && !b.isRejected">
-        <ion-button expand="block" color="success" (click)="acceptBooking(b.bookingId)">
+          <section *ngIf="loading" class="loading-state">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading bookings...</p>
+  </section>
+        <ion-button  *ngIf="!loading" expand="block" color="success" (click)="acceptBooking(b.bookingId)">
           Accept
         </ion-button>
 

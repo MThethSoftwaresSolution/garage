@@ -190,7 +190,7 @@
           </div>
         </div>
 
-        <div class="estimate-card" *ngIf="estimateDays > 0">
+        <!--<div class="estimate-card" *ngIf="estimateDays > 0">
           <div>
             <span>Estimated days</span>
             <b>{{ estimateDays }}</b>
@@ -210,7 +210,44 @@
             <span>Total payable</span>
             <b>R{{ grandTotal | number:'1.2-2' }}</b>
           </div>
-        </div>
+        </div>-->
+
+<div class="estimate-card" *ngIf="estimateDays > 0">
+  <div>
+    <span>Estimated days</span>
+    <b>{{ estimateDays }}</b>
+  </div>
+
+  <div>
+    <span>Booking Fee</span>
+    <b>R{{ bookingFee | number:'1.2-2' }}</b>
+  </div>
+
+  <div>
+    <span>Insurance</span>
+    <b>R{{ insuranceFee | number:'1.2-2' }}</b>
+  </div>
+
+  <div>
+    <span>Service Fee</span>
+    <b>R{{ serviceFee | number:'1.2-2' }}</b>
+  </div>
+
+  <div>
+    <span>VAT 15%</span>
+    <b>R{{ vatAmount | number:'1.2-2' }}</b>
+  </div>
+
+  <div>
+    <span>Deposit</span>
+    <b>R{{ depositFee | number:'1.2-2' }}</b>
+  </div>
+
+  <div class="grand-total">
+    <span>Grand Total Due</span>
+    <b>R{{ grandTotal | number:'1.2-2' }}</b>
+  </div>
+</div>
 
 <ion-button
   expand="block"

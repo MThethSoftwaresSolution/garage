@@ -6,7 +6,9 @@ export const environment = {
     production: true,  
     garageFeePercent: 0.23,
     //baseUrl: 'https://localhost:7073/',
-    baseUrl: 'https://garage.web.za:447/'
+    baseUrl: 'https://garage.web.za:447/',
+    garageServiceFee: 35,
+    garageDepositFee: 7500,
 };
 
 /*

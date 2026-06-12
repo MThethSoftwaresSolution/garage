@@ -271,7 +271,7 @@ conditionOptions = [
       },
       error: (err: any) => {
         this.submitting = false;
-        alert(err?.error || 'Failed to start exchange.');
+        location.reload();
       }
     });
   }
@@ -289,7 +289,8 @@ conditionOptions = [
       },
       error: (err: any) => {
         this.submitting = false;
-        alert(err?.error || 'Failed to accept exchange.');
+        location.reload();
+        //alert(err?.error || 'Failed to accept exchange.');
       }
     });
   }
@@ -307,7 +308,8 @@ conditionOptions = [
       },
       error: (err: any) => {
         this.submitting = false;
-        alert(err?.error || 'Failed to reject exchange.');
+        location.reload();
+        //alert(err?.error || 'Failed to reject exchange.');
       }
     });
   }
@@ -368,8 +370,8 @@ this.service.driverCheckout({
   },
   error: (error: any) => {
     this.submitting = false;
-
-    alert(error?.error || 'Pickup failed.');
+location.reload();
+    //alert(error?.error || 'Pickup failed.');
   }
 });
   }
@@ -416,7 +418,8 @@ this.service.hostCheckin({
   },
   error: (error: any) => {
     this.submitting = false;
-    alert(error?.error || 'Return failed.');
+    location.reload();
+    //alert(error?.error || 'Return failed.');
   }
 });
   }

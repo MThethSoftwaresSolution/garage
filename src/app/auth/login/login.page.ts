@@ -343,9 +343,11 @@ export class LoginPage implements OnInit {
   }
 
   async verify() {
+    this.isLoading = true;
     if (this.activateFormGroup.invalid) {
       this.activateFormGroup.markAllAsTouched();
       await this.showToast('Enter your email and 6-digit OTP.');
+      this.isLoading = false;
       return;
     }
 
@@ -359,8 +361,11 @@ export class LoginPage implements OnInit {
 
       await this.showToast('Account activated. You can now login.');
       this.screen = 'signin';
+      this.isLoading = false;
     } catch (e: any) {
       await this.showToast(this.extractError(e));
+    } finally {
+      this.isLoading = false;
     }
   }
 

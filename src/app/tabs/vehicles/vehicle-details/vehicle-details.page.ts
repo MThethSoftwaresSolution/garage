@@ -19,6 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { register } from 'swiper/element/bundle';
 
 import { MainService } from 'src/app/services/main.service';
+import { environment } from 'src/environments/environment';
 
 register();
 
@@ -68,6 +69,12 @@ export class VehicleDetailsPage implements OnInit {
   estimateTotal = 0;
   garageFee = 0;
   grandTotal = 0;
+
+  bookingFee = 0;
+insuranceFee = 0;
+serviceFee = Number(environment.garageServiceFee || 35);
+vatAmount = 0;
+depositFee = Number(environment.garageDepositFee || 7500);
 
   isCurrentlyAvailable = true;
 
@@ -142,6 +149,7 @@ canContinueBooking(){
 
           console.log('Vehicle details response:', resp);
           this.vehicle = resp;
+          debugger;
 
 this.vehicleImages =
   resp.vImages ||
@@ -326,17 +334,19 @@ clearDates() {
   this.selectedFrom = null;
   this.selectedUntil = null;
 
-  this.estimateDays = 0;
+  /*this.estimateDays = 0;
   this.estimateTotal = 0;
   this.garageFee = 0;
-  this.grandTotal = 0;
+  this.grandTotal = 0;*/
+
+  this.resetEstimate();
 
   this.isCurrentlyAvailable = true;
 
   this.buildHighlightedDates();
 }
 
-  calculateEstimate() {
+  /*calculateEstimate() {
 
     if (
       !this.selectedFrom ||
@@ -394,7 +404,67 @@ const days =
 
       this.buildHighlightedDates();
 
+  }*/
+
+      private resetEstimate() {
+  this.estimateDays = 0;
+
+  this.bookingFee = 0;
+  this.insuranceFee = 0;
+  this.serviceFee = Number(environment.garageServiceFee || 35);
+  this.vatAmount = 0;
+  this.depositFee = Number(environment.garageDepositFee || 7500);
+  this.grandTotal = 0;
+}
+
+calculateEstimate() {
+  if (!this.selectedFrom || !this.selectedUntil) {
+    this.resetEstimate();
+    this.isCurrentlyAvailable = true;
+    return;
   }
+
+  const from = new Date(this.selectedFrom);
+  const until = new Date(this.selectedUntil);
+
+  const diffMs = until.getTime() - from.getTime();
+
+  const days = Math.max(
+    1,
+    Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+  );
+
+  this.estimateDays = days;
+
+  const dailyRate = Number(this.vehicle?.rate || 0);
+
+  const vehicleValue = Number(this.vehicle?.vehicleValueAmount || 0);
+  debugger;
+
+  this.bookingFee = dailyRate * days * 0.25;
+
+  this.insuranceFee = ((vehicleValue * 0.11) / 365) * days;
+
+  this.serviceFee = Number(environment.garageServiceFee || 35);
+
+  const subTotalBeforeVat =
+    this.bookingFee +
+    this.insuranceFee +
+    this.serviceFee;
+
+  this.vatAmount = subTotalBeforeVat * 0.15;
+
+  this.depositFee = Number(environment.garageDepositFee || 7500);
+
+  this.grandTotal =
+    subTotalBeforeVat +
+    this.vatAmount +
+    this.depositFee;
+
+  this.isCurrentlyAvailable = this.checkAvailability();
+
+  this.buildHighlightedDates();
+}
 
   checkAvailability(): boolean {
 
@@ -549,31 +619,27 @@ isDateEnabled = (isoString: string) => {
     }
 
     const bookingPayload = {
-
       vehicleId: this.vehicleId,
 
       from: this.selectedFrom,
-
       until: this.selectedUntil,
 
-      pickupLocation:
-        this.form.value.PickupLocation,
+      pickupLocation: this.form.value.PickupLocation,
+      returnLocation: this.form.value.ReturnLocation,
 
-      returnLocation:
-        this.form.value.ReturnLocation,
+      estimatedDays: this.estimateDays,
 
-      grandTotal:
-        this.grandTotal,
+      bookingFee: this.bookingFee,
+      insuranceFee: this.insuranceFee,
+      serviceFee: this.serviceFee,
+      vatAmount: this.vatAmount,
+      depositFee: this.depositFee,
+      grandTotal: this.grandTotal,
 
-      estimatedDays:
-        this.estimateDays,
-
-        garageFee: this.garageFee,
-
-        image: this.vehicleImages[0] || null,
-        vehicleName: this.vehicle?.make + ' ' + this.vehicle?.model,
-        vehicleTotal: this.estimateTotal
-
+      image: this.vehicleImages[0] || null,
+      vehicleName: this.vehicle?.make + ' ' + this.vehicle?.model,
+      vehicleRate: this.vehicle?.rate,
+      vehicleValueAmount: this.vehicle?.vehicleValueAmount
     };
 
     console.log(

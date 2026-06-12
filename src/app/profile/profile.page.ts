@@ -124,7 +124,10 @@ export class ProfilePage implements OnInit {
         email: new FormControl(email, [Validators.required, Validators.email]),
         phoneNumber: new FormControl(phone, [Validators.required]),
 
-        idNumber: new FormControl(''),
+        idNumber: new FormControl('', [
+  Validators.required,
+  Validators.pattern(/^\d{13}$/)
+]),
         gender: new FormControl(''),
 
         location: new FormControl(''),
@@ -150,6 +153,18 @@ export class ProfilePage implements OnInit {
       { validators: this.passwordMatchValidator }
     );
   }
+
+  numbersOnly(event: any) {
+  const value = event.target.value || '';
+
+  const cleaned = value.replace(/\D/g, '');
+
+  this.profileUpdateFormGroup
+    .get('idNumber')
+    ?.setValue(cleaned, {
+      emitEvent: false
+    });
+}
 
   loadProfile() {
     if (!this.userId) return;

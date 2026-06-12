@@ -38,8 +38,12 @@ export class MyBookingsPage implements OnInit {
       this.hostId = user.id;
     }
 
-    this.loadAll();
+    //this.loadAll();
   }
+
+  ionViewWillEnter() {
+  this.loadAll();
+}
 
   loadAll() {
     this.bookings = [];
@@ -57,6 +61,15 @@ export class MyBookingsPage implements OnInit {
       event.target.complete();
     });
   }
+
+  getHostPayout(booking: any): number {
+  const bookingFee = Number(booking?.bookingFee || 0);
+  const days = Math.max(1, Number(booking?.estimatedDays || 1));
+
+  const dailyRate = bookingFee / (days * 1.25);
+
+  return Number((dailyRate * days).toFixed(2));
+}
 
   handleRefreshManual() {
     this.loadAll();
@@ -76,6 +89,7 @@ export class MyBookingsPage implements OnInit {
     this.service.getBookingsByUser(this.userId).subscribe({
       next: (resp: any) => {
         this.bookings = resp || [];
+        console.log('Loaded bookings:', this.bookings);
         this.loading = false;
       },
       error: async (err: any) => {
@@ -91,6 +105,7 @@ export class MyBookingsPage implements OnInit {
     this.service.getHostBookings(this.hostId).subscribe({
       next: (resp: any) => {
         this.hostBookings = resp || [];
+        console.log('Loaded host bookings:', this.hostBookings);
         this.loading = false;
       },
       error: async (err: any) => {
@@ -162,6 +177,8 @@ export class MyBookingsPage implements OnInit {
     }).subscribe({
       next: (resp: any) => {
         window.location.href = resp.redirectUrl;
+       // window.location.href = '/tabs/my-exchanges';
+        
       },
       error: async (err: any) => {
         await this.presentToast(err?.error || 'Could not start payment', 'danger');

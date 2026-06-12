@@ -251,9 +251,9 @@
 
 <ion-button
   expand="block"
-  type="submit"
+  type="button"
   class="continue-btn"
-  [disabled]="!canContinueBooking()">
+  (click)="continue()">
   {{ isVetted || isAdmin ? 'Continue Booking' : 'Approval Required' }}
 </ion-button>
 

@@ -114,23 +114,11 @@ depositFee = Number(environment.garageDepositFee || 7500);
   }
   
 
-canContinueBooking(){
-
-    if (!this.isAdmin && !this.isVetted) {
-    this.presentToast(
-      'Your profile must be approved before you can continue with booking.',
-      'warning'
-    );
-
-    this.router.navigateByUrl('/tabs/profile?completeProfile=true');
-
-    return;
-  }
-
-  return (this.isAdmin || this.isVetted) &&
+canContinueBooking(): boolean {
+  return !!this.selectedFrom &&
+    !!this.selectedUntil &&
     this.form.valid &&
     this.isCurrentlyAvailable;
-
 }
 
   goBack() {
@@ -149,7 +137,7 @@ canContinueBooking(){
 
           console.log('Vehicle details response:', resp);
           this.vehicle = resp;
-          debugger;
+  
 
 this.vehicleImages =
   resp.vImages ||
@@ -439,9 +427,8 @@ calculateEstimate() {
   const dailyRate = Number(this.vehicle?.rate || 0);
 
   const vehicleValue = Number(this.vehicle?.vehicleValueAmount || 0);
-  debugger;
 
-  this.bookingFee = dailyRate * days * 0.25;
+  this.bookingFee = dailyRate * days + (dailyRate * days * 0.25);
 
   this.insuranceFee = ((vehicleValue * 0.11) / 365) * days;
 
@@ -581,82 +568,87 @@ isDateEnabled = (isoString: string) => {
   return true;
 };
 
-  continue() {
+ continue() {
 
-    if (
-      !this.selectedFrom ||
-      !this.selectedUntil
-    ) {
-
-      this.presentToast(
-        'Please select booking dates.',
-        'warning'
-      );
-
-      return;
-    }
-
-    if (!this.isCurrentlyAvailable) {
-
-      this.presentToast(
-        'Selected dates are unavailable.',
-        'danger'
-      );
-
-      return;
-    }
-
-    if (this.form.invalid) {
-
-      this.form.markAllAsTouched();
-
-      this.presentToast(
-        'Please complete pickup and return locations.',
-        'warning'
-      );
-
-      return;
-    }
-
-    const bookingPayload = {
-      vehicleId: this.vehicleId,
-
-      from: this.selectedFrom,
-      until: this.selectedUntil,
-
-      pickupLocation: this.form.value.PickupLocation,
-      returnLocation: this.form.value.ReturnLocation,
-
-      estimatedDays: this.estimateDays,
-
-      bookingFee: this.bookingFee,
-      insuranceFee: this.insuranceFee,
-      serviceFee: this.serviceFee,
-      vatAmount: this.vatAmount,
-      depositFee: this.depositFee,
-      grandTotal: this.grandTotal,
-
-      image: this.vehicleImages[0] || null,
-      vehicleName: this.vehicle?.make + ' ' + this.vehicle?.model,
-      vehicleRate: this.vehicle?.rate,
-      vehicleValueAmount: this.vehicle?.vehicleValueAmount
-    };
-
-    console.log(
-      'Booking payload:',
-      bookingPayload
+  if (!this.isAdmin && !this.isVetted) {
+    this.presentToast(
+      'Your profile must be approved before you can continue with booking.',
+      'warning'
     );
 
-this.router.navigate(
-  ['/tabs/booking-request'],
-  {
-    state: {
-      booking: bookingPayload
-    }
-  }
-);
+    setTimeout(() => {
+      this.router.navigateByUrl('/tabs/profile?completeProfile=true', {
+        replaceUrl: true
+      });
+    }, 2000);
 
+    return;
   }
+
+  if (!this.selectedFrom || !this.selectedUntil) {
+    this.presentToast(
+      'Please select booking dates.',
+      'warning'
+    );
+
+    return;
+  }
+
+  if (!this.isCurrentlyAvailable) {
+    this.presentToast(
+      'Selected dates are unavailable.',
+      'danger'
+    );
+
+    return;
+  }
+
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+
+    this.presentToast(
+      'Please complete pickup and return locations.',
+      'warning'
+    );
+
+    return;
+  }
+
+  const bookingPayload = {
+    vehicleId: this.vehicleId,
+
+    from: this.selectedFrom,
+    until: this.selectedUntil,
+
+    pickupLocation: this.form.value.PickupLocation,
+    returnLocation: this.form.value.ReturnLocation,
+
+    estimatedDays: this.estimateDays,
+
+    bookingFee: this.bookingFee,
+    insuranceFee: this.insuranceFee,
+    serviceFee: this.serviceFee,
+    vatAmount: this.vatAmount,
+    depositFee: this.depositFee,
+    grandTotal: this.grandTotal,
+
+    image: this.vehicleImages[0] || null,
+    vehicleName: this.vehicle?.make + ' ' + this.vehicle?.model,
+    vehicleRate: this.vehicle?.rate,
+    vehicleValueAmount: this.vehicle?.vehicleValueAmount
+  };
+
+  console.log('Booking payload:', bookingPayload);
+
+  this.router.navigate(
+    ['/tabs/booking-request'],
+    {
+      state: {
+        booking: bookingPayload
+      }
+    }
+  );
+}
 
   availabilityText():
     'Available' | 'Unavailable' {

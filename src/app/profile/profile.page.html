@@ -159,9 +159,25 @@
         </ion-item>
 
         <ion-item class="premium-input">
-          <ion-label position="stacked">ID Number</ion-label>
-          <ion-input formControlName="idNumber"></ion-input>
-        </ion-item>
+  <ion-label position="stacked">ID Number</ion-label>
+
+  <ion-input
+    formControlName="idNumber" (ionInput)="numbersOnly($event)"
+    type="tel"
+    maxlength="13"
+    inputmode="numeric">
+  </ion-input>
+</ion-item>
+
+<ion-text color="danger"
+  *ngIf="
+    profileUpdateFormGroup.get('idNumber')?.touched &&
+    profileUpdateFormGroup.get('idNumber')?.invalid
+  ">
+  <small>
+    Please enter a valid 13-digit South African ID number.
+  </small>
+</ion-text>
 
         <ion-item class="premium-input">
           <ion-label position="stacked">Gender</ion-label>

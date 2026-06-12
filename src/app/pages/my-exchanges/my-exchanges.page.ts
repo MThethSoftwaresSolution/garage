@@ -41,6 +41,7 @@ export class MyExchangesPage implements OnInit {
 
     this.service.getUserExchanges(this.userId).subscribe({
       next:(res:any)=>{
+        console.log('Exchanges:', res);
         this.exchanges = res;
         this.loading = false;
       },

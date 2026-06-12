@@ -172,22 +172,19 @@
           <span>{{ b.estimatedDays }} days</span>
         </div>
 
-        <div class="earnings-card">
-          <div>
-            <span>Guest total</span>
-            <strong>R {{ b.grandTotal | number:'1.2-2' }}</strong>
-          </div>
+      <div class="earnings-card">
 
-          <div>
-            <span>Garage fee</span>
-            <strong>R {{ b.garageFee | number:'1.2-2' }}</strong>
-          </div>
+        <!--<div>
+          <span>Guest total</span>
+          <strong>R {{ b.grandTotal | number:'1.2-2' }}</strong>
+        </div>-->
 
-          <div class="earnings-total">
-            <span>Your earnings</span>
-            <strong>R {{ b.estimatedTotal | number:'1.2-2' }}</strong>
-          </div>
+        <div class="earnings-total">
+          <span>Your earnings</span>
+          <strong>R {{ getHostPayout(b) | number:'1.2-2' }}</strong>
         </div>
+
+      </div>
       </div>
 
       <div class="host-actions" *ngIf="!b.isConfirmed && !b.isRejected">
